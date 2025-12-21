@@ -1,7 +1,7 @@
 import express from "express";
 import path from "path";
 
-import { clerkMiddleware } from '@clerk/express'
+import { clerkMiddleware } from "@clerk/express";
 import { ENV } from "./config/env.js";
 import { connect } from "http2";
 import { connectDB } from "./config/db.js";
@@ -18,13 +18,17 @@ app.get("/api/health", (req, res) => {
 if (ENV.NODE_ENV === "production") {
   app.use(express.static(path.join(__dirname, "../admin/dist")));
 
+  // ready for deployment
   app.get("/{*any}", (req, res) => {
     res.sendFile(path.join(__dirname, "../admin", "dist", "index.html"));
   });
 }
 
-// ready for deployment
-app.listen(ENV.PORT, () => {
-  console.log("Server is running on port 3000");
-  connectDB();
-});
+const startServer = async () => {
+  await connectDB();
+  app.listen(ENV.PORT, () => {
+    console.log(`Server running in ${ENV.NODE_ENV} mode on port ${ENV.PORT}`);
+  });
+};
+
+startServer();
