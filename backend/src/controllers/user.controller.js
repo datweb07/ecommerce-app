@@ -15,6 +15,10 @@ export async function addAddress(req, res) {
 
     const user = req.user;
 
+    if (!fullName || !streetAddress || !city || !state || !zipCode) {
+      return res.status(400).json({ error: "Missing required address fields" });
+    }
+
     // if this is as a default, unset all other defaults
     if (isDefault) {
       user.addAddress.forEach((add) => {
@@ -162,7 +166,7 @@ export async function removeFromWishlist(req, res) {
 }
 export async function getWishlist(req, res) {
   try {
-    const user = req.user;
+    const user = await User.findById(req.user._id).populate("wishlist");
 
     res.status(200).json({ wishlist: user.wishlist });
   } catch (error) {
