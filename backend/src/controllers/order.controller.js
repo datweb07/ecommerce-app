@@ -47,16 +47,16 @@ export async function createOrder(req, res) {
           totalPrice,
         },
       ],
-      { endSession }
+      { session }
     );
 
     // update product stock
     for (const item of orderItems) {
-      await Product.findByIdAndUpdate(item.product._id),
-        {
-          $inc: { stock: -item.quantity },
-        },
-        { endSession };
+      await Product.findByIdAndUpdate(
+        item.product._id,
+        { $inc: { stock: -item.quantity } },
+        { session }
+      );
     }
 
     await session.commitTransaction();
