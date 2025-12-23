@@ -6,10 +6,16 @@ import ProductsPage from "./pages/ProductsPage";
 import OrdersPage from "./pages/OrdersPage";
 import CustomersPage from "./pages/CustomersPage";
 import DashboardLayout from "./layouts/DashboardLayout";
+import PageLoader from "./components/PageLoader";
 
 function App() {
   const { isSignedIn, isLoaded } = useAuth();
-  if (!isLoaded) return null;
+
+
+  // loading page
+  if (!isLoaded) return <PageLoader />;
+
+  
   return (
     <div>
       <Routes>
