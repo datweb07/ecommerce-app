@@ -1,5 +1,6 @@
 import { Routes, Route, Navigate } from "react-router";
 import LoginPage from "./pages/LoginPage";
+import WelcomePage from "./pages/WelcomePage";
 import { useAuth } from "@clerk/clerk-react";
 import DashboardPage from "./pages/DashboardPage";
 import ProductsPage from "./pages/ProductsPage";
@@ -11,11 +12,9 @@ import PageLoader from "./components/PageLoader";
 function App() {
   const { isSignedIn, isLoaded } = useAuth();
 
-
   // loading page
   if (!isLoaded) return <PageLoader />;
 
-  
   return (
     <div>
       <Routes>
@@ -26,9 +25,7 @@ function App() {
 
         <Route
           path="/"
-          element={
-            isSignedIn ? <DashboardLayout /> : <Navigate to={"/login"} />
-          }
+          element={isSignedIn ? <DashboardLayout /> : <WelcomePage />}
         >
           <Route index element={<Navigate to={"dashboard"} />} />
           <Route path="dashboard" element={<DashboardPage />} />
