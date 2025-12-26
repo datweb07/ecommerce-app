@@ -15,7 +15,7 @@ function useSocialAuth() {
         await setActive({ session: createdSessionId });
       }
     } catch (error) {
-      console.log("💥 Error in social auth:", error);
+      console.log("Error in social auth:", error);
       const provider = strategy === "oauth_google" ? "Google" : "Apple";
       Alert.alert(
         "Error",
