@@ -10,7 +10,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-// import { useStripe } from "@stripe/stripe-react-native";
+import { useStripe } from "@stripe/stripe-react-native";
 import { useState } from "react";
 import { Address } from "@/types";
 import { Ionicons } from "@expo/vector-icons";
@@ -36,7 +36,7 @@ const CartScreen = () => {
   } = useCart();
   const { addresses } = useAddresses();
 
-  // const { initPaymentSheet, presentPaymentSheet } = useStripe();
+  const { initPaymentSheet, presentPaymentSheet } = useStripe();
 
   const [paymentLoading, setPaymentLoading] = useState(false);
   const [addressModalVisible, setAddressModalVisible] = useState(false);
@@ -111,55 +111,55 @@ const CartScreen = () => {
         },
       });
 
-      //   const { error: initError } = await initPaymentSheet({
-      //     paymentIntentClientSecret: data.clientSecret,
-      //     merchantDisplayName: "Your Store Name",
-      //   });
+      const { error: initError } = await initPaymentSheet({
+        paymentIntentClientSecret: data.clientSecret,
+        merchantDisplayName: "Your Store Name",
+      });
 
-      //   if (initError) {
-      //     Sentry.logger.error("Payment sheet init failed", {
-      //       errorCode: initError.code,
-      //       errorMessage: initError.message,
-      //       cartTotal: total,
-      //       itemCount: cartItems.length,
-      //     });
+      if (initError) {
+        Sentry.logger.error("Payment sheet init failed", {
+          errorCode: initError.code,
+          errorMessage: initError.message,
+          cartTotal: total,
+          itemCount: cartItems.length,
+        });
 
-      //     Alert.alert("Error", initError.message);
-      //     setPaymentLoading(false);
-      //     return;
-      //   }
+        Alert.alert("Error", initError.message);
+        setPaymentLoading(false);
+        return;
+      }
 
-      //   // present payment sheet
-      //   const { error: presentError } = await presentPaymentSheet();
+      // present payment sheet
+      const { error: presentError } = await presentPaymentSheet();
 
-      //   if (presentError) {
-      //     Sentry.logger.error("Payment cancelled", {
-      //       errorCode: presentError.code,
-      //       errorMessage: presentError.message,
-      //       cartTotal: total,
-      //       itemCount: cartItems.length,
-      //     });
+      if (presentError) {
+        Sentry.logger.error("Payment cancelled", {
+          errorCode: presentError.code,
+          errorMessage: presentError.message,
+          cartTotal: total,
+          itemCount: cartItems.length,
+        });
 
-      //     Alert.alert("Payment cancelled", presentError.message);
-      //   } else {
-      //     Sentry.logger.info("Payment successful", {
-      //       total: total.toFixed(2),
-      //       itemCount: cartItems.length,
-      //     });
+        Alert.alert("Payment cancelled", presentError.message);
+      } else {
+        Sentry.logger.info("Payment successful", {
+          total: total.toFixed(2),
+          itemCount: cartItems.length,
+        });
 
-      //     Alert.alert(
-      //       "Success",
-      //       "Your payment was successful! Your order is being processed.",
-      //       [{ text: "OK", onPress: () => {} }]
-      //     );
-      //     clearCart();
-      //   }
-      // } catch (error) {
-      //   Sentry.logger.error("Payment failed", {
-      //     error: error instanceof Error ? error.message : "Unknown error",
-      //     cartTotal: total,
-      //     itemCount: cartItems.length,
-      //   });
+        Alert.alert(
+          "Success",
+          "Your payment was successful! Your order is being processed.",
+          [{ text: "OK", onPress: () => {} }]
+        );
+        clearCart();
+      }
+    } catch (error) {
+      Sentry.logger.error("Payment failed", {
+        error: error instanceof Error ? error.message : "Unknown error",
+        cartTotal: total,
+        itemCount: cartItems.length,
+      });
 
       Alert.alert("Error", "Failed to process payment");
     } finally {
