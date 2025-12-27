@@ -1,11 +1,12 @@
+import SafeScreen from "@/components/SafeScreen";
 import React from "react";
 import { View, Text } from "react-native";
 
 function AddressesScreen() {
   return (
-    <View>
+    <SafeScreen>
       <Text>AddressesScreen</Text>
-    </View>
+    </SafeScreen>
   );
 }
 

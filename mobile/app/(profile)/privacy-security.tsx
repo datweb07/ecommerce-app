@@ -1,11 +1,12 @@
+import SafeScreen from "@/components/SafeScreen";
 import React from "react";
 import { View, Text } from "react-native";
 
 function PrivacySecurityScreen() {
   return (
-    <View>
+    <SafeScreen>
       <Text>PrivacySecurityScreen</Text>
-    </View>
+    </SafeScreen>
   );
 }
 
