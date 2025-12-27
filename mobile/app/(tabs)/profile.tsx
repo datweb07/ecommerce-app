@@ -1,6 +1,5 @@
 import SafeScreen from "@/components/SafeScreen";
 import { useAuth, useUser } from "@clerk/clerk-expo";
-
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { Image } from "expo-image";
 import { Ionicons } from "@expo/vector-icons";
@@ -12,28 +11,28 @@ const MENU_ITEMS = [
     icon: "person-outline",
     title: "Edit Profile",
     color: "#3B82F6",
-    action: "/profile",
+    route: "/(profile)/edit",
   },
   {
     id: 2,
     icon: "list-outline",
     title: "Orders",
     color: "#10B981",
-    action: "/orders",
+    route: "/orders",
   },
   {
     id: 3,
     icon: "location-outline",
     title: "Addresses",
     color: "#F59E0B",
-    action: "/addresses",
+    route: "/addresses",
   },
   {
     id: 4,
     icon: "heart-outline",
     title: "Wishlist",
     color: "#EF4444",
-    action: "/wishlist",
+    route: "/wishlist",
   },
 ] as const;
 
@@ -41,9 +40,8 @@ const ProfileScreen = () => {
   const { signOut } = useAuth();
   const { user } = useUser();
 
-  const handleMenuPress = (action: (typeof MENU_ITEMS)[number]["action"]) => {
-    if (action === "/profile") return;
-    router.push(action);
+  const handleMenuPress = (route: string) => {
+    router.push(route as any);
   };
 
   return (
@@ -88,7 +86,7 @@ const ProfileScreen = () => {
               className="bg-surface rounded-2xl p-6 items-center justify-center"
               style={{ width: "48%" }}
               activeOpacity={0.7}
-              onPress={() => handleMenuPress(item.action)}
+              onPress={() => handleMenuPress(item.route)} // Sử dụng item.route
             >
               <View
                 className="rounded-full w-16 h-16 items-center justify-center mb-4"
