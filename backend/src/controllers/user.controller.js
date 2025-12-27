@@ -21,7 +21,7 @@ export async function addAddress(req, res) {
 
     // if this is as a default, unset all other defaults
     if (isDefault) {
-      user.addAddress.forEach((add) => {
+      user.addresses.forEach((add) => {
         add.isDefault = false;
       });
     }
@@ -82,7 +82,7 @@ export async function updateAddress(req, res) {
 
     // if this is as a default, unset all other defaults
     if (isDefault) {
-      user.addAddress.forEach((add) => {
+      user.addresses.forEach((add) => {
         add.isDefault = false;
       });
     }
@@ -112,8 +112,14 @@ export async function deleteAddress(req, res) {
     const { addressId } = req.params;
     const user = req.user;
 
-    user.addresses.pull(addressId);
+    const address = user.addresses.id(addressId);
+    if (!address) {
+      return res.status(404).json({ error: "Address not found" });
+    }
+
+    address.deleteOne();
     await user.save();
+
     res.status(200).json({
       message: "Address deleted successfully",
       addresses: user.addresses,
@@ -123,6 +129,7 @@ export async function deleteAddress(req, res) {
     res.status(500).json({ error: "Internal server error" });
   }
 }
+
 export async function addToWishlist(req, res) {
   try {
     const { productId } = req.body;
