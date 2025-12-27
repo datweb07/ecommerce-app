@@ -17,7 +17,7 @@ router.use(protectRoute);
 router.post("/addresses", addAddress);
 router.get("/addresses", getAddress);
 router.put("/addresses/:addressId", updateAddress);
-router.put("/addresses/:addressId", deleteAddress);
+router.delete("/addresses/:addressId", deleteAddress);
 
 router.post("/wishlist", addToWishlist);
 router.delete("/wishlist/:productId", removeFromWishlist);
