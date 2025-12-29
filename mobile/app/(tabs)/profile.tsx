@@ -1,9 +1,10 @@
 import SafeScreen from "@/components/SafeScreen";
 import { useAuth, useUser } from "@clerk/clerk-expo";
-import { ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { ScrollView, Text, TouchableOpacity, View, ActivityIndicator } from "react-native";
 import { Image } from "expo-image";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
+import { useProfile } from "@/hooks/useProfile";
 
 const MENU_ITEMS = [
   {
@@ -39,6 +40,7 @@ const MENU_ITEMS = [
 const ProfileScreen = () => {
   const { signOut } = useAuth();
   const { user } = useUser();
+  const { profile, isLoading: profileLoading } = useProfile();
 
   const handleMenuPress = (route: string) => {
     router.push(route as any);
@@ -75,6 +77,19 @@ const ProfileScreen = () => {
                 </Text>
               </View>
             </View>
+
+            {/* Bio Section */}
+            {profileLoading ? (
+              <View className="mt-4 pt-4 border-t border-text-secondary/10">
+                <ActivityIndicator size="small" color="#666" />
+              </View>
+            ) : profile?.bio ? (
+              <View className="mt-4 pt-4 border-t border-text-secondary/10">
+                <Text className="text-text-secondary text-sm leading-5">
+                  {profile.bio}
+                </Text>
+              </View>
+            ) : null}
           </View>
         </View>
 

@@ -55,6 +55,15 @@ const userSchema = new mongoose.Schema(
       required: true,
       unique: true,
     },
+    bio: {
+      type: String,
+      default: "",
+      maxlength: 500,
+    },
+    phoneNumber: {
+      type: String,
+      default: "",
+    },
     addresses: [addressSchema],
     wishlist: [
       {

@@ -1,5 +1,59 @@
 import { User } from "../models/user.model.js";
 
+export async function getProfile(req, res) {
+  try {
+    const user = req.user;
+
+    res.status(200).json({
+      profile: {
+        bio: user.bio || "",
+        phoneNumber: user.phoneNumber || "",
+        name: user.name,
+        email: user.email,
+        imageUrl: user.imageUrl,
+      },
+    });
+  } catch (error) {
+    console.error("Error in getProfile controller:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+}
+
+export async function updateProfile(req, res) {
+  try {
+    const { bio, phoneNumber } = req.body;
+    const user = req.user;
+
+    // Validate bio length
+    if (bio && bio.length > 500) {
+      return res.status(400).json({
+        error: "Bio must be 500 characters or less",
+      });
+    }
+
+    // Update fields
+    if (bio !== undefined) {
+      user.bio = bio;
+    }
+    if (phoneNumber !== undefined) {
+      user.phoneNumber = phoneNumber;
+    }
+
+    await user.save();
+
+    res.status(200).json({
+      message: "Profile updated successfully",
+      profile: {
+        bio: user.bio,
+        phoneNumber: user.phoneNumber,
+      },
+    });
+  } catch (error) {
+    console.error("Error in updateProfile controller:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+}
+
 export async function addAddress(req, res) {
   try {
     const {

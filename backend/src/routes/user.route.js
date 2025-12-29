@@ -1,5 +1,7 @@
 import { Router } from "express";
 import {
+  getProfile,
+  updateProfile,
   addAddress,
   getAddress,
   updateAddress,
@@ -13,6 +15,9 @@ import { protectRoute } from "../middleware/auth.middleware.js";
 const router = Router();
 
 router.use(protectRoute);
+
+router.get("/profile", getProfile);
+router.put("/profile", updateProfile);
 
 router.post("/addresses", addAddress);
 router.get("/addresses", getAddress);
