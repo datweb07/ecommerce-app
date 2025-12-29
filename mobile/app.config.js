@@ -76,6 +76,13 @@ export default {
           organization: "ueh-university",
         },
       ],
+      [
+        "@stripe/stripe-react-native",
+        {
+          merchantIdentifier: "merchant.com.dat82770.anonymous",
+          enableGooglePay: false,
+        },
+      ],
     ],
 
     experiments: {
@@ -85,6 +92,7 @@ export default {
 
     extra: {
       clerkPublishableKey: process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY,
+      stripePublishableKey: process.env.EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY,
       router: {},
       eas: {
         projectId: "87ded972-59c1-4896-8cb8-b95bba6db264",

@@ -98,6 +98,11 @@ const CartScreen = () => {
     try {
       setPaymentLoading(true);
 
+      // Validate Stripe is available
+      if (!initPaymentSheet || !presentPaymentSheet) {
+        throw new Error("Stripe is not properly initialized");
+      }
+
       // create payment intent with cart items and shipping address
       const { data } = await api.post("/payment/create-intent", {
         cartItems,
@@ -111,20 +116,35 @@ const CartScreen = () => {
         },
       });
 
+      // Validate response
+      if (!data || !data.clientSecret) {
+        throw new Error("Failed to get payment client secret");
+      }
+
       const { error: initError } = await initPaymentSheet({
         paymentIntentClientSecret: data.clientSecret,
-        merchantDisplayName: "ShopeEase",
+        merchantDisplayName: "ShopEase",
+        returnURL: "anonymous://",
+        customFlow: false,
+        appearance: {
+          colors: {
+            primary: "#1DB954",
+          },
+        },
       });
 
       if (initError) {
-        Sentry.logger.error("Payment sheet init failed", {
-          errorCode: initError.code,
-          errorMessage: initError.message,
-          cartTotal: total,
-          itemCount: cartItems.length,
+        Sentry.captureException(initError, {
+          tags: { type: "stripe-init-error" },
+          extra: {
+            errorCode: initError.code,
+            errorMessage: initError.message,
+            cartTotal: total,
+            itemCount: cartItems.length,
+          },
         });
 
-        Alert.alert("Error", initError.message);
+        Alert.alert("Error", initError.message || "Failed to initialize payment");
         setPaymentLoading(false);
         return;
       }
@@ -150,18 +170,26 @@ const CartScreen = () => {
         Alert.alert(
           "Success",
           "Your payment was successful! Your order is being processed.",
-          [{ text: "OK", onPress: () => {} }]
+          [{ text: "OK", onPress: () => { } }]
         );
         clearCart();
       }
     } catch (error) {
-      Sentry.logger.error("Payment failed", {
-        error: error instanceof Error ? error.message : "Unknown error",
-        cartTotal: total,
-        itemCount: cartItems.length,
+      const errorMessage = error instanceof Error ? error.message : "Unknown error";
+
+      Sentry.captureException(error, {
+        tags: { type: "payment-error" },
+        extra: {
+          errorMessage,
+          cartTotal: total,
+          itemCount: cartItems.length,
+        },
       });
 
-      Alert.alert("Error", "Failed to process payment");
+      Alert.alert(
+        "Error",
+        errorMessage || "Failed to process payment. Please try again."
+      );
     } finally {
       setPaymentLoading(false);
     }
