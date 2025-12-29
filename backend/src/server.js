@@ -13,9 +13,22 @@ import orderRoutes from "./routes/order.route.js";
 import reviewRoutes from "./routes/review.route.js";
 import productRoutes from "./routes/product.route.js";
 import cartRoutes from "./routes/cart.route.js";
+import paymentRoutes from "./routes/payment.route.js";
 
 const app = express();
 const __dirname = path.resolve();
+
+app.use(
+  "/api/payment",
+  (req, res, next) => {
+    if (req.originalUrl === "/api/payment/webhook") {
+      express.raw({ type: "application/json" })(req, res, next);
+    } else {
+      express.json()(req, res, next); // parse json for non-webhook routes
+    }
+  },
+  paymentRoutes
+);
 
 app.use(express.json());
 app.use(clerkMiddleware());

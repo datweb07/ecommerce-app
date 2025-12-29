@@ -18,7 +18,7 @@ import { Image } from "expo-image";
 import OrderSummary from "@/components/OrderSummary";
 import AddressSelectionModal from "@/components/AddressSelectionModal";
 
-// import * as Sentry from "@sentry/react-native";
+import * as Sentry from "@sentry/react-native";
 
 const CartScreen = () => {
   const api = useApi();
@@ -89,11 +89,11 @@ const CartScreen = () => {
     setAddressModalVisible(false);
 
     // log chechkout initiated
-    // Sentry.logger.info("Checkout initiated", {
-    //   itemCount: cartItemCount,
-    //   total: total.toFixed(2),
-    //   city: selectedAddress.city,
-    // });
+    Sentry.logger.info("Checkout initiated", {
+      itemCount: cartItemCount,
+      total: total.toFixed(2),
+      city: selectedAddress.city,
+    });
 
     try {
       setPaymentLoading(true);
@@ -113,16 +113,16 @@ const CartScreen = () => {
 
       const { error: initError } = await initPaymentSheet({
         paymentIntentClientSecret: data.clientSecret,
-        merchantDisplayName: "Your Store Name",
+        merchantDisplayName: "ShopeEase",
       });
 
       if (initError) {
-        // Sentry.logger.error("Payment sheet init failed", {
-        //   errorCode: initError.code,
-        //   errorMessage: initError.message,
-        //   cartTotal: total,
-        //   itemCount: cartItems.length,
-        // });
+        Sentry.logger.error("Payment sheet init failed", {
+          errorCode: initError.code,
+          errorMessage: initError.message,
+          cartTotal: total,
+          itemCount: cartItems.length,
+        });
 
         Alert.alert("Error", initError.message);
         setPaymentLoading(false);
@@ -133,19 +133,19 @@ const CartScreen = () => {
       const { error: presentError } = await presentPaymentSheet();
 
       if (presentError) {
-        // Sentry.logger.error("Payment cancelled", {
-        //   errorCode: presentError.code,
-        //   errorMessage: presentError.message,
-        //   cartTotal: total,
-        //   itemCount: cartItems.length,
-        // });
+        Sentry.logger.error("Payment cancelled", {
+          errorCode: presentError.code,
+          errorMessage: presentError.message,
+          cartTotal: total,
+          itemCount: cartItems.length,
+        });
 
         Alert.alert("Payment cancelled", presentError.message);
       } else {
-        // Sentry.logger.info("Payment successful", {
-        //   total: total.toFixed(2),
-        //   itemCount: cartItems.length,
-        // });
+        Sentry.logger.info("Payment successful", {
+          total: total.toFixed(2),
+          itemCount: cartItems.length,
+        });
 
         Alert.alert(
           "Success",
@@ -155,11 +155,11 @@ const CartScreen = () => {
         clearCart();
       }
     } catch (error) {
-      // Sentry.logger.error("Payment failed", {
-      //   error: error instanceof Error ? error.message : "Unknown error",
-      //   cartTotal: total,
-      //   itemCount: cartItems.length,
-      // });
+      Sentry.logger.error("Payment failed", {
+        error: error instanceof Error ? error.message : "Unknown error",
+        cartTotal: total,
+        itemCount: cartItems.length,
+      });
 
       Alert.alert("Error", "Failed to process payment");
     } finally {
