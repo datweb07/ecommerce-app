@@ -3,10 +3,10 @@ import axios from "axios";
 import { useEffect } from "react";
 
 // work in simulator
-const API_URL = "http://192.168.1.11:3000/api/";
+// const API_URL = "http://192.168.1.11:3000/api/";
 
 // work in physical device
-// const API_URL = "https://ecommerce-app-nl98.onrender.com/api";
+const API_URL = "https://ecommerce-app-nl98.onrender.com/api";
 
 const api = axios.create({
   baseURL: API_URL,
