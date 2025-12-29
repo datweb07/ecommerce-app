@@ -31,6 +31,13 @@ if (!clerkKey) {
   throw new Error("Missing Clerk publishable key");
 }
 
+/* ================== STRIPE KEY ================== */
+const stripeKey = Constants.expoConfig?.extra?.stripePublishableKey;
+
+if (!stripeKey) {
+  throw new Error("Missing Stripe publishable key");
+}
+
 /* ================== REACT QUERY ================== */
 const queryClient = new QueryClient({
   queryCache: new QueryCache({
@@ -66,9 +73,7 @@ export default Sentry.wrap(function RootLayout() {
   return (
     <ClerkProvider publishableKey={clerkKey} tokenCache={tokenCache}>
       <QueryClientProvider client={queryClient}>
-        <StripeProvider
-          publishableKey={process.env.EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY!}
-        >
+        <StripeProvider publishableKey={stripeKey}>
           <Stack screenOptions={{ headerShown: false }} />
         </StripeProvider>
       </QueryClientProvider>
