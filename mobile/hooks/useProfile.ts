@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 interface ProfileData {
     bio: string;
-    phoneNumber: string;
+    userName: string;
     name: string;
     email: string;
     imageUrl: string;
@@ -11,7 +11,7 @@ interface ProfileData {
 
 interface UpdateProfileData {
     bio?: string;
-    phoneNumber?: string;
+    userName?: string;
 }
 
 export function useProfile() {

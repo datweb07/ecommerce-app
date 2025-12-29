@@ -223,7 +223,7 @@ export default OrdersScreen;
 function LoadingUI() {
   return (
     <View className="flex-1 items-center justify-center">
-      <ActivityIndicator size="large" color="#00D9FF" />
+      <ActivityIndicator size="large" color="#1DB954" />
       <Text className="text-text-secondary mt-4">Loading orders...</Text>
     </View>
   );

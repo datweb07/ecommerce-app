@@ -60,9 +60,11 @@ const userSchema = new mongoose.Schema(
       default: "",
       maxlength: 500,
     },
-    phoneNumber: {
+    userName: {
       type: String,
       default: "",
+      unique: true,
+      sparse: true,
     },
     addresses: [addressSchema],
     wishlist: [

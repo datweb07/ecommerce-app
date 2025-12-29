@@ -70,7 +70,7 @@ const ProfileScreen = () => {
 
               <View className="flex-1 ml-4">
                 <Text className="text-text-primary text-2xl font-bold mb-1">
-                  {user?.firstName} {user?.lastName}
+                  {user?.firstName} {user?.lastName} {profile?.userName ? `(${profile?.userName})` : ""}
                 </Text>
                 <Text className="text-text-secondary text-sm">
                   {user?.emailAddresses?.[0]?.emailAddress || "No email"}
@@ -121,6 +121,7 @@ const ProfileScreen = () => {
           <TouchableOpacity
             className="flex-row items-center justify-between py-2"
             activeOpacity={0.7}
+            onPress={() => handleMenuPress("/notifications")}
           >
             <View className="flex-row items-center">
               <Ionicons

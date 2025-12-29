@@ -7,7 +7,7 @@ export async function getProfile(req, res) {
     res.status(200).json({
       profile: {
         bio: user.bio || "",
-        phoneNumber: user.phoneNumber || "",
+        userName: user.userName || "",
         name: user.name,
         email: user.email,
         imageUrl: user.imageUrl,
@@ -21,7 +21,7 @@ export async function getProfile(req, res) {
 
 export async function updateProfile(req, res) {
   try {
-    const { bio, phoneNumber } = req.body;
+    const { bio, userName } = req.body;
     const user = req.user;
 
     // Validate bio length
@@ -31,12 +31,22 @@ export async function updateProfile(req, res) {
       });
     }
 
+    // Validate userName uniqueness if provided
+    if (userName && userName !== user.userName) {
+      const existingUser = await User.findOne({ userName });
+      if (existingUser) {
+        return res.status(400).json({
+          error: "Username already taken",
+        });
+      }
+    }
+
     // Update fields
     if (bio !== undefined) {
       user.bio = bio;
     }
-    if (phoneNumber !== undefined) {
-      user.phoneNumber = phoneNumber;
+    if (userName !== undefined) {
+      user.userName = userName;
     }
 
     await user.save();
@@ -45,7 +55,7 @@ export async function updateProfile(req, res) {
       message: "Profile updated successfully",
       profile: {
         bio: user.bio,
-        phoneNumber: user.phoneNumber,
+        userName: user.userName,
       },
     });
   } catch (error) {

@@ -185,7 +185,7 @@ function LoadingUI() {
         <Text className="text-text-primary text-2xl font-bold">Wishlist</Text>
       </View>
       <View className="flex-1 items-center justify-center">
-        <ActivityIndicator size="large" color="#00D9FF" />
+        <ActivityIndicator size="large" color="#1DB954" />
         <Text className="text-text-secondary mt-4">Loading wishlist...</Text>
       </View>
     </SafeScreen>

@@ -31,7 +31,7 @@ const EditProfileScreen = () => {
     firstName: user?.firstName || "",
     lastName: user?.lastName || "",
     bio: "",
-    phoneNumber: "",
+    userName: "",
   });
 
   // Load profile data when available
@@ -40,7 +40,7 @@ const EditProfileScreen = () => {
       setFormData((prev) => ({
         ...prev,
         bio: profile.bio || "",
-        phoneNumber: profile.phoneNumber || "",
+        userName: profile.userName || "",
       }));
     }
   }, [profile]);
@@ -53,7 +53,7 @@ const EditProfileScreen = () => {
 
     const backendChanged =
       formData.bio !== (profile?.bio || "") ||
-      formData.phoneNumber !== (profile?.phoneNumber || "");
+      formData.userName !== (profile?.userName || "");
 
     setHasChanges(clerkChanged || backendChanged);
   }, [formData, user, profile]);
@@ -122,8 +122,8 @@ const EditProfileScreen = () => {
       Alert.alert("Validation Error", "Bio must be 500 characters or less");
       return false;
     }
-    if (formData.phoneNumber && !/^[\d\s\-\+\(\)]+$/.test(formData.phoneNumber)) {
-      Alert.alert("Validation Error", "Please enter a valid phone number");
+    if (formData.userName && formData.userName.length < 3) {
+      Alert.alert("Validation Error", "Username must be at least 3 characters");
       return false;
     }
     return true;
@@ -141,10 +141,10 @@ const EditProfileScreen = () => {
         lastName: formData.lastName,
       });
 
-      // Update backend data (bio, phoneNumber)
+      // Update backend data (bio, userName)
       await updateProfile({
         bio: formData.bio,
-        phoneNumber: formData.phoneNumber,
+        userName: formData.userName,
       });
 
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
@@ -289,6 +289,26 @@ const EditProfileScreen = () => {
               </View>
             </View>
 
+            {/* Username */}
+            <View className="mb-5">
+              <Text className="text-text-primary font-semibold mb-2 ml-1">
+                Username
+              </Text>
+              <View className="bg-surface rounded-2xl px-4 py-4 flex-row items-center">
+                <Ionicons name="at" size={20} color="#666" />
+                <TextInput
+                  className="flex-1 ml-3 text-text-primary text-base"
+                  value={formData.userName}
+                  onChangeText={(text) =>
+                    setFormData({ ...formData, userName: text })
+                  }
+                  placeholder="Enter username"
+                  placeholderTextColor="#666"
+                  autoCapitalize="none"
+                />
+              </View>
+            </View>
+
             {/* Email (Read Only) */}
             <View className="mb-5">
               <Text className="text-text-primary font-semibold mb-2 ml-1">
@@ -304,26 +324,6 @@ const EditProfileScreen = () => {
               <Text className="text-text-secondary text-xs mt-1 ml-1">
                 Email cannot be changed here
               </Text>
-            </View>
-
-            {/* Phone Number */}
-            <View className="mb-5">
-              <Text className="text-text-primary font-semibold mb-2 ml-1">
-                Phone Number
-              </Text>
-              <View className="bg-surface rounded-2xl px-4 py-4 flex-row items-center">
-                <Ionicons name="call-outline" size={20} color="#666" />
-                <TextInput
-                  className="flex-1 ml-3 text-text-primary text-base"
-                  value={formData.phoneNumber}
-                  onChangeText={(text) =>
-                    setFormData({ ...formData, phoneNumber: text })
-                  }
-                  placeholder="Enter phone number"
-                  placeholderTextColor="#666"
-                  keyboardType="phone-pad"
-                />
-              </View>
             </View>
 
             {/* Bio */}

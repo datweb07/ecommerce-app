@@ -235,7 +235,7 @@ function LoadingUI() {
     <SafeScreen>
       <AddressesHeader />
       <View className="flex-1 items-center justify-center px-6">
-        <ActivityIndicator size="large" color="#00D9FF" />
+        <ActivityIndicator size="large" color="#1DB954" />
         <Text className="text-text-secondary mt-4">Loading addresses...</Text>
       </View>
     </SafeScreen>
