@@ -52,13 +52,23 @@ function CustomersPage() {
                   {customers.map((customer) => (
                     <tr key={customer._id}>
                       <td className="flex items-center gap-3">
-                        <div className="avatar placeholder">
-                          <div className="bg-primary text-primary-content rounded-full w-12">
-                            <img
-                              src={customer.imageUrl}
-                              alt={customer.name}
-                              className="w-12 h-12 rounded-full"
-                            />
+                        <div className="avatar">
+                          <div className="w-12 h-12 rounded-full">
+                            {customer.imageUrl ? (
+                              <img
+                                src={customer.imageUrl}
+                                alt={customer.name}
+                                className="w-full h-full object-cover"
+                                onError={(e) => {
+                                  e.target.style.display = 'none';
+                                  e.target.parentElement.innerHTML = `<div class="w-full h-full bg-primary text-primary-content flex items-center justify-center font-semibold">${customer.name.charAt(0).toUpperCase()}</div>`;
+                                }}
+                              />
+                            ) : (
+                              <div className="w-full h-full bg-primary text-primary-content flex items-center justify-center font-semibold">
+                                {customer.name.charAt(0).toUpperCase()}
+                              </div>
+                            )}
                           </div>
                         </div>
                         <div className="font-semibold">{customer.name}</div>
