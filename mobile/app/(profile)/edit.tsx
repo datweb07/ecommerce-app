@@ -21,7 +21,7 @@ import * as Haptics from "expo-haptics";
 
 const EditProfileScreen = () => {
   const { user } = useUser();
-  const { profile, isLoading: profileLoading, updateProfile, isUpdating } = useProfile();
+  const { profile, isLoading: profileLoading, updateProfile, isUpdating, syncImageFromClerk } = useProfile();
 
   const [loading, setLoading] = useState(false);
   const [imageLoading, setImageLoading] = useState(false);
@@ -90,6 +90,15 @@ const EditProfileScreen = () => {
           await user?.setProfileImage({
             file: `data:image/jpeg;base64,${base64Image}`,
           });
+
+          // Sync image to backend database
+          try {
+            await syncImageFromClerk();
+          } catch (syncError) {
+            console.error("Failed to sync image to backend:", syncError);
+            // Don't show error to user, image is already updated in Clerk
+          }
+
           Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
           Alert.alert("Success", "Profile picture updated successfully!");
         } catch (error: any) {

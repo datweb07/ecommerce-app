@@ -43,6 +43,17 @@ export function useProfile() {
         },
     });
 
+    // Sync image from Clerk to backend
+    const syncImageMutation = useMutation({
+        mutationFn: async () => {
+            const { data } = await api.post("/users/profile/sync-image");
+            return data;
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["profile"] });
+        },
+    });
+
     return {
         profile,
         isLoading,
@@ -50,5 +61,7 @@ export function useProfile() {
         error,
         updateProfile: updateProfileMutation.mutateAsync,
         isUpdating: updateProfileMutation.isPending,
+        syncImageFromClerk: syncImageMutation.mutateAsync,
+        isSyncing: syncImageMutation.isPending,
     };
 }
