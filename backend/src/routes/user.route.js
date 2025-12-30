@@ -3,6 +3,7 @@ import {
   getProfile,
   updateProfile,
   syncImageFromClerk,
+  registerPushToken,
   addAddress,
   getAddress,
   updateAddress,
@@ -20,6 +21,7 @@ router.use(protectRoute);
 router.get("/profile", getProfile);
 router.put("/profile", updateProfile);
 router.post("/profile/sync-image", syncImageFromClerk);
+router.post("/push-token", registerPushToken);
 
 router.post("/addresses", addAddress);
 router.get("/addresses", getAddress);
