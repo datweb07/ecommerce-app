@@ -1,10 +1,11 @@
 import SafeScreen from "@/components/SafeScreen";
 import { useAuth, useUser } from "@clerk/clerk-expo";
-import { ScrollView, Text, TouchableOpacity, View, ActivityIndicator } from "react-native";
+import { ScrollView, Text, TouchableOpacity, View, ActivityIndicator, Modal } from "react-native";
 import { Image } from "expo-image";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { useProfile } from "@/hooks/useProfile";
+import { useState } from "react";
 
 const MENU_ITEMS = [
   {
@@ -41,9 +42,24 @@ const ProfileScreen = () => {
   const { signOut } = useAuth();
   const { user } = useUser();
   const { profile, isLoading: profileLoading } = useProfile();
+  const [showSignOutModal, setShowSignOutModal] = useState(false);
+  const [isSigningOut, setIsSigningOut] = useState(false);
 
   const handleMenuPress = (route: string) => {
     router.push(route as any);
+  };
+
+  const handleSignOut = async () => {
+    try {
+      setIsSigningOut(true);
+      await signOut();
+
+      // router.replace("/(auth)/sign-in");
+    } catch (error) {
+      console.error("Error signing out:", error);
+      setIsSigningOut(false);
+      setShowSignOutModal(false);
+    }
   };
 
   return (
@@ -101,7 +117,7 @@ const ProfileScreen = () => {
               className="bg-surface rounded-2xl p-6 items-center justify-center"
               style={{ width: "48%" }}
               activeOpacity={0.7}
-              onPress={() => handleMenuPress(item.route)} // Sử dụng item.route
+              onPress={() => handleMenuPress(item.route)}
             >
               <View
                 className="rounded-full w-16 h-16 items-center justify-center mb-4"
@@ -116,7 +132,7 @@ const ProfileScreen = () => {
           ))}
         </View>
 
-        {/* NOTIFICATONS BTN */}
+        {/* NOTIFICATIONS BTN */}
         <View className="mb-3 mx-6 bg-surface rounded-2xl p-4">
           <TouchableOpacity
             className="flex-row items-center justify-between py-2"
@@ -137,7 +153,7 @@ const ProfileScreen = () => {
           </TouchableOpacity>
         </View>
 
-        {/* PRIVACY AND SECURTIY LINK */}
+        {/* PRIVACY AND SECURITY LINK */}
         <View className="mb-3 mx-6 bg-surface rounded-2xl p-4">
           <TouchableOpacity
             className="flex-row items-center justify-between py-2"
@@ -161,8 +177,8 @@ const ProfileScreen = () => {
         {/* SIGNOUT BTN */}
         <TouchableOpacity
           className="mx-6 mb-3 bg-surface rounded-2xl py-5 flex-row items-center justify-center border-2 border-red-500/20"
-          activeOpacity={0.8}
-          onPress={() => signOut()}
+          activeOpacity={0.7}
+          onPress={() => setShowSignOutModal(true)}
         >
           <Ionicons name="log-out-outline" size={22} color="#EF4444" />
           <Text className="text-red-500 font-bold text-base ml-2">
@@ -174,6 +190,69 @@ const ProfileScreen = () => {
           Version 1.0.0
         </Text>
       </ScrollView>
+
+      {/* SIGN OUT CONFIRMATION MODAL */}
+      <Modal
+        visible={showSignOutModal}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowSignOutModal(false)}
+      >
+        <View className="flex-1 justify-center items-center bg-black/80 p-6">
+          <View className="bg-surface rounded-3xl p-6 w-full max-w-sm border border-[#2A2A2A]">
+            {/* Modal Header */}
+            <View className="items-center mb-6">
+              <View className="bg-red-500/20 rounded-full w-20 h-20 items-center justify-center mb-4 border border-red-500/30">
+                <Ionicons name="log-out-outline" size={36} color="#EF4444" />
+              </View>
+              <Text className="text-text-primary text-2xl font-bold text-center mb-2">
+                Sign Out
+              </Text>
+              <Text className="text-text-secondary text-center text-sm">
+                Are you sure you want to sign out?
+              </Text>
+            </View>
+
+            {/* Warning Details */}
+            <View className="space-y-3 mb-6 bg-[#1a1a1a] rounded-xl p-4 border border-[#2A2A2A]">
+              <View className="flex-row items-start">
+                <Ionicons name="information-circle-outline" size={16} color="#F59E0B" className="mt-1 mr-2" />
+                <Text className="text-gray-300 text-sm flex-1">
+                  You will need to sign in again to access your account
+                </Text>
+              </View>
+            </View>
+
+            {/* Action Buttons */}
+            <View className="flex-row gap-4">
+              <TouchableOpacity
+                onPress={() => setShowSignOutModal(false)}
+                disabled={isSigningOut}
+                className="flex-1 py-3 rounded-xl bg-[#1a1a1a] border border-[#333333] items-center"
+                activeOpacity={0.8}
+              >
+                <Text className="text-gray-400 font-semibold">Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={handleSignOut}
+                disabled={isSigningOut}
+                className={`flex-1 py-3 rounded-xl items-center flex-row justify-center ${isSigningOut ? 'bg-red-700' : 'bg-red-600'
+                  }`}
+                activeOpacity={0.8}
+              >
+                {isSigningOut ? (
+                  <ActivityIndicator color="#fff" />
+                ) : (
+                  <>
+                    <Ionicons name="log-out" size={18} color="#fff" />
+                    <Text className="text-white font-bold ml-2">Sign Out</Text>
+                  </>
+                )}
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </SafeScreen>
   );
 };
