@@ -2,6 +2,7 @@ import { Router } from "express";
 import {
   getProfile,
   updateProfile,
+  syncImageFromClerk,
   addAddress,
   getAddress,
   updateAddress,
@@ -18,6 +19,7 @@ router.use(protectRoute);
 
 router.get("/profile", getProfile);
 router.put("/profile", updateProfile);
+router.post("/profile/sync-image", syncImageFromClerk);
 
 router.post("/addresses", addAddress);
 router.get("/addresses", getAddress);

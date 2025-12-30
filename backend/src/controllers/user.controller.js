@@ -1,4 +1,5 @@
 import { User } from "../models/user.model.js";
+import { clerkClient } from "@clerk/express";
 
 export async function getProfile(req, res) {
   try {
@@ -60,6 +61,31 @@ export async function updateProfile(req, res) {
     });
   } catch (error) {
     console.error("Error in updateProfile controller:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+}
+
+export async function syncImageFromClerk(req, res) {
+  try {
+    const user = req.user;
+
+    // Get fresh user data from Clerk
+    const clerkUser = await clerkClient.users.getUser(user.clerkId);
+
+    // Update imageUrl from Clerk
+    const newImageUrl = clerkUser.profileImageUrl || clerkUser.imageUrl || "";
+    user.imageUrl = newImageUrl;
+    user.name = `${clerkUser.firstName || ""} ${clerkUser.lastName || ""}`.trim() || "User";
+
+    await user.save();
+
+    res.status(200).json({
+      message: "Image synced successfully from Clerk",
+      imageUrl: user.imageUrl,
+      name: user.name,
+    });
+  } catch (error) {
+    console.error("Error in syncImageFromClerk controller:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 }
