@@ -90,6 +90,35 @@ export async function syncImageFromClerk(req, res) {
   }
 }
 
+export async function registerPushToken(req, res) {
+  try {
+    const { expoPushToken } = req.body;
+    const user = req.user;
+
+    if (!expoPushToken) {
+      return res.status(400).json({ error: "Push token is required" });
+    }
+
+    // Validate Expo push token format
+    const { isValidExpoPushToken } = await import("../services/notification.service.js");
+    if (!isValidExpoPushToken(expoPushToken)) {
+      return res.status(400).json({ error: "Invalid push token format" });
+    }
+
+    // Save token to user
+    user.expoPushToken = expoPushToken;
+    await user.save();
+
+    res.status(200).json({
+      message: "Push token registered successfully",
+      expoPushToken: user.expoPushToken,
+    });
+  } catch (error) {
+    console.error("Error in registerPushToken controller:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+}
+
 export async function addAddress(req, res) {
   try {
     const {

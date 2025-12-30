@@ -66,6 +66,10 @@ const userSchema = new mongoose.Schema(
       unique: true,
       sparse: true,
     },
+    expoPushToken: {
+      type: String,
+      default: "",
+    },
     addresses: [addressSchema],
     wishlist: [
       {

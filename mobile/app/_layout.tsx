@@ -1,6 +1,7 @@
 import { Stack } from "expo-router";
 import "../global.css";
 import Constants from "expo-constants";
+import { useEffect } from "react";
 
 import {
   QueryClient,
@@ -9,10 +10,12 @@ import {
   MutationCache,
 } from "@tanstack/react-query";
 
-import { ClerkProvider } from "@clerk/clerk-expo";
+import { ClerkProvider, useAuth } from "@clerk/clerk-expo";
 import { tokenCache } from "@clerk/clerk-expo/token-cache";
 import * as Sentry from "@sentry/react-native";
 import { StripeProvider } from "@stripe/stripe-react-native";
+import { initializeNotifications } from "@/services/notificationService";
+import { useApi } from "@/lib/api";
 
 /* ================== SENTRY ================== */
 Sentry.init({
@@ -68,12 +71,38 @@ const queryClient = new QueryClient({
   }),
 });
 
+/* ================== NOTIFICATION INITIALIZER ================== */
+function NotificationInitializer() {
+  const api = useApi();
+  const { isSignedIn } = useAuth();
+
+  useEffect(() => {
+    if (!isSignedIn) return;
+
+    // Initialize notifications when user is signed in
+    let cleanup: (() => void) | undefined;
+
+    const init = async () => {
+      cleanup = (await initializeNotifications(api)) as (() => void) | undefined;
+    };
+
+    init();
+
+    return () => {
+      if (cleanup) cleanup();
+    };
+  }, [isSignedIn, api]);
+
+  return null;
+}
+
 /* ================== ROOT ================== */
 export default Sentry.wrap(function RootLayout() {
   return (
     <ClerkProvider publishableKey={clerkKey} tokenCache={tokenCache}>
       <QueryClientProvider client={queryClient}>
         <StripeProvider publishableKey={stripeKey}>
+          <NotificationInitializer />
           <Stack screenOptions={{ headerShown: false }} />
         </StripeProvider>
       </QueryClientProvider>

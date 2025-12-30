@@ -137,21 +137,36 @@ export async function updateOrderStatus(req, res) {
       return res.status(400).json({ message: "Invalid status value" });
     }
 
-    const order = await Order.findById(orderId);
+    const order = await Order.findById(orderId).populate("user");
     if (!order) {
       return res.status(404).json({ message: "Order not found" });
     }
 
     order.status = status;
-    if (status === "shipped" || !order.shippedAt) {
+    if (status === "shipped" && !order.shippedAt) {
       order.shippedAt = new Date();
     }
 
-    if (status === "delivered" || !order.deliveredAt) {
+    if (status === "delivered" && !order.deliveredAt) {
       order.deliveredAt = new Date();
     }
 
     await order.save();
+
+    // Send push notification for shipped and delivered status
+    if ((status === "shipped" || status === "delivered") && order.user?.expoPushToken) {
+      try {
+        const { sendOrderStatusNotification } = await import("../services/notification.service.js");
+        await sendOrderStatusNotification(
+          order.user.expoPushToken,
+          order,
+          status
+        );
+      } catch (notifError) {
+        // Log error but don't fail the request
+        console.error("Failed to send push notification:", notifError);
+      }
+    }
 
     res.status(200).json({ message: "Order status updated", order });
   } catch (error) {
