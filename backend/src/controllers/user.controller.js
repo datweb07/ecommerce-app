@@ -1,3 +1,4 @@
+/*user.controller.js*/
 import { User } from "../models/user.model.js";
 import { clerkClient } from "@clerk/express";
 

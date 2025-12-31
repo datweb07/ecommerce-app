@@ -1,3 +1,4 @@
+/*user.route.js*/
 import { Router } from "express";
 import {
   getProfile,
