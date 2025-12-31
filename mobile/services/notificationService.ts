@@ -1,3 +1,4 @@
+/*notificationService.ts */
 import * as Notifications from "expo-notifications";
 import * as Device from "expo-device";
 import Constants from "expo-constants";
@@ -57,14 +58,33 @@ export async function getExpoPushToken(): Promise<string | null> {
             return null;
         }
 
-        const token = await Notifications.getExpoPushTokenAsync({
-            projectId: "your-project-id", // Will be auto-filled by Expo
+        // Check if running in Expo Go (doesn't support push notifications in SDK 53+)
+        const isExpoGo = Constants.executionEnvironment === "storeClient";
+        if (isExpoGo) {
+            console.warn("⚠️ Push notifications not supported in Expo Go. Use development build.");
+            return null;
+        }
+
+        // Get project ID from app config
+        const projectId = Constants.expoConfig?.extra?.eas?.projectId;
+        console.log("🔑 Project ID:", projectId);
+
+        console.log(Constants.expoConfig?.extra?.eas?.projectId);
+
+        if (!projectId) {
+            console.error("❌ No Expo project ID found in app.json");
+            console.log("💡 Trying without projectId...");
+        }
+
+        console.log("📱 Getting Expo push token...");
+        const tokenData = await Notifications.getExpoPushTokenAsync({
+            projectId: projectId,
         });
 
-        console.log("Expo Push Token:", token.data);
-        return token.data;
+        console.log("✅ Expo Push Token obtained:", tokenData.data);
+        return tokenData.data;
     } catch (error) {
-        console.error("Error getting push token:", error);
+        console.error("❌ Error getting push token:", error);
         return null;
     }
 }
@@ -142,29 +162,43 @@ function handleNotificationNavigation(orderId: string) {
  */
 export async function initializeNotifications(apiPost: any): Promise<void> {
     try {
+        console.log("🚀 Initializing notification system...");
+
         // Request permissions
+        console.log("📋 Requesting notification permissions...");
         const hasPermission = await requestNotificationPermissions();
         if (!hasPermission) {
-            console.log("Notification permission denied");
+            console.log("❌ Notification permission denied");
             return;
         }
+        console.log("✅ Notification permission granted");
 
         // Get push token
+        console.log("🔄 Getting push token...");
         const token = await getExpoPushToken();
         if (!token) {
-            console.log("Failed to get push token");
+            console.log("❌ Failed to get push token");
             return;
         }
+        console.log("✅ Got push token:", token);
 
         // Register with backend
-        await registerPushTokenWithBackend(token, apiPost);
+        console.log("📤 Registering token with backend...");
+        const registered = await registerPushTokenWithBackend(token, apiPost);
+        if (!registered) {
+            console.log("❌ Failed to register token with backend");
+            return;
+        }
+        console.log("✅ Token registered with backend");
 
         // Setup listeners
-        const listeners = setupNotificationListeners();
+        console.log("👂 Setting up notification listeners...");
+        setupNotificationListeners();
+        console.log("✅ Notification listeners ready");
 
-        console.log("Notification system initialized successfully");
+        console.log("🎉 Notification system initialized successfully");
     } catch (error) {
-        console.error("Error initializing notifications:", error);
+        console.error("💥 Error initializing notifications:", error);
     }
 }
 
