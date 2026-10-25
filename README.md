@@ -1,13 +1,14 @@
-
 <h1 align="center">E-Commerce App (Mobile + Admin + Backend (API))</h1>
 
 This repository contains a full-stack e-commerce application with three main parts:
 
-- Mobile app (client) — cross-platform mobile application for shoppers
-- Admin dashboard — web application for store administrators to manage products, orders, and reviews
-- Backend (API) — Node.js/Express API that powers both frontends
+- Mobile app (client) - cross-platform mobile application for shoppers
+- Admin dashboard - web application for store administrators to manage products, orders, and reviews
+- Backend (API) - Node.js/Express API that powers both frontends
 
 The sections below introduce the project, list main features, describe the technology stack, and provide detailed instructions to run each part locally.
+
+[![Architecture diagram of datweb07/ecommerce-app](https://gitdiagram.com/datweb07/ecommerce-app/diagram.png)](https://gitdiagram.com/datweb07/ecommerce-app?utm_source=readme&utm_medium=picture)
 
 ## Introduction
 
@@ -27,16 +28,16 @@ This E-Commerce App is a reference implementation for a modern online store. It 
 ## Tech Stack
 
 - Backend: Node.js + Express, MongoDB
-- Admin frontend: React + Vite 
-- Mobile frontend: React Native 
+- Admin frontend: React + Vite
+- Mobile frontend: React Native
 - Image storage: Cloudinary
 - Authentication: Clerk
 
 ## Repository layout
 
-- backend — API server and backend code
-- admin — admin web app
-- mobile — mobile application
+- backend - API server and backend code
+- admin - admin web app
+- mobile - mobile application
 
 ## Contributing
 
