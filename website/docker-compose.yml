@@ -1,0 +1,24 @@
+name: shopease-website
+services:
+  mongo:
+    image: mongo:8.0.34@sha256:8e7d23aa641b0ec6c86418866d5d18d74d5abf89061bc5db7bc4b80929021ef6
+    platform: linux/amd64
+    command: ['mongod', '--replSet', 'rs0', '--bind_ip_all']
+    ports:
+      - '127.0.0.1:27018:27017'
+    volumes:
+      - website_mongo:/data/db
+    healthcheck:
+      test:
+        - CMD
+        - mongosh
+        - --quiet
+        - --eval
+        - "try { if (rs.status().myState !== 1) quit(1); } catch { rs.initiate({_id:'rs0',members:[{_id:0,host:'localhost:27017'}]}); quit(1); }"
+      interval: 3s
+      timeout: 5s
+      retries: 30
+      start_period: 5s
+    restart: unless-stopped
+volumes:
+  website_mongo:

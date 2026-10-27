@@ -1,0 +1,28 @@
+:root {
+  color-scheme: light;
+  font-family: system-ui, sans-serif;
+  color: #162b25;
+  background: #f5f7f4;
+}
+body {
+  margin: 0;
+}
+main {
+  max-width: 52rem;
+  margin: 15vh auto;
+  padding: 2rem;
+}
+.eyebrow {
+  color: #28684e;
+  font-size: 0.8rem;
+  letter-spacing: 0.16em;
+  font-weight: 700;
+}
+h1 {
+  font-size: clamp(2rem, 6vw, 4rem);
+  line-height: 1.12;
+  letter-spacing: -0.04em;
+}
+p {
+  line-height: 1.8;
+}
