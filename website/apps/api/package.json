@@ -1,0 +1,33 @@
+{
+  "name": "@storefront/api",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/server.js",
+    "typecheck": "tsc -p tsconfig.check.json --noEmit",
+    "seed": "tsx src/scripts/seed.ts",
+    "import:products": "tsx src/scripts/import-products.ts"
+  },
+  "dependencies": {
+    "@fastify/cors": "11.3.1",
+    "@fastify/helmet": "13.2.0",
+    "@fastify/rate-limit": "11.2.1",
+    "@fastify/sensible": "6.0.7",
+    "@fastify/swagger": "9.9.2",
+    "@fastify/swagger-ui": "6.1.2",
+    "@fastify/type-provider-zod": "1.0.3",
+    "@storefront/shared": "workspace:*",
+    "dotenv": "18.0.9",
+    "fastify": "5.12.7",
+    "mongoose": "9.11.4",
+    "openapi-types": "12.1.3",
+    "zod": "4.6.7"
+  },
+  "devDependencies": {
+    "tsx": "4.23.15",
+    "mongodb-memory-server": "11.3.0"
+  }
+}
