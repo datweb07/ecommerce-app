@@ -1,0 +1,18 @@
+import { parseEnv, publicSchema } from './env-schema';
+
+export const publicEnv = parseEnv(publicSchema, {
+  NEXT_PUBLIC_API_URL:
+    process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000',
+  NEXT_PUBLIC_SITE_URL:
+    process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000',
+  NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY:
+    process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY,
+  NEXT_PUBLIC_CLERK_SIGN_IN_URL:
+    process.env.NEXT_PUBLIC_CLERK_SIGN_IN_URL ?? '/sign-in',
+  NEXT_PUBLIC_CLERK_SIGN_UP_URL:
+    process.env.NEXT_PUBLIC_CLERK_SIGN_UP_URL ?? '/sign-up',
+  NEXT_PUBLIC_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL:
+    process.env.NEXT_PUBLIC_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL ?? '/account',
+  NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL:
+    process.env.NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL ?? '/account',
+});

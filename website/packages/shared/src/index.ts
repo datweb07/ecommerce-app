@@ -8,7 +8,11 @@ export * from './notifications.js';
 export * from './admin.js';
 
 export const errorResponseSchema = z.object({
-  error: z.object({ code: z.string(), message: z.string() }),
+  error: z.object({
+    code: z.string(),
+    message: z.string(),
+    details: z.unknown().optional(),
+  }),
   requestId: z.string(),
 });
 
