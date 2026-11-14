@@ -53,7 +53,7 @@ export function authService(
             wishlist: [],
           },
         },
-        { upsert: true, new: true, session },
+        { upsert: true, returnDocument: 'after', session },
       )
       .lean()
       .orFail();
@@ -91,7 +91,7 @@ export function authService(
                   $inc: { fence: 1 },
                   $setOnInsert: { timestamp: 0, deleted: false },
                 },
-                { new: true, upsert: true, session },
+                { returnDocument: 'after', upsert: true, session },
               )
               .lean()
               .orFail();
@@ -143,7 +143,7 @@ export function authService(
         .findOneAndUpdate(
           { _id: user._id, clerkId: user.clerkId },
           { $set: changes },
-          { new: true, runValidators: true },
+          { returnDocument: 'after', runValidators: true },
         )
         .lean();
       if (!updated) throw unauthorized();

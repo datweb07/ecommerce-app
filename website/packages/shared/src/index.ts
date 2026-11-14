@@ -1,6 +1,7 @@
 import { z } from 'zod';
 export * from './auth.js';
 export * from './products.js';
+export * from './customer.js';
 
 export const errorResponseSchema = z.object({
   error: z.object({ code: z.string(), message: z.string() }),

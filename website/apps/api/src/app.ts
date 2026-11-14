@@ -23,6 +23,9 @@ import { catalogueModels } from './models/catalogue.js';
 import { orderModel } from './models/order.js';
 import { catalogueService } from './modules/products/service.js';
 import { catalogueRoutes } from './modules/products/routes.js';
+import { cartModel } from './models/cart.js';
+import { customerService } from './modules/customer/service.js';
+import { customerRoutes } from './modules/customer/routes.js';
 
 export async function buildApp(
   env: Env,
@@ -96,6 +99,17 @@ export async function buildApp(
     ]);
     const catalogue = catalogueModels(database);
     const orders = orderModel(database);
+    const carts = cartModel(database);
+    await carts.createIndexes();
+    await app.register(
+      (scope) =>
+        customerRoutes(
+          scope,
+          customerService(database, carts, auth.users, catalogue.products, env),
+          auth,
+        ),
+      { prefix: '/api/v1' },
+    );
     await Promise.all([
       catalogue.products.createIndexes(),
       catalogue.reviews.createIndexes(),

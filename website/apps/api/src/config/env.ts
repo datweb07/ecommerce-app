@@ -67,6 +67,14 @@ export const envSchema = z.object({
   CLOUDINARY_API_KEY: optionalSecret,
   CLOUDINARY_API_SECRET: optionalSecret,
   WEB_ORIGIN: httpUrl.default('http://localhost:3000'),
+  CART_MAX_QUANTITY: z.preprocess(
+    (value) => (value === '' ? undefined : value),
+    z.coerce.number().int().min(1).max(1000).default(25),
+  ),
+  ADDRESS_MAX_COUNT: z.preprocess(
+    (value) => (value === '' ? undefined : value),
+    z.coerce.number().int().min(1).max(100).default(10),
+  ),
 });
 
 export type Env = z.infer<typeof envSchema>;
