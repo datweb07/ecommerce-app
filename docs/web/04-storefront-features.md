@@ -42,3 +42,23 @@ Frontend lưu ý định theo tài khoản trong localStorage trước khi gửi
 ## 4.7 Đơn hàng
 
 Danh sách phân trang theo URL. Trang chi tiết đọc private API bằng Bearer server để trả HTTP 404 cho đơn không thuộc tài khoản. Client tiếp tục dùng TanStack Query để cập nhật DTO sau mutation. Tên, giá, ảnh và địa chỉ đọc từ snapshot. DTO chỉ có tổng đã lưu, vì vậy bảng hiển thị giá từng dòng và tổng đơn, không suy ra các khoản phí riêng.
+
+## 4.8 Đánh giá sao
+
+Tạo, sửa và xóa từ các dòng đơn hàng có quyền theo API. Sau mutation, làm mới đơn hàng trong TanStack Query. Catalogue giữ TTL 60 giây cho rating công khai. Cách này tránh thêm endpoint xác thực chỉ để invalidation và phù hợp với tần suất thay đổi đánh giá.
+
+## 4.9 Inbox
+
+Inbox dùng cursor từ API và tải trang tiếp theo theo yêu cầu. Mark read và read-all vô hiệu hóa cả cache danh sách lẫn badge. Polling mỗi 60 giây chỉ chạy khi có phiên và tab hiển thị. Nội dung dựa trên các mốc giao hàng còn lưu trong order.
+
+## Cần nghiệm thu với dịch vụ thật
+
+Các test component thay Clerk và fetch ở ranh giới. Google sign-in, đồng bộ user Clerk, phiên Stripe Sandbox, webhook thật, đơn phát sinh sau thanh toán và thông báo từ các mốc của đơn đó cần chạy bằng credentials của môi trường dev. Dùng [checklist kiểm thử](04-manual-test-checklist.md) để tái hiện.
+
+## Kiểm chứng cuối Giai đoạn 4
+
+- `pnpm lint`, `pnpm typecheck`, `pnpm test` và `pnpm build` chạy từ `website/`. Vitest có 89 test trong 16 suite, 0 skip.
+
+- Playwright trên production loopback với Fastify và Mongo dev xác nhận trang công khai, lọc và Back, metadata, JSON-LD, sitemap, HTTP 404 và redirect private. Axe có 0 vi phạm ở 12 tổ hợp desktop/mobile, sáng/tối.
+- JavaScript nén tải từ Next khoảng 343 KiB cho Home, 351 KiB cho Catalogue và 353 KiB cho Detail. Response start trên loopback 17–50 ms. Số đo này không thay thế Lighthouse, LCP hoặc thử trên kết nối chậm.
+- Khi có lỗi giữ hàng, UI tải lại giỏ và nêu các dòng được đánh dấu lỗi tại thời điểm tải lại. API hiện chỉ trả mã lỗi chung, nên không thể chỉ đích danh sản phẩm nếu trạng thái tồn kho đã đổi lại trước lần đọc.

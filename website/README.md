@@ -1,6 +1,6 @@
 # ShopEase — Web storefront
 
-Workspace độc lập cho customer website. Backend Giai đoạn 2 có Clerk auth, catalogue, cart, wishlist, địa chỉ, Stripe Checkout, đơn hàng, reviews, inbox và API admin. Frontend Giai đoạn 3 có layout, Clerk, theme, API client và các trang placeholder. Xem [kiến trúc frontend và danh sách route](../docs/web/03-frontend-foundation.md).
+Workspace độc lập cho customer website. Storefront có catalogue, giỏ hàng, wishlist, tài khoản, địa chỉ, Stripe Checkout, đơn hàng, đánh giá sao và inbox. Xem [kiến trúc frontend và danh sách route](../docs/web/03-frontend-foundation.md).
 
 ## Chạy local trong khoảng 10 phút
 
@@ -18,7 +18,7 @@ pnpm dev
 
 - Web: [localhost:3000](http://localhost:3000).
 - Thư viện thành phần ở dev: [/_dev/components](http://localhost:3000/_dev/components).
-- Giai đoạn 4.1–4.3 đã có trang chủ, [catalogue](http://localhost:3000/products) và chi tiết sản phẩm. Chạy `pnpm --filter @storefront/web smoke:catalogue` sau khi seed và dev đang chạy. Xem [tài liệu tính năng](../docs/web/04-storefront-features.md) và [checklist kiểm thử](../docs/web/04-manual-test-checklist.md).
+- Chạy `pnpm --filter @storefront/web smoke:catalogue` sau khi seed và dev đang chạy để kiểm tra các trang công khai. Sau khi điền Clerk và Stripe test keys, dùng checklist để nghiệm thu tài khoản và thanh toán. Xem [tài liệu tính năng](../docs/web/04-storefront-features.md) và [checklist kiểm thử](../docs/web/04-manual-test-checklist.md).
 - API live/ready: [health/live](http://localhost:4000/health/live), [health/ready](http://localhost:4000/health/ready).
 - OpenAPI: [openapi.json](http://localhost:4000/openapi.json); Swagger UI: [docs/](http://localhost:4000/docs/).
 - Ctrl+C dừng các process dev. `pnpm db:down` dừng Mongo và giữ dữ liệu volume.
@@ -88,7 +88,7 @@ pnpm import:products -- --write --limit=1000
 
 Response API có `x-request-id`. Lỗi theo dạng `{error:{code,message},requestId}`. Access log bỏ query string và redact authorization/cookie/set-cookie. Body tối đa 1 MiB. Rate limit mặc định 100 request/phút/IP, checkout có hạn mức riêng. Private API dùng Clerk Bearer JWT. Cấu hình exact origins qua `CORS_ORIGINS`. API tạo index additive và đóng connection khi shutdown.
 
-## Chuẩn bị trước Giai đoạn 4
+## Chuẩn bị nghiệm thu Clerk và Stripe ở Giai đoạn 5
 
 Tự điền secret trong file local, không commit:
 

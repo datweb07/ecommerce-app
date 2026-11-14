@@ -6,9 +6,11 @@ import { Button } from '../ui/button';
 export function CustomerError({
   error,
   retry,
+  disabled = false,
 }: {
   error: unknown;
   retry: () => void;
+  disabled?: boolean;
 }) {
   return (
     <div
@@ -16,7 +18,7 @@ export function CustomerError({
       className="flex flex-wrap items-center gap-4 rounded-panel border border-border bg-card p-5"
     >
       <p>{apiErrorMessage(error)}</p>
-      <Button variant="outline" onClick={retry}>
+      <Button variant="outline" disabled={disabled} onClick={retry}>
         {t('common', 'retry')}
       </Button>
     </div>

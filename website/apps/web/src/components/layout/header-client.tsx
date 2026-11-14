@@ -9,7 +9,7 @@ import { useState, type FormEvent, type ReactNode } from 'react';
 import { publicEnv } from '../../config/public-env';
 import { useApiClient } from '../../lib/api/browser';
 import { t } from '../../lib/i18n';
-import { queryKeys } from '../../lib/query';
+import { inboxBadgeFilters, inboxPollMs, queryKeys } from '../../lib/query';
 import { Button } from '../ui/button';
 import { Input } from '../ui/fields';
 import {
@@ -237,10 +237,11 @@ export function HeaderActions() {
     enabled: Boolean(isSignedIn),
   });
   const inbox = useQuery({
-    queryKey: queryKeys.notifications(filters),
-    queryFn: () => api.notifications.list(filters),
+    queryKey: queryKeys.notifications(inboxBadgeFilters),
+    queryFn: () => api.notifications.list(inboxBadgeFilters),
     enabled: Boolean(isSignedIn),
-    refetchInterval: 60_000,
+    refetchInterval: inboxPollMs,
+    refetchIntervalInBackground: false,
   });
   if (!isSignedIn)
     return <Actions account={isLoaded ? <SignInLink /> : null} />;

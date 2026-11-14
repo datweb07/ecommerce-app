@@ -23,31 +23,37 @@ type Change =
 
 function CartQuantity({
   item,
+  version,
   max,
   busy,
   change,
   edit,
 }: {
   item: Cart['items'][number];
+  version: number;
   max: number;
   busy: boolean;
-  change: (quantity: number) => void;
+  change: (quantity: number, version: number) => void;
   edit: (editing: boolean) => void;
 }) {
-  const [draft, setDraft] = useState(item.quantity);
+  const [draft, setDraft] = useState<{ quantity: number; version: number }>();
   useEffect(() => {
-    if (draft === item.quantity) return;
-    const timer = setTimeout(() => change(draft), 350);
+    if (!draft || busy) return;
+    const timer = setTimeout(() => change(draft.quantity, draft.version), 350);
     return () => clearTimeout(timer);
-  }, [change, draft, item.quantity]);
+  }, [busy, change, draft]);
   return (
     <fieldset disabled={busy}>
       <legend className="sr-only">{t('customer', 'quantity')}</legend>
       <QuantityInput
-        value={draft}
+        value={draft?.quantity ?? item.quantity}
         max={max}
         onChange={(quantity) => {
-          setDraft(quantity);
+          setDraft(
+            quantity === item.quantity
+              ? undefined
+              : { quantity, version: draft?.version ?? version },
+          );
           edit(quantity !== item.quantity);
         }}
       />
@@ -167,8 +173,9 @@ export function CartPageContent({ max }: { max: number }) {
                 </div>
                 {limit > 0 && (
                   <CartQuantity
-                    key={`${revision}:${data.version}:${item.productId}`}
+                    key={`${revision}:${item.productId}`}
                     item={item}
+                    version={data.version}
                     max={limit}
                     busy={
                       update.isPending ||
@@ -177,11 +184,11 @@ export function CartPageContent({ max }: { max: number }) {
                     edit={(active) =>
                       setEditing(active ? item.productId : undefined)
                     }
-                    change={(quantity) =>
+                    change={(quantity, version) =>
                       update.mutate({
                         kind: 'set',
                         id: item.productId,
-                        version: data.version,
+                        version,
                         quantity,
                       })
                     }

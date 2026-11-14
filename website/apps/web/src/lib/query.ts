@@ -1,6 +1,9 @@
 import { QueryClient } from '@tanstack/react-query';
 import { ApiError } from './api/transport';
 
+export const inboxPollMs = 60_000;
+export const inboxBadgeFilters = { limit: '1' } as const;
+
 export const queryKeys = {
   products: (query?: object) => ['products', query] as const,
   product: (id: string) => ['product', id] as const,
@@ -19,6 +22,7 @@ export const queryKeys = {
   reviews: (id: string) => ['reviews', id] as const,
   notifications: (query?: object) =>
     query ? (['notifications', query] as const) : (['notifications'] as const),
+  inbox: () => ['notifications', 'inbox'] as const,
 };
 
 export function makeQueryClient() {

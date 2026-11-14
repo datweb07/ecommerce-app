@@ -181,8 +181,13 @@ function CheckoutSteps({ userId }: { userId: string }) {
         {error != null && (
           <CustomerError
             error={error}
+            disabled={create.isPending || quote.isPending}
             retry={() => {
-              if (create.error && intent && readIntent(localStorage, userId))
+              if (
+                create.error &&
+                intent &&
+                readIntent(localStorage, userId)?.key === intent.key
+              )
                 create.mutate(intent);
               else if (addressId && canQuote) {
                 create.reset();

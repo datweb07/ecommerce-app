@@ -133,14 +133,9 @@ export function AddressDialog({
     mutationFn: async (value: AddressInput) => {
       if (initial)
         return { result: await api.addresses.update(initial.id, value) };
-      const previous = await api.addresses.list();
       const result = await api.addresses.add(value);
-      return {
-        result,
-        id: result.items.find(
-          (row) => !previous.items.some((address) => row.id === address.id),
-        )?.id,
-      };
+      // The create transaction appends the new address to the returned list.
+      return { result, id: result.items.at(-1)?.id };
     },
     onSuccess: ({ result, id }) => {
       client.setQueryData(queryKeys.addresses, result);

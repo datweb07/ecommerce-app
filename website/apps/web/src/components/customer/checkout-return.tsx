@@ -38,8 +38,12 @@ function ReturnSession({ id, userId }: { id: string; userId: string }) {
     staleTime: 0,
     retry: false,
     refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
     refetchInterval: ({ state }) =>
-      state.data?.status === 'pending' && !state.data.requiresReconciliation
+      !timedOut &&
+      state.status !== 'error' &&
+      state.data?.status === 'pending' &&
+      !state.data.requiresReconciliation
         ? checkoutPollInterval(state.dataUpdateCount - 1, Date.now() - started)
         : false,
   });
@@ -56,9 +60,13 @@ function ReturnSession({ id, userId }: { id: string; userId: string }) {
     if (status === 'paid') {
       void client.invalidateQueries({ queryKey: queryKeys.cart });
       void client.invalidateQueries({ queryKey: queryKeys.orders() });
+      if (session?.orderId)
+        void client.invalidateQueries({
+          queryKey: queryKeys.order(session.orderId),
+        });
       void client.invalidateQueries({ queryKey: queryKeys.notifications() });
     }
-  }, [client, terminal, status]);
+  }, [client, terminal, status, session?.orderId]);
   const retry = () => {
     setStarted(Date.now());
     setTimedOut(false);

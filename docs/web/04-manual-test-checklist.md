@@ -1,6 +1,6 @@
 # Checklist kiểm thử storefront Giai đoạn 4
 
-Các mục tài khoản và thanh toán bên dưới áp dụng khi từng tính năng từ 4.4 được triển khai. Dùng MongoDB dev và Stripe test mode. Hướng dẫn đặt biến nằm trong [README storefront](../../website/README.md) và [Stripe CLI](stripe-local-testing.md).
+Dùng MongoDB dev, Clerk dùng chung với mobile và Stripe test mode của account web. Hướng dẫn đặt biến nằm trong [README storefront](../../website/README.md) và [Stripe CLI](stripe-local-testing.md).
 
 | Bước                                                                                                                                    | Kết quả mong đợi                                                                                                                    | Khi khác, kiểm tra                                                                                                                                               |
 | --------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |

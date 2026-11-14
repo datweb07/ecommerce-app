@@ -7,6 +7,7 @@ import { toast } from 'sonner';
 import { useApiClient } from '../../lib/api/browser';
 import { boundedPageCount } from '../../lib/catalogue-query';
 import { queryKeys } from '../../lib/query';
+import type { Cart } from '../../lib/customer';
 import { t } from '../../lib/i18n';
 import { ProductCard } from '../common/storefront';
 import { EmptyState, LoadingSkeleton } from '../common/states';
@@ -57,11 +58,37 @@ export function WishlistContent({ page }: { page: number }) {
   });
   const add = useMutation({
     mutationFn: (productId: string) => api.cart.add({ productId, quantity: 1 }),
+    onMutate: async (productId) => {
+      await client.cancelQueries({ queryKey: queryKeys.cart });
+      const previous = client.getQueryData<Cart>(queryKeys.cart);
+      const product = query.data?.items.find((item) => item.id === productId);
+      if (previous && product) {
+        const current = previous.items.find(
+          (item) => item.productId === productId,
+        );
+        const quantity = (current?.quantity ?? 0) + 1;
+        const status =
+          quantity > product.stock ? 'insufficient_stock' : 'available';
+        const next = { productId, product, quantity, status } as const;
+        client.setQueryData<Cart>(queryKeys.cart, {
+          ...previous,
+          items: current
+            ? previous.items.map((item) =>
+                item.productId === productId ? next : item,
+              )
+            : [...previous.items, next],
+        });
+      }
+      return previous;
+    },
     onSuccess: (data) => {
       client.setQueryData(queryKeys.cart, data);
       toast.success(t('detail', 'added'));
     },
-    onError: toastApiError,
+    onError: (error, _, previous) => {
+      if (previous) client.setQueryData(queryKeys.cart, previous);
+      toastApiError(error);
+    },
     onSettled: () => client.invalidateQueries({ queryKey: queryKeys.cart }),
   });
   if (query.isPending) return <LoadingSkeleton variant="card" />;
