@@ -1,28 +1,53 @@
+@import 'tailwindcss';
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --radius-control: calc(var(--radius) * 0.65);
+  --radius-panel: var(--radius);
+  --shadow-panel: var(--panel-shadow);
+  --font-sans: var(--font-inter), Arial, sans-serif;
+}
 :root {
-  color-scheme: light;
-  font-family: system-ui, sans-serif;
-  color: #162b25;
-  background: #f5f7f4;
+  --background: #f7f8f5;
+  --foreground: #142c25;
+  --card: #fff;
+  --muted: #e8eeea;
+  --muted-foreground: #465b53;
+  --primary: #185943;
+  --primary-foreground: #fff;
+  --border: #819b8e;
+  --destructive: #a32d32;
+  --radius: 1rem;
+  --panel-shadow: 0 8px 26px #173c270d;
 }
-body {
-  margin: 0;
+.dark {
+  --background: #111c18;
+  --foreground: #e9f5ed;
+  --card: #182822;
+  --muted: #263a30;
+  --muted-foreground: #b2c7b9;
+  --primary: #9ae3ba;
+  --primary-foreground: #142c25;
+  --border: #667f72;
+  --destructive: #ba4149;
+  --panel-shadow: 0 8px 26px #050a0844;
 }
-main {
-  max-width: 52rem;
-  margin: 15vh auto;
-  padding: 2rem;
-}
-.eyebrow {
-  color: #28684e;
-  font-size: 0.8rem;
-  letter-spacing: 0.16em;
-  font-weight: 700;
-}
-h1 {
-  font-size: clamp(2rem, 6vw, 4rem);
-  line-height: 1.12;
-  letter-spacing: -0.04em;
-}
-p {
-  line-height: 1.8;
+@layer base {
+  body {
+    @apply bg-background font-sans text-foreground;
+  }
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-primary;
+  }
 }
