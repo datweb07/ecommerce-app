@@ -183,16 +183,20 @@ function SignInLink() {
 function Actions({
   account,
   cartCount,
+  wishCount,
   unread,
 }: {
   account: ReactNode;
   cartCount?: number | undefined;
+  wishCount?: number | undefined;
   unread?: number;
 }) {
   return (
     <div className="flex items-center sm:gap-1">
-      <span className="hidden sm:block">
-        <Action href="/wishlist" label={t('nav', 'wishlist')}>
+      <span
+        className={wishCount === undefined ? 'hidden sm:block' : 'contents'}
+      >
+        <Action href="/wishlist" label={t('nav', 'wishlist')} count={wishCount}>
           <Heart size={19} />
         </Action>
       </span>
@@ -227,6 +231,11 @@ export function HeaderActions() {
     enabled: Boolean(isSignedIn),
   });
   const filters = { limit: '1' };
+  const wishlist = useQuery({
+    queryKey: queryKeys.wishlist(filters),
+    queryFn: () => api.wishlist.list(filters),
+    enabled: Boolean(isSignedIn),
+  });
   const inbox = useQuery({
     queryKey: queryKeys.notifications(filters),
     queryFn: () => api.notifications.list(filters),
@@ -238,6 +247,7 @@ export function HeaderActions() {
   return (
     <Actions
       cartCount={cart.data?.items.reduce((sum, item) => sum + item.quantity, 0)}
+      wishCount={wishlist.data?.total}
       unread={inbox.data?.unreadCount ?? 0}
       account={
         <UserButton>

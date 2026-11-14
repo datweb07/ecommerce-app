@@ -177,7 +177,7 @@ function AuthenticatedPurchase({ product, cartMax }: Props) {
       toastApiError(error);
     },
     onSettled: () =>
-      client.invalidateQueries({ queryKey: [...queryKeys.wishlist(), 'list'] }),
+      client.invalidateQueries({ queryKey: queryKeys.wishlistList() }),
   });
   return (
     <PurchaseControls

@@ -1,4 +1,22 @@
 const vi = {
+  customer: {
+    emptyCart: 'Giỏ hàng đang trống',
+    emptyWishlist: 'Chưa có sản phẩm yêu thích',
+    quantity: 'Số lượng',
+    available: 'Còn hàng',
+    deleted: 'Sản phẩm đã bị xóa',
+    out_of_stock: 'Sản phẩm đã hết hàng',
+    insufficient_stock: 'Số lượng vượt tồn kho hiện tại',
+    remove: 'Xóa sản phẩm',
+    removeWishlist: 'Bỏ yêu thích',
+    clearCart: 'Xóa cả giỏ',
+    clearCartHint: 'Xóa tất cả sản phẩm trong giỏ hàng?',
+    subtotal: 'Tạm tính',
+    fees: 'Phí vận chuyển và thuế được tính ở bước thanh toán.',
+    fixCart: 'Hãy xử lý các sản phẩm gặp vấn đề trước khi thanh toán.',
+    checkout: 'Thanh toán',
+    firstPage: 'Về trang đầu',
+  },
   detail: {
     title: 'Chi tiết sản phẩm',
     photo: 'Ảnh',

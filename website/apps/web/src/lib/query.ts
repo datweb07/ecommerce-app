@@ -10,6 +10,7 @@ export const queryKeys = {
   wishlist: (query?: object) =>
     query ? (['wishlist', 'list', query] as const) : (['wishlist'] as const),
   wishlistMembership: (id: string) => ['wishlist', 'membership', id] as const,
+  wishlistList: () => ['wishlist', 'list'] as const,
   addresses: ['addresses'] as const,
   checkout: (id: string) => ['checkout', id] as const,
   orders: (query?: object) => ['orders', query] as const,

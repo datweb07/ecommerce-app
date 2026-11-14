@@ -25,6 +25,10 @@ Sitemap đọc tối đa 1.000 sản phẩm qua từng trang 100 mục và giữ
 - Đo sơ bộ ở production loopback, mỗi lượt dùng browser context mới. JS nén tải từ `/_next/static/` khoảng 338 KiB cho Home, 347 KiB cho Catalogue và 348 KiB cho Detail. Response start khoảng 14–22 ms trên máy local. Đây là số đo loopback với cache server đã ấm. Giai đoạn 5 còn Lighthouse, LCP và số đo qua mạng chậm.
 - Test component mock Clerk và fetch xác nhận rollback giỏ/yêu thích khi mutation lỗi. Luồng Clerk và Stripe thật cần khóa dev của người dùng. Dừng trước 4.4.
 
+## 4.4 Giỏ và yêu thích
+
+Giỏ dùng một khóa cache chung với badge. Lượng tuyệt đối được gửi sau 350 ms cùng version, cập nhật tạm và khôi phục nếu ghi lỗi. Mỗi lần ghi chỉ cho sửa một dòng để tránh gửi hai thay đổi với cùng version. Status của API quyết định điều kiện checkout. Wishlist dùng tổng số từ DTO cho badge và cập nhật danh sách khi bỏ yêu thích.
+
 ## Hợp đồng checkout cho mốc 4.6
 
 `success_url` và `cancel_url` hiện cùng trỏ `/checkout/return?checkoutId=<id nội bộ>`. URL chỉ cho biết phiên nào cần đọc. Phân biệt kết quả theo trạng thái và `requiresReconciliation` từ GET session. Client phải giữ nguyên cặp addressId/version và Idempotency-Key của lần tạo phiên đang retry.
