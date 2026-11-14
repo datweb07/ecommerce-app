@@ -16,8 +16,14 @@ import { errorResponseSchema, healthResponseSchema } from '@storefront/shared';
 import type { Env } from './config/env.js';
 import { connectDatabase } from './plugins/database.js';
 import { registerErrors } from './plugins/errors.js';
+import { clerkAdapter, type ClerkAdapter } from './plugins/clerk.js';
+import { authService } from './modules/auth/service.js';
+import { authRoutes } from './modules/auth/routes.js';
 
-export async function buildApp(env: Env, options: { logger?: boolean } = {}) {
+export async function buildApp(
+  env: Env,
+  options: { logger?: boolean; clerk?: ClerkAdapter } = {},
+) {
   const app = Fastify({
     logger:
       options.logger === false
@@ -74,6 +80,19 @@ export async function buildApp(env: Env, options: { logger?: boolean } = {}) {
       transform: jsonSchemaTransform,
     });
     const database = await connectDatabase(app, env.MONGODB_URI);
+    const auth = authService(
+      database,
+      options.clerk ?? clerkAdapter(env),
+      env.ADMIN_EMAIL,
+      env.CLERK_WEBHOOK_SIGNING_SECRET,
+    );
+    await Promise.all([
+      auth.users.createIndexes(),
+      auth.receipts.createIndexes(),
+    ]);
+    await app.register((scope) => authRoutes(scope, auth), {
+      prefix: '/api/v1',
+    });
     const schema = {
       tags: ['health'],
       response: { 200: healthResponseSchema, 503: errorResponseSchema },

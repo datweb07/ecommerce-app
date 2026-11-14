@@ -1,4 +1,5 @@
 import { z } from 'zod';
+export * from './auth.js';
 
 export const errorResponseSchema = z.object({
   error: z.object({ code: z.string(), message: z.string() }),

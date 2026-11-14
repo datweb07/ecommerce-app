@@ -13,6 +13,16 @@ const publicErrors: Record<number, [string, string]> = {
   503: ['UNAVAILABLE', 'Dịch vụ tạm thời chưa sẵn sàng.'],
 };
 
+export class ApiError extends Error {
+  constructor(
+    readonly statusCode: number,
+    readonly code: string,
+    message: string,
+  ) {
+    super(message);
+  }
+}
+
 export function registerErrors(app: FastifyInstance) {
   app.setErrorHandler((error: unknown, request, reply) => {
     const statusValue =
@@ -26,10 +36,13 @@ export function registerErrors(app: FastifyInstance) {
           statusValue <= 599
         ? statusValue
         : 500;
-    const [code, message] = publicErrors[status] ?? [
-      'INTERNAL_ERROR',
-      'Đã xảy ra lỗi hệ thống.',
-    ];
+    const [code, message] =
+      error instanceof ApiError
+        ? [error.code, error.message]
+        : (publicErrors[status] ?? [
+            'INTERNAL_ERROR',
+            'Đã xảy ra lỗi hệ thống.',
+          ]);
     if (status >= 500) {
       // Error messages/objects may contain credentials or request payloads.
       request.log.error(
