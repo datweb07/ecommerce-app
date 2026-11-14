@@ -13,10 +13,12 @@ export const queryKeys = {
   wishlistList: () => ['wishlist', 'list'] as const,
   addresses: ['addresses'] as const,
   checkout: (id: string) => ['checkout', id] as const,
-  orders: (query?: object) => ['orders', query] as const,
+  orders: (query?: object) =>
+    query ? (['orders', query] as const) : (['orders'] as const),
   order: (id: string) => ['order', id] as const,
   reviews: (id: string) => ['reviews', id] as const,
-  notifications: (query?: object) => ['notifications', query] as const,
+  notifications: (query?: object) =>
+    query ? (['notifications', query] as const) : (['notifications'] as const),
 };
 
 export function makeQueryClient() {

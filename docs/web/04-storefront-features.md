@@ -33,6 +33,12 @@ Giỏ dùng một khóa cache chung với badge. Lượng tuyệt đối đượ
 
 Danh tính lấy từ Clerk. UserProfile nhúng ở trang bảo mật để quản lý hồ sơ và phương thức đăng nhập. Bio và username dùng hồ sơ riêng của storefront. Biểu mẫu địa chỉ dùng schema shared và danh sách trả về sau mỗi thao tác.
 
-## Hợp đồng checkout cho mốc 4.6
+## 4.6 Checkout và trang return
 
 `success_url` và `cancel_url` hiện cùng trỏ `/checkout/return?checkoutId=<id nội bộ>`. URL chỉ cho biết phiên nào cần đọc. Phân biệt kết quả theo trạng thái và `requiresReconciliation` từ GET session. Client phải giữ nguyên cặp addressId/version và Idempotency-Key của lần tạo phiên đang retry.
+
+Frontend lưu ý định theo tài khoản trong localStorage trước khi gửi. Backend tăng cart version khi giữ chỗ, nên nút thử lại phiên trước dùng nguyên input đã lưu kể cả sau reload. Tab return chỉ xác nhận paid sau phản hồi API. Polling tăng khoảng chờ từ 2 lên tối đa 16 giây trong cửa sổ 90 giây và dừng khi có trạng thái cuối hoặc đối soát.
+
+## 4.7 Đơn hàng
+
+Danh sách phân trang theo URL. Trang chi tiết đọc private API bằng Bearer server để trả HTTP 404 cho đơn không thuộc tài khoản. Client tiếp tục dùng TanStack Query để cập nhật DTO sau mutation. Tên, giá, ảnh và địa chỉ đọc từ snapshot. DTO chỉ có tổng đã lưu, vì vậy bảng hiển thị giá từng dòng và tổng đơn, không suy ra các khoản phí riêng.
