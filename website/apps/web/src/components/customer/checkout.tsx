@@ -103,7 +103,7 @@ function CheckoutSteps({ userId }: { userId: string }) {
           '/checkout/return?checkoutId=' + encodeURIComponent(session.id),
         );
     },
-    onError: async (error) => {
+    onError: async (error, attempt) => {
       if (
         error instanceof ApiError &&
         [
@@ -118,7 +118,7 @@ function CheckoutSteps({ userId }: { userId: string }) {
         ].includes(error.code)
       ) {
         try {
-          if (readIntent(localStorage, userId)?.key === create.variables?.key)
+          if (readIntent(localStorage, userId)?.key === attempt.key)
             localStorage.removeItem(intentStorageKey(userId));
         } catch {
           /* Storage can be unavailable. */
