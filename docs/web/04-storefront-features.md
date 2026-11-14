@@ -29,6 +29,10 @@ Sitemap đọc tối đa 1.000 sản phẩm qua từng trang 100 mục và giữ
 
 Giỏ dùng một khóa cache chung với badge. Lượng tuyệt đối được gửi sau 350 ms cùng version, cập nhật tạm và khôi phục nếu ghi lỗi. Mỗi lần ghi chỉ cho sửa một dòng để tránh gửi hai thay đổi với cùng version. Status của API quyết định điều kiện checkout. Wishlist dùng tổng số từ DTO cho badge và cập nhật danh sách khi bỏ yêu thích.
 
+## 4.5 Tài khoản và địa chỉ
+
+Danh tính lấy từ Clerk. UserProfile nhúng ở trang bảo mật để quản lý hồ sơ và phương thức đăng nhập. Bio và username dùng hồ sơ riêng của storefront. Biểu mẫu địa chỉ dùng schema shared và danh sách trả về sau mỗi thao tác.
+
 ## Hợp đồng checkout cho mốc 4.6
 
 `success_url` và `cancel_url` hiện cùng trỏ `/checkout/return?checkoutId=<id nội bộ>`. URL chỉ cho biết phiên nào cần đọc. Phân biệt kết quả theo trạng thái và `requiresReconciliation` từ GET session. Client phải giữ nguyên cặp addressId/version và Idempotency-Key của lần tạo phiên đang retry.

@@ -11,16 +11,18 @@ export function ProductImage({
   alt,
   sizes,
   preload = false,
+  allowClerk = false,
   className,
 }: {
   source?: string | undefined;
   alt: string;
   sizes: string;
   preload?: boolean;
+  allowClerk?: boolean;
   className?: string;
 }) {
   const [failed, setFailed] = useState<string>();
-  const src = productImageUrl(source);
+  const src = productImageUrl(source, allowClerk);
   if (!src || failed === src)
     return (
       <div

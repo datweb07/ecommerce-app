@@ -1,12 +1,14 @@
 import type { Metadata } from 'next';
-import { Placeholder } from '../../../../components/common/page';
-export const metadata: Metadata = { title: 'Bảo mật' };
+import { PageHeader } from '@/components/common/page';
+import { AccountSecurity } from '@/components/customer/profile';
+import { t } from '@/lib/i18n';
+
+export const metadata: Metadata = { title: t('account', 'security') };
 export default function Page() {
   return (
-    <Placeholder
-      title="Bảo mật"
-      parent={{ label: 'Tài khoản', href: '/account' }}
-      embedded
-    />
+    <section className="min-w-0 space-y-5">
+      <PageHeader title={t('account', 'security')} />
+      <AccountSecurity />
+    </section>
   );
 }

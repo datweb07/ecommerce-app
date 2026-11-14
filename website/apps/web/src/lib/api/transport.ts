@@ -1,4 +1,5 @@
 import { errorResponseSchema } from '@storefront/shared';
+import { apiMessages } from '../i18n';
 import type { z } from 'zod';
 
 export class ApiError extends Error {
@@ -26,14 +27,15 @@ const messages: Record<number, string> = {
 export function apiErrorMessage(error: unknown) {
   if (!(error instanceof ApiError)) return 'Đã xảy ra lỗi. Vui lòng thử lại.';
   const message =
-    error.code === 'CART_CHANGED'
+    apiMessages.get(error.code) ??
+    (error.code === 'CART_CHANGED'
       ? 'Giỏ hàng đã thay đổi. Tải lại giỏ hàng để tiếp tục.'
       : error.code === 'NETWORK'
         ? 'Không kết nối được. Kiểm tra mạng và thử lại.'
         : error.code === 'TIMEOUT'
           ? 'Yêu cầu quá thời gian. Vui lòng thử lại.'
           : (messages[error.status] ??
-            'Dịch vụ tạm gián đoạn. Vui lòng thử lại.');
+            'Dịch vụ tạm gián đoạn. Vui lòng thử lại.'));
   return process.env.NODE_ENV === 'development' && error.requestId
     ? `${message} (Mã yêu cầu: ${error.requestId})`
     : message;

@@ -1,4 +1,4 @@
-export function productImageUrl(value: string | undefined) {
+export function productImageUrl(value: string | undefined, allowClerk = false) {
   if (!value) return undefined;
   const url = URL.canParse(value) ? new URL(value) : null;
   if (
@@ -6,7 +6,9 @@ export function productImageUrl(value: string | undefined) {
     !url.port &&
     !url.username &&
     !url.password &&
-    ['res.cloudinary.com', 'images.unsplash.com'].includes(url.hostname)
+    (['res.cloudinary.com', 'images.unsplash.com'].includes(url.hostname) ||
+      (allowClerk &&
+        ['img.clerk.com', 'images.clerk.dev'].includes(url.hostname)))
   )
     return url.href;
 }

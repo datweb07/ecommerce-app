@@ -1,4 +1,45 @@
 const vi = {
+  account: {
+    overview: 'Tổng quan tài khoản',
+    profile: 'Hồ sơ',
+    security: 'Bảo mật',
+    addresses: 'Địa chỉ',
+    orders: 'Đơn hàng',
+    notifications: 'Thông báo',
+    label: 'Nhãn địa chỉ',
+    fullName: 'Người nhận',
+    streetAddress: 'Địa chỉ đường phố',
+    city: 'Thành phố',
+    state: 'Tỉnh hoặc bang',
+    zipCode: 'Mã bưu chính',
+    phoneNumber: 'Số điện thoại',
+    setDefault: 'Đặt mặc định',
+    save: 'Lưu thay đổi',
+    saved: 'Đã lưu thay đổi',
+    invalidField: 'Thông tin bắt buộc hoặc sai định dạng.',
+    addAddress: 'Thêm địa chỉ',
+    editAddress: 'Sửa địa chỉ',
+    addressHint: 'Nhập thông tin người nhận và địa chỉ giao hàng.',
+    noAddress: 'Chưa có địa chỉ',
+    defaultAddress: 'Mặc định',
+    deleteAddress: 'Xóa địa chỉ',
+    deleteAddressHint: 'Bạn có muốn xóa địa chỉ này khỏi sổ địa chỉ?',
+    manageIdentity: 'Quản lý tên, ảnh và đăng nhập',
+    userName: 'Tên người dùng',
+    userNameHint: 'Dùng 3–32 chữ cái, chữ số hoặc dấu gạch dưới.',
+    bio: 'Giới thiệu',
+  },
+  errors: {
+    USERNAME_TAKEN: 'Tên người dùng đã được sử dụng. Hãy chọn tên khác.',
+    ADDRESS_LIMIT: 'Sổ địa chỉ đã đầy. Xóa bớt địa chỉ trước khi thêm.',
+    INSUFFICIENT_STOCK: 'Tồn kho đã thay đổi. Kiểm tra lại giỏ hàng.',
+    PRODUCT_UNAVAILABLE: 'Có sản phẩm không còn bán. Kiểm tra lại giỏ hàng.',
+    QUANTITY_LIMIT: 'Số lượng vượt giới hạn cho mỗi sản phẩm.',
+    REVIEW_INELIGIBLE: 'Chỉ đánh giá được sản phẩm thuộc đơn đã giao.',
+    REVIEW_EXISTS: 'Bạn đã đánh giá sản phẩm này. Hãy sửa đánh giá hiện có.',
+    CHECKOUT_PENDING: 'Bạn đã có phiên thanh toán đang chờ xử lý.',
+    IDEMPOTENCY_CONFLICT: 'Phiên thử lại không khớp với yêu cầu ban đầu.',
+  },
   customer: {
     emptyCart: 'Giỏ hàng đang trống',
     emptyWishlist: 'Chưa có sản phẩm yêu thích',
@@ -110,6 +151,8 @@ const vi = {
     system: 'Hệ thống',
   },
 } as const;
+
+export const apiMessages = new Map(Object.entries(vi.errors));
 
 export function t<Namespace extends keyof typeof vi>(
   namespace: Namespace,
