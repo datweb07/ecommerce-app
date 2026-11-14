@@ -2,6 +2,7 @@ import js from '@eslint/js';
 import tseslint from 'typescript-eslint';
 import nextPlugin from '@next/eslint-plugin-next';
 import reactHooks from 'eslint-plugin-react-hooks';
+import accessibility from 'eslint-plugin-jsx-a11y';
 
 export default [
   {
@@ -26,6 +27,10 @@ export default [
     settings: { next: { rootDir: 'apps/web/' } },
   },
   { ...reactHooks.configs.flat.recommended, files: ['apps/web/**/*.{ts,tsx}'] },
+  {
+    ...accessibility.flatConfigs.recommended,
+    files: ['apps/web/**/*.{ts,tsx}'],
+  },
   {
     files: ['**/*.{ts,tsx}'],
     rules: { '@typescript-eslint/no-explicit-any': 'error' },

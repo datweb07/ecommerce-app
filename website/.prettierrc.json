@@ -1,5 +1,15 @@
 {
   "singleQuote": true,
   "trailingComma": "all",
-  "endOfLine": "auto"
+  "endOfLine": "auto",
+  "overrides": [
+    {
+      "files": "apps/web/src/**/*.{tsx,css}",
+      "options": {
+        "plugins": ["prettier-plugin-tailwindcss"],
+        "tailwindStylesheet": "./apps/web/src/app/globals.css",
+        "tailwindFunctions": ["cn"]
+      }
+    }
+  ]
 }
