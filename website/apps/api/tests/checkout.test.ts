@@ -481,7 +481,7 @@ it('documents every implemented route and authenticated request shape in OpenAPI
   const paths = spec.json().paths;
   expect(
     Object.keys(paths).filter((path) => path.startsWith('/api/v1/')),
-  ).toHaveLength(22);
+  ).toHaveLength(25);
   expect(paths['/api/v1/checkout/sessions'].post.parameters).toEqual(
     expect.arrayContaining([
       expect.objectContaining({

@@ -36,6 +36,9 @@ import { orderService } from './modules/checkout/orders.js';
 import { checkoutRoutes } from './modules/checkout/routes.js';
 import { reviewRoutes } from './modules/reviews/routes.js';
 import { reviewService } from './modules/reviews/service.js';
+import { notificationModel } from './models/notification.js';
+import { notificationService } from './modules/notifications/service.js';
+import { notificationRoutes } from './modules/notifications/routes.js';
 
 export async function buildApp(
   env: Env,
@@ -141,6 +144,13 @@ export async function buildApp(
     ]);
     const catalogue = catalogueModels(database);
     const orders = orderModel(database);
+    const inbox = notificationModel(database);
+    await inbox.createIndexes();
+    const notifications = notificationService(inbox, orders);
+    await app.register(
+      (scope) => notificationRoutes(scope, notifications, auth),
+      { prefix: '/api/v1' },
+    );
     await app.register(
       (scope) =>
         reviewRoutes(scope, reviewService(database, catalogue, orders), auth),

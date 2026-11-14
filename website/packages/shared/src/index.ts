@@ -4,6 +4,7 @@ export * from './products.js';
 export * from './customer.js';
 export * from './checkout.js';
 export * from './reviews.js';
+export * from './notifications.js';
 
 export const errorResponseSchema = z.object({
   error: z.object({ code: z.string(), message: z.string() }),
