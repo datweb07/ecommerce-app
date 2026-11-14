@@ -7,7 +7,9 @@ export const queryKeys = {
   categories: ['categories'] as const,
   me: ['me'] as const,
   cart: ['cart'] as const,
-  wishlist: (query?: object) => ['wishlist', query] as const,
+  wishlist: (query?: object) =>
+    query ? (['wishlist', 'list', query] as const) : (['wishlist'] as const),
+  wishlistMembership: (id: string) => ['wishlist', 'membership', id] as const,
   addresses: ['addresses'] as const,
   checkout: (id: string) => ['checkout', id] as const,
   orders: (query?: object) => ['orders', query] as const,

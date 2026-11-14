@@ -2,16 +2,16 @@ import { Suspense } from 'react';
 import { ArrowRight, CreditCard, PackageCheck, Truck } from 'lucide-react';
 import Link from 'next/link';
 import type { Metadata } from 'next';
-import { PageContainer, Section } from '../components/common/page';
-import { EmptyState, LoadingSkeleton } from '../components/common/states';
-import { Button } from '../components/ui/button';
-import { ProductGrid } from '../components/catalogue/product-grid';
-import { CatalogueError } from '../components/catalogue/catalogue-error';
-import { serverApi } from '../lib/api/server';
-import { apiResult } from '../lib/api/result';
-import { t } from '../lib/i18n';
-import { storeBenefits } from '../config/site';
-import '../components/catalogue/home.css';
+import { PageContainer, Section } from '@/components/common/page';
+import { EmptyState, LoadingSkeleton } from '@/components/common/states';
+import { Button } from '@/components/ui/button';
+import { ProductGrid } from '@/components/catalogue/product-grid';
+import { CatalogueError } from '@/components/catalogue/catalogue-error';
+import { serverApi } from '@/lib/api/server';
+import { apiResult } from '@/lib/api/result';
+import { t } from '@/lib/i18n';
+import { storeBenefits } from '@/config/site';
+import '@/components/catalogue/home.css';
 
 export const metadata: Metadata = {
   title: { absolute: t('home', 'title') },

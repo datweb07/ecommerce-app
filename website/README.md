@@ -18,6 +18,7 @@ pnpm dev
 
 - Web: [localhost:3000](http://localhost:3000).
 - Thư viện thành phần ở dev: [/_dev/components](http://localhost:3000/_dev/components).
+- Giai đoạn 4.1–4.3 đã có trang chủ, [catalogue](http://localhost:3000/products) và chi tiết sản phẩm. Chạy `pnpm --filter @storefront/web smoke:catalogue` sau khi seed và dev đang chạy. Xem [tài liệu tính năng](../docs/web/04-storefront-features.md) và [checklist kiểm thử](../docs/web/04-manual-test-checklist.md).
 - API live/ready: [health/live](http://localhost:4000/health/live), [health/ready](http://localhost:4000/health/ready).
 - OpenAPI: [openapi.json](http://localhost:4000/openapi.json); Swagger UI: [docs/](http://localhost:4000/docs/).
 - Ctrl+C dừng các process dev. `pnpm db:down` dừng Mongo và giữ dữ liệu volume.

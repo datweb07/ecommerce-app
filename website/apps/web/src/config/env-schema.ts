@@ -35,6 +35,7 @@ export const serverSchema = z.object({
   API_INTERNAL_URL: httpOrigin,
   CLERK_SECRET_KEY: optionalKey(/^sk_(test|live)_[A-Za-z0-9_-]+$/),
   CURRENCY: z.enum(['usd']),
+  CART_MAX_QUANTITY: z.coerce.number().int().min(1).max(1000).default(25),
 });
 
 export function parseEnv<T extends z.ZodType>(schema: T, input: unknown) {

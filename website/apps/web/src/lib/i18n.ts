@@ -1,4 +1,23 @@
 const vi = {
+  detail: {
+    title: 'Chi tiết sản phẩm',
+    photo: 'Ảnh',
+    gallery: 'Ảnh sản phẩm',
+    previousPhoto: 'Ảnh trước',
+    nextPhoto: 'Ảnh tiếp theo',
+    lowStock: 'Sắp hết hàng',
+    addCart: 'Thêm vào giỏ',
+    adding: 'Đang thêm',
+    added: 'Đã thêm vào giỏ',
+    save: 'Lưu yêu thích',
+    saved: 'Đã lưu yêu thích',
+    retryWish: 'Thử tải lại yêu thích',
+    reviews: 'Đánh giá sản phẩm',
+    reviewCount: 'đánh giá',
+    noReviews: 'Chưa có đánh giá',
+    related: 'Sản phẩm liên quan',
+    noRelated: 'Chưa có sản phẩm liên quan',
+  },
   catalogue: {
     description: 'Duyệt sản phẩm theo danh mục, mức giá và đánh giá.',
     filters: 'Bộ lọc',

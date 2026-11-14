@@ -5,16 +5,16 @@ import {
   Breadcrumb,
   PageContainer,
   PageHeader,
-} from '../../components/common/page';
-import { EmptyState } from '../../components/common/states';
-import { CatalogueError } from '../../components/catalogue/catalogue-error';
-import { CatalogueFilters } from '../../components/catalogue/filters';
-import { ProductGrid } from '../../components/catalogue/product-grid';
-import { Button } from '../../components/ui/button';
-import { Pagination } from '../../components/ui/pagination';
-import { serverApi } from '../../lib/api/server';
-import { apiResult } from '../../lib/api/result';
-import type { ProductFilters } from '../../lib/api/domains';
+} from '@/components/common/page';
+import { EmptyState } from '@/components/common/states';
+import { CatalogueError } from '@/components/catalogue/catalogue-error';
+import { CatalogueFilters } from '@/components/catalogue/filters';
+import { ProductGrid } from '@/components/catalogue/product-grid';
+import { Button } from '@/components/ui/button';
+import { Pagination } from '@/components/ui/pagination';
+import { serverApi } from '@/lib/api/server';
+import { apiResult } from '@/lib/api/result';
+import type { ProductFilters } from '@/lib/api/domains';
 import {
   boundedPageCount,
   catalogueHref,
@@ -22,10 +22,10 @@ import {
   catalogueSearch,
   catalogueSeo,
   normalizeCatalogue,
-} from '../../lib/catalogue-query';
-import { formatMoney } from '../../lib/money';
-import { t } from '../../lib/i18n';
-import type { RouteQuery } from '../../lib/url-state';
+} from '@/lib/catalogue-query';
+import { formatMoney } from '@/lib/money';
+import { t } from '@/lib/i18n';
+import type { RouteQuery } from '@/lib/url-state';
 
 type Props = { searchParams: Promise<RouteQuery> };
 export async function generateMetadata({

@@ -1,5 +1,5 @@
-import { PageContainer } from '../../components/common/page';
-import { LoadingSkeleton } from '../../components/common/states';
+import { PageContainer } from '@/components/common/page';
+import { LoadingSkeleton } from '@/components/common/states';
 export default function Loading() {
   return (
     <PageContainer>
