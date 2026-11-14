@@ -1,6 +1,6 @@
 # ShopEase — Web storefront
 
-Workspace độc lập cho customer website. Backend Giai đoạn 2 có Clerk auth, catalogue, cart, wishlist, địa chỉ, Stripe Checkout, đơn hàng, reviews, inbox và API admin. Trang Next hiện là trang nền tảng.
+Workspace độc lập cho customer website. Backend Giai đoạn 2 có Clerk auth, catalogue, cart, wishlist, địa chỉ, Stripe Checkout, đơn hàng, reviews, inbox và API admin. Frontend Giai đoạn 3 có layout, Clerk, theme, API client và các trang placeholder. Xem [kiến trúc frontend và danh sách route](../docs/web/03-frontend-foundation.md).
 
 ## Chạy local trong khoảng 10 phút
 
@@ -17,6 +17,7 @@ pnpm dev
 ```
 
 - Web: [localhost:3000](http://localhost:3000).
+- Thư viện thành phần ở dev: [/_dev/components](http://localhost:3000/_dev/components).
 - API live/ready: [health/live](http://localhost:4000/health/live), [health/ready](http://localhost:4000/health/ready).
 - OpenAPI: [openapi.json](http://localhost:4000/openapi.json); Swagger UI: [docs/](http://localhost:4000/docs/).
 - Ctrl+C dừng các process dev. `pnpm db:down` dừng Mongo và giữ dữ liệu volume.
@@ -26,7 +27,7 @@ Nếu muốn thay cấu hình, tự sao chép `.env.example` → `website/.env`;
 
 ```powershell
 Copy-Item .env.example .env
-# Khi đến phần tích hợp frontend Clerk:
+# Web đọc các origin và cấu hình Clerk từ file riêng:
 Copy-Item apps/web/.env.example apps/web/.env.local
 ```
 
@@ -50,7 +51,15 @@ pnpm build
 
 Root scripts gọi pnpm qua JS entry point vì nested Windows `.cmd` với runtime Node cục bộ có thể resolve sai đường dẫn. Không cần cài Node mới toàn máy. `.gitignore` loại `.env*`, `.cache`, `node_modules`, `dist`, `.next` và cho phép `.env.example`.
 
-Next 16 dùng convention `src/proxy.ts` khi thêm Clerk guard ở giai đoạn frontend; hiện chưa thêm proxy/auth giả. Dependencies pin exact cùng `pnpm-lock.yaml`. TypeScript 6.0.3 là ngoại lệ tương thích: parser `typescript-eslint` mới nhất hiện yêu cầu TS <6.1; TS stable 7 chưa phù hợp. ESLint 10 dùng `@next/eslint-plugin-next` chính thức và React Hooks plugin trực tiếp để tránh peer constraints cũ của bộ `eslint-config-next` đầy đủ.
+Next 16 dùng `src/proxy.ts` để bảo vệ route riêng tư. Dependencies pin exact cùng `pnpm-lock.yaml`. TypeScript 6.0.3 nằm trong peer range của parser `typescript-eslint`. ESLint 10 dùng plugin Next.js, React Hooks và bộ rule jsx-a11y. jsx-a11y 6.10.2 mới nhất khai báo peer đến ESLint 9, nên đã kiểm chứng trực tiếp với ESLint 10 qua lượt lint toàn workspace.
+
+Sau khi seed và để `pnpm dev` chạy, mở terminal khác để chạy smoke HTTP, CORS, OpenAPI, Playwright và axe. Mặc định dùng Microsoft Edge đã cài. Đặt `SMOKE_BROWSER_CHANNEL=chrome` nếu muốn dùng Chrome.
+
+```powershell
+pnpm --filter @storefront/web smoke
+```
+
+Ảnh lưu trong `.cache/web-smoke/`. Khi Web và API dùng port/domain khác, cập nhật `NEXT_PUBLIC_SITE_URL`, `NEXT_PUBLIC_API_URL`, `API_INTERNAL_URL`, `WEB_ORIGIN` và `CORS_ORIGINS` ở đúng file mẫu. Đặt `SMOKE_SITE_URL` và `SMOKE_API_URL` tương ứng khi chạy smoke.
 
 ## Seed và import products
 
@@ -78,7 +87,7 @@ pnpm import:products -- --write --limit=1000
 
 Response API có `x-request-id`. Lỗi theo dạng `{error:{code,message},requestId}`. Access log bỏ query string và redact authorization/cookie/set-cookie. Body tối đa 1 MiB. Rate limit mặc định 100 request/phút/IP, checkout có hạn mức riêng. Private API dùng Clerk Bearer JWT. Cấu hình exact origins qua `CORS_ORIGINS`. API tạo index additive và đóng connection khi shutdown.
 
-## Chuẩn bị trước Giai đoạn 2
+## Chuẩn bị trước Giai đoạn 4
 
 Tự điền secret trong file local, không commit:
 
@@ -92,6 +101,8 @@ Tự điền secret trong file local, không commit:
 | Cloudinary Console → API keys                                      | CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET | —                                                   |
 
 Có thể để trống integration keys tới khi thử tính năng tương ứng. Stripe nhận test key. Giá checkout mặc định `CURRENCY=usd`, `SHIPPING_FEE_CENTS=1000`, `TAX_RATE=0.08`. TAX_RATE là tỷ lệ từ 0 đến 1. Checkout dùng USD để khớp cách lưu giá legacy.
+
+Điền cả hai khóa Clerk của web để thử đăng nhập, UserButton và Bearer đến API. Khi cả hai khóa trống, website có chế độ xem trước công khai và các route private vẫn chuyển sang trang đăng nhập.
 
 ## Stripe CLI — dùng từ Giai đoạn 2
 
@@ -110,6 +121,6 @@ Dùng signing secret của CLI cho `STRIPE_WEBHOOK_SECRET` rồi restart API. Qu
 - Nếu Docker báo `metadata.db: input/output error`, kiểm tra dung lượng ổ lưu Docker và tình trạng Docker Desktop. Không dùng prune/reset xóa dữ liệu tùy tiện.
 - Nếu container báo `exec format error`, xem log trước khi sửa healthcheck. Ngày 28/10/2026, image Mongo 8.0.17 trong cache có entrypoint 0 byte và libcurl bị cắt cụt, dù kiến trúc đúng amd64. Đã chuyển sang Mongo 8.0.34 pin digest trong Compose; `pnpm db:up` đã chạy thành công, container healthy và `rs0` có PRIMARY. Thay container giữ nguyên volume, không cần `down -v`/prune/reset. Hãy giữ đủ dung lượng ổ lưu Docker.
 - API startup chỉ in tên biến sai hoặc thông báo connection chung; không in giá trị. `PORT` phải là integer 1–65535, CORS phải exact origin (không trailing path).
-- Build và test chạy với adapter thử. CI/CD và frontend thuộc các giai đoạn sau.
+- Test tích hợp dùng adapter thử ở ranh giới Clerk/Stripe. Giao diện nghiệp vụ và CI/CD thuộc các giai đoạn sau.
 
 Danh sách route, tài liệu từng module và các giới hạn vận hành nằm trong [API backend Giai đoạn 2](../docs/web/02-backend-api.md). Upload Cloudinary dùng dynamic folder mode. Hợp đồng ký upload và giới hạn dung lượng được ghi trong [tài liệu Admin](../docs/web/02-7-admin.md).
