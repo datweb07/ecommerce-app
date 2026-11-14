@@ -19,6 +19,10 @@ import { registerErrors } from './plugins/errors.js';
 import { clerkAdapter, type ClerkAdapter } from './plugins/clerk.js';
 import { authService } from './modules/auth/service.js';
 import { authRoutes } from './modules/auth/routes.js';
+import { catalogueModels } from './models/catalogue.js';
+import { orderModel } from './models/order.js';
+import { catalogueService } from './modules/products/service.js';
+import { catalogueRoutes } from './modules/products/routes.js';
 
 export async function buildApp(
   env: Env,
@@ -90,6 +94,18 @@ export async function buildApp(
       auth.users.createIndexes(),
       auth.receipts.createIndexes(),
     ]);
+    const catalogue = catalogueModels(database);
+    const orders = orderModel(database);
+    await Promise.all([
+      catalogue.products.createIndexes(),
+      catalogue.reviews.createIndexes(),
+      orders.createIndexes(),
+    ]);
+    await app.register(
+      (scope) =>
+        catalogueRoutes(scope, catalogueService(catalogue, orders, auth.users)),
+      { prefix: '/api/v1' },
+    );
     await app.register((scope) => authRoutes(scope, auth), {
       prefix: '/api/v1',
     });
