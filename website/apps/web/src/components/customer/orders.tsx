@@ -16,6 +16,7 @@ import { Pagination } from '../ui/pagination';
 import { Card } from '../ui/panels';
 import { AddressLines } from './addresses';
 import { CustomerError } from './states';
+import { ReviewEditor } from './review-editor';
 
 export type Order = z.infer<typeof orderDto>;
 function DateLabel({ date }: { date: string | null }) {
@@ -167,13 +168,11 @@ export function OrderSnapshot({ order }: { order: Order }) {
                   <p>
                     <Price amount={item.price} /> × {item.quantity}
                   </p>
-                  {item.canReview && (
-                    <p className="text-sm text-muted-foreground">
-                      {t('orders', 'reviewEligible')}
-                    </p>
-                  )}
                 </div>
               </div>
+              {(item.canReview || item.review) && (
+                <ReviewEditor orderId={order.id} item={item} />
+              )}
             </li>
           ))}
         </ul>

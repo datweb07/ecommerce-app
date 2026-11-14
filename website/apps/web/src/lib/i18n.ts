@@ -1,4 +1,24 @@
 const vi = {
+  inbox: {
+    hint: 'Thông báo phản ánh các mốc giao hàng đã lưu trong đơn.',
+    unread: 'thông báo chưa đọc',
+    readAll: 'Đánh dấu tất cả đã đọc',
+    empty: 'Chưa có thông báo',
+    new: 'Chưa đọc',
+    shipped: 'Đơn hàng đang giao',
+    delivered: 'Đơn hàng đã giao',
+    readAndView: 'Đánh dấu đã đọc và xem đơn',
+    more: 'Tải thêm',
+  },
+  reviews: {
+    saved: 'Đã cập nhật đánh giá',
+    yourRating: 'Đánh giá của bạn',
+    rate: 'Chấm sao sản phẩm',
+    update: 'Lưu đánh giá',
+    submit: 'Gửi đánh giá',
+    remove: 'Xóa đánh giá',
+    removeHint: 'Bạn có muốn xóa đánh giá sao này?',
+  },
   orders: {
     detail: 'Chi tiết đơn hàng',
     empty: 'Chưa có đơn hàng',
