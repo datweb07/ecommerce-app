@@ -56,7 +56,7 @@ export function SearchForm({
         type="search"
         id={id}
         name="q"
-        maxLength={100}
+        maxLength={80}
         placeholder={t('nav', 'search')}
         className="min-w-0 border-transparent bg-transparent"
       />
