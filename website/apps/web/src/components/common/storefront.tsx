@@ -1,11 +1,11 @@
-import { ImageOff } from 'lucide-react';
-import Image from 'next/image';
 import Link from 'next/link';
 import type { checkoutStatus, orderStatus } from '@storefront/shared';
 import type { z } from 'zod';
 import { formatMoney } from '../../lib/money';
 import { Badge, Card } from '../ui/panels';
 import { RatingStars } from './rating-stars';
+import { ProductImage } from '../catalogue/product-image';
+import { t } from '../../lib/i18n';
 
 export function Price({
   amount,
@@ -42,24 +42,19 @@ export function ProductCard({
   id: string;
   name: string;
   price: number;
-  image?: string;
+  image?: string | undefined;
   stock: number;
   rating?: number;
 }) {
   return (
-    <Card className="overflow-hidden p-0">
+    <Card className="h-full overflow-hidden p-0">
       <div className="relative grid aspect-[4/3] place-items-center bg-muted">
-        {image ? (
-          <Image
-            src={image}
-            alt=""
-            fill
-            className="object-cover"
-            sizes="(max-width: 640px) 100vw, 33vw"
-          />
-        ) : (
-          <ImageOff className="text-muted-foreground" aria-hidden="true" />
-        )}
+        <ProductImage
+          source={image}
+          alt={name}
+          className="object-cover"
+          sizes="(max-width: 1279px) 50vw, 300px"
+        />
       </div>
       <div className="grid gap-2 p-4">
         <Link
@@ -70,7 +65,11 @@ export function ProductCard({
         </Link>
         <Price amount={price} />
         {rating !== undefined && <RatingStars value={rating} />}
-        {stock <= 0 && <Badge className="justify-self-start">Hết hàng</Badge>}
+        {stock <= 0 && (
+          <Badge className="justify-self-start">
+            {t('catalogue', 'outOfStock')}
+          </Badge>
+        )}
       </div>
     </Card>
   );

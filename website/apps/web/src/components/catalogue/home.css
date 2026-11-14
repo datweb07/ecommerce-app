@@ -1,0 +1,22 @@
+.home-hero {
+  position: relative;
+  isolation: isolate;
+  background: linear-gradient(120deg, #13382a 18%, #215e46 100%);
+  color: #f5fff9;
+}
+.home-hero::after {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  content: '';
+  background: repeating-radial-gradient(
+    ellipse at 97% 75%,
+    transparent 0 24px,
+    #d5f2c71f 25px 26px,
+    transparent 27px 45px
+  );
+  mask-image: linear-gradient(90deg, transparent 23%, #000);
+}
+.dark .home-hero {
+  background: linear-gradient(120deg, #162d24 18%, #225440 100%);
+}
