@@ -48,6 +48,7 @@ export const orderDto = z.object({
       quantity: z.number(),
       image: z.string(),
       canReview: z.boolean(),
+      review: z.object({ id: objectId, rating: z.number() }).nullable(),
     }),
   ),
   shippingAddress: z.object({

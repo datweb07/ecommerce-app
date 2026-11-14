@@ -39,6 +39,8 @@ import { reviewService } from './modules/reviews/service.js';
 import { notificationModel } from './models/notification.js';
 import { notificationService } from './modules/notifications/service.js';
 import { notificationRoutes } from './modules/notifications/routes.js';
+import { adminRoutes } from './modules/admin/routes.js';
+import { adminService } from './modules/admin/service.js';
 
 export async function buildApp(
   env: Env,
@@ -147,6 +149,15 @@ export async function buildApp(
     const inbox = notificationModel(database);
     await inbox.createIndexes();
     const notifications = notificationService(inbox, orders);
+    await app.register(
+      (scope) =>
+        adminRoutes(
+          scope,
+          adminService(database, orders, notifications, env),
+          auth,
+        ),
+      { prefix: '/api/v1' },
+    );
     await app.register(
       (scope) => notificationRoutes(scope, notifications, auth),
       { prefix: '/api/v1' },

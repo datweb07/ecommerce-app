@@ -1,6 +1,6 @@
 # ShopEase — Web storefront
 
-Workspace độc lập cho customer website. API đã có Clerk auth, catalogue, cart, wishlist, địa chỉ, Stripe Checkout và đơn hàng tới mốc 2.4. Trang Next hiện là trang nền tảng.
+Workspace độc lập cho customer website. Backend Giai đoạn 2 có Clerk auth, catalogue, cart, wishlist, địa chỉ, Stripe Checkout, đơn hàng, reviews, inbox và API admin. Trang Next hiện là trang nền tảng.
 
 ## Chạy local trong khoảng 10 phút
 
@@ -110,6 +110,6 @@ Dùng signing secret của CLI cho `STRIPE_WEBHOOK_SECRET` rồi restart API. Qu
 - Nếu Docker báo `metadata.db: input/output error`, kiểm tra dung lượng ổ lưu Docker và tình trạng Docker Desktop. Không dùng prune/reset xóa dữ liệu tùy tiện.
 - Nếu container báo `exec format error`, xem log trước khi sửa healthcheck. Ngày 28/10/2026, image Mongo 8.0.17 trong cache có entrypoint 0 byte và libcurl bị cắt cụt, dù kiến trúc đúng amd64. Đã chuyển sang Mongo 8.0.34 pin digest trong Compose; `pnpm db:up` đã chạy thành công, container healthy và `rs0` có PRIMARY. Thay container giữ nguyên volume, không cần `down -v`/prune/reset. Hãy giữ đủ dung lượng ổ lưu Docker.
 - API startup chỉ in tên biến sai hoặc thông báo connection chung; không in giá trị. `PORT` phải là integer 1–65535, CORS phải exact origin (không trailing path).
-- Build và test chạy với adapter thử. Review mutation, notifications, admin/upload, frontend và CI/CD thuộc các mốc sau.
+- Build và test chạy với adapter thử. CI/CD và frontend thuộc các giai đoạn sau.
 
-API và quyết định thiết kế được ghi trong [auth](../docs/web/02-1-auth.md), [catalogue](../docs/web/02-2-catalogue.md), [customer](../docs/web/02-3-customer.md) và [checkout](../docs/web/02-4-checkout.md). Mốc duyệt hiện tại là 2.4.
+Danh sách route, tài liệu từng module và các giới hạn vận hành nằm trong [API backend Giai đoạn 2](../docs/web/02-backend-api.md). Upload Cloudinary dùng dynamic folder mode. Hợp đồng ký upload và giới hạn dung lượng được ghi trong [tài liệu Admin](../docs/web/02-7-admin.md).

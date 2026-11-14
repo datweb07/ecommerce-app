@@ -481,7 +481,22 @@ it('documents every implemented route and authenticated request shape in OpenAPI
   const paths = spec.json().paths;
   expect(
     Object.keys(paths).filter((path) => path.startsWith('/api/v1/')),
-  ).toHaveLength(25);
+  ).toHaveLength(28);
+  expect(paths['/api/v1/reviews'].post.responses['201']).toBeDefined();
+  expect(paths['/api/v1/reviews/{id}'].delete.responses['200']).toBeDefined();
+  expect(paths['/api/v1/notifications'].get.parameters).toEqual(
+    expect.arrayContaining([
+      expect.objectContaining({ name: 'cursor', in: 'query' }),
+    ]),
+  );
+  expect(paths['/api/v1/admin/orders/{id}/status'].patch.security).toEqual([
+    { clerkBearer: [] },
+  ]);
+  expect(
+    paths['/api/v1/admin/uploads/signature'].post.requestBody.content[
+      'application/json'
+    ].schema.additionalProperties,
+  ).toBe(false);
   expect(paths['/api/v1/checkout/sessions'].post.parameters).toEqual(
     expect.arrayContaining([
       expect.objectContaining({

@@ -18,11 +18,15 @@ export function orderService(
     const existing = productIds.length
       ? await reviews
           .find({ userId: user._id, productId: { $in: productIds } })
-          .select({ productId: 1 })
+          .select({ productId: 1, rating: 1 })
+          .sort({ _id: 1 })
           .lean()
       : [];
-    const reviewed = new Set(
-      existing.map((review) => review.productId.toString()),
+    const reviewed = new Map(
+      existing.map((review) => [
+        review.productId.toString(),
+        { id: review._id.toString(), rating: review.rating },
+      ]),
     );
     return rows.map((row) => {
       const address = row.shippingAddress;
@@ -42,6 +46,7 @@ export function orderService(
           canReview:
             row.status === 'delivered' &&
             !reviewed.has(item.product.toString()),
+          review: reviewed.get(item.product.toString()) ?? null,
         })),
         shippingAddress: {
           fullName: address.fullName,

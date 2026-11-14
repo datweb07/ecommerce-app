@@ -43,7 +43,24 @@ async function order(
       clerkId: user,
       user: new Types.ObjectId(response.json().id),
       status,
-      orderItems: [{ product: productId }],
+      totalPrice: 12,
+      shippingAddress: {
+        fullName: 'Test buyer',
+        streetAddress: '1 Test Street',
+        city: 'Test',
+        state: 'Test',
+        zipCode: '12345',
+        phoneNumber: '+12025550123',
+      },
+      orderItems: [
+        {
+          product: productId,
+          name: 'Test product',
+          price: 12,
+          quantity: 1,
+          image: 'test.png',
+        },
+      ],
     })
   ).insertedId.toString();
 }
@@ -104,6 +121,15 @@ it('protects review ownership and serializes duplicates and aggregate writes', a
   const rightPath = '/' + c.json().id;
   const lookup = () => fixture.db.collection('products').findOne({ _id: id });
   expect(await lookup()).toMatchObject({ averageRating: 4, totalReviews: 2 });
+  const ownOrder = await fixture.app.inject({
+    url: '/api/v1/orders/' + left,
+    headers: bearer('user_Left'),
+  });
+  expect(ownOrder.statusCode, ownOrder.body).toBe(200);
+  expect(ownOrder.json().items[0]).toMatchObject({
+    canReview: false,
+    review: { id: leftPath.slice(1), rating: 5 },
+  });
   expect(
     (await request('PATCH', leftPath, 'user_Right', { rating: 1 })).statusCode,
   ).toBe(404);

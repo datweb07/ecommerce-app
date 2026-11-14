@@ -57,6 +57,7 @@ export function orderModel(db: Connection) {
     { timestamps: true },
   );
   order.index({ clerkId: 1, createdAt: -1, _id: -1 });
+  order.index({ createdAt: -1, _id: -1 });
   order.index({ status: 1, createdAt: -1, _id: -1 });
   return db.model('StorefrontOrder', order, 'orders');
 }
