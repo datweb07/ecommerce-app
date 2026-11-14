@@ -34,6 +34,8 @@ import {
 } from './modules/checkout/payment-provider.js';
 import { orderService } from './modules/checkout/orders.js';
 import { checkoutRoutes } from './modules/checkout/routes.js';
+import { reviewRoutes } from './modules/reviews/routes.js';
+import { reviewService } from './modules/reviews/service.js';
 
 export async function buildApp(
   env: Env,
@@ -139,6 +141,11 @@ export async function buildApp(
     ]);
     const catalogue = catalogueModels(database);
     const orders = orderModel(database);
+    await app.register(
+      (scope) =>
+        reviewRoutes(scope, reviewService(database, catalogue, orders), auth),
+      { prefix: '/api/v1' },
+    );
     const carts = cartModel(database);
     const checkouts = checkoutModel(database);
     await checkouts.createIndexes();
