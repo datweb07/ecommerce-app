@@ -26,10 +26,22 @@ import { catalogueRoutes } from './modules/products/routes.js';
 import { cartModel } from './models/cart.js';
 import { customerService } from './modules/customer/service.js';
 import { customerRoutes } from './modules/customer/routes.js';
+import { checkoutModel } from './models/checkout.js';
+import { checkoutService } from './modules/checkout/service.js';
+import {
+  stripeProvider,
+  type PaymentProvider,
+} from './modules/checkout/payment-provider.js';
+import { orderService } from './modules/checkout/orders.js';
+import { checkoutRoutes } from './modules/checkout/routes.js';
 
 export async function buildApp(
   env: Env,
-  options: { logger?: boolean; clerk?: ClerkAdapter } = {},
+  options: {
+    logger?: boolean;
+    clerk?: ClerkAdapter;
+    payment?: PaymentProvider;
+  } = {},
 ) {
   const app = Fastify({
     logger:
@@ -83,8 +95,36 @@ export async function buildApp(
     await app.register(sensible);
     await app.register(rateLimit, { max: 100, timeWindow: '1 minute' });
     await app.register(swagger, {
-      openapi: { info: { title: 'ShopEase Storefront API', version: '0.1.0' } },
-      transform: jsonSchemaTransform,
+      openapi: {
+        info: { title: 'ShopEase Storefront API', version: '0.2.0' },
+        components: {
+          securitySchemes: {
+            clerkBearer: {
+              type: 'http',
+              scheme: 'bearer',
+              bearerFormat: 'JWT',
+            },
+          },
+        },
+      },
+      transform: (input) => {
+        const result = jsonSchemaTransform(input);
+        if (input.url.includes('/webhooks/')) {
+          return {
+            ...result,
+            schema: {
+              ...result.schema,
+              body: {
+                type: 'object',
+                additionalProperties: true,
+                description:
+                  'Send the signed provider JSON with its original whitespace and bytes.',
+              },
+            },
+          };
+        }
+        return result;
+      },
     });
     const database = await connectDatabase(app, env.MONGODB_URI);
     const auth = authService(
@@ -100,6 +140,52 @@ export async function buildApp(
     const catalogue = catalogueModels(database);
     const orders = orderModel(database);
     const carts = cartModel(database);
+    const checkouts = checkoutModel(database);
+    await checkouts.createIndexes();
+    const payment =
+      options.payment ??
+      stripeProvider(env.STRIPE_SECRET_KEY, env.STRIPE_WEBHOOK_SECRET);
+    const checkout = checkoutService(
+      database,
+      {
+        checkouts,
+        carts,
+        users: auth.users,
+        products: catalogue.products,
+        orders,
+        receipts: auth.receipts,
+      },
+      env,
+      payment,
+      app.log,
+    );
+    if (payment && env.NODE_ENV !== 'test') {
+      let running: Promise<void> | undefined;
+      const timer = setInterval(() => {
+        if (running) return;
+        running = checkout
+          .sweep()
+          .catch(() => app.log.error('Checkout sweep failed'))
+          .finally(() => {
+            running = undefined;
+          });
+      }, 60_000);
+      timer.unref();
+      app.addHook('preClose', async () => {
+        clearInterval(timer);
+        await running;
+      });
+    }
+    await app.register(
+      (scope) =>
+        checkoutRoutes(
+          scope,
+          checkout,
+          orderService(orders, catalogue.reviews),
+          auth,
+        ),
+      { prefix: '/api/v1' },
+    );
     await carts.createIndexes();
     await app.register(
       (scope) =>

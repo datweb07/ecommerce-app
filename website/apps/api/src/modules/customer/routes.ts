@@ -1,5 +1,9 @@
 import type { FastifyInstance } from 'fastify';
-import { apiRoute, errorResponses } from '../../plugins/route.js';
+import {
+  apiRoute,
+  bearerSecurity,
+  errorResponses,
+} from '../../plugins/route.js';
 import type { AuthService } from '../auth/service.js';
 import type { CustomerService } from './service.js';
 import {
@@ -26,6 +30,7 @@ export async function customerRoutes(
   const preHandler = auth.requireAuth;
   const cart = {
     tags: ['Cart'],
+    security: bearerSecurity,
     querystring: emptyQuery,
     response: { 200: cartDto, ...errorResponses },
   };
@@ -66,6 +71,7 @@ export async function customerRoutes(
       preHandler,
       schema: {
         tags: ['Wishlist'],
+        security: bearerSecurity,
         querystring: pagination,
         response: { 200: productListDto, ...errorResponses },
       },
@@ -74,6 +80,7 @@ export async function customerRoutes(
   );
   const wish = {
     tags: ['Wishlist'],
+    security: bearerSecurity,
     querystring: emptyQuery,
     params: productIdParams,
     response: { 200: acknowledgement, ...errorResponses },
@@ -86,6 +93,7 @@ export async function customerRoutes(
   );
   const address = {
     tags: ['Addresses'],
+    security: bearerSecurity,
     querystring: emptyQuery,
     response: { 200: addressListDto, ...errorResponses },
   };

@@ -1,10 +1,10 @@
 # ShopEase — Web storefront
 
-Workspace độc lập cho customer website. Giai đoạn 1 chỉ có nền tảng, trang Next tối thiểu, health/OpenAPI và công cụ dữ liệu. Chưa có đăng nhập, catalogue API hay thanh toán. Không dùng code từ `backend/`, `mobile/`, `admin/`.
+Workspace độc lập cho customer website. API đã có Clerk auth, catalogue, cart, wishlist, địa chỉ, Stripe Checkout và đơn hàng tới mốc 2.4. Trang Next hiện là trang nền tảng.
 
 ## Chạy local trong khoảng 10 phút
 
-Chuẩn bị Git, Node >=20.19 để bootstrap, pnpm 10.17.1 và Docker Desktop **đang chạy Linux engine**, ổ đĩa còn dung lượng. Runtime Node 26.12.1 được cài riêng trong workspace; không đổi Node của app cũ. Lần đầu tải dependencies/image có thể lâu hơn tùy mạng. Chưa cần Clerk/Stripe/Cloudinary keys.
+Chuẩn bị Git, Node >=20.19, pnpm 10.17.1 và Docker Desktop chạy Linux engine. Workspace dùng Node 26.12.1. Catalogue, health, Swagger và seed chạy với cấu hình mặc định. Các route tích hợp cần keys tương ứng trong `.env`.
 
 Tất cả lệnh dưới đây chạy trong `website/`, không chạy script ở root repo:
 
@@ -76,7 +76,7 @@ pnpm import:products -- --write --limit=1000
 | GET /openapi.json | spec sinh từ Zod, chỉ development/test |
 | GET /docs/        | Swagger UI, chỉ development/test       |
 
-Mọi response có `x-request-id`. Header client chỉ được dùng nếu 8–64 ký tự an toàn; còn lại sinh UUID. Error: `{error:{code,message},requestId}`, không có stack/raw validation payload. Lỗi nội bộ không log object chứa URI/secrets; access log bỏ query string, redact authorization/cookie/set-cookie. Body tối đa 1 MiB; rate limit mặc định 100 request/phút/IP, health được miễn để probe không gây false failure. Chưa trust proxy tùy ý; phải cấu hình proxy cụ thể khi deploy. CORS exact origins qua `CORS_ORIGINS`, không wildcard, Bearer auth sẽ được thêm ở Giai đoạn 2. DB autoCreate/autoIndex tắt, close hook dọn connection, SIGINT/SIGTERM đóng app.
+Response API có `x-request-id`. Lỗi theo dạng `{error:{code,message},requestId}`. Access log bỏ query string và redact authorization/cookie/set-cookie. Body tối đa 1 MiB. Rate limit mặc định 100 request/phút/IP, checkout có hạn mức riêng. Private API dùng Clerk Bearer JWT. Cấu hình exact origins qua `CORS_ORIGINS`. API tạo index additive và đóng connection khi shutdown.
 
 ## Chuẩn bị trước Giai đoạn 2
 
@@ -91,7 +91,7 @@ Tự điền secret trong file local, không commit:
 | Stripe CLI local listener                                          | STRIPE_WEBHOOK_SECRET                                            | —                                                   |
 | Cloudinary Console → API keys                                      | CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET | —                                                   |
 
-Giai đoạn 1 cho phép bỏ trống các integration keys, không khởi tạo SDK giả. Nếu nhập Stripe live key, env validation từ chối ngay. `CURRENCY=usd`, `SHIPPING_FEE_CENTS=1000`, `TAX_RATE=0.08`; TAX_RATE là tỷ lệ 0–1, không phải số phần trăm 8. Đổi currency sau này cần xác nhận lại đơn vị giá/rounding; chưa có payment implementation.
+Có thể để trống integration keys tới khi thử tính năng tương ứng. Stripe nhận test key. Giá checkout mặc định `CURRENCY=usd`, `SHIPPING_FEE_CENTS=1000`, `TAX_RATE=0.08`. TAX_RATE là tỷ lệ từ 0 đến 1. Checkout dùng USD để khớp cách lưu giá legacy.
 
 ## Stripe CLI — dùng từ Giai đoạn 2
 
@@ -102,7 +102,7 @@ stripe login
 stripe listen --events checkout.session.completed,checkout.session.async_payment_succeeded,checkout.session.async_payment_failed,checkout.session.expired --forward-to http://localhost:4000/api/v1/webhooks/stripe
 ```
 
-Tự copy signing secret `whsec_...` CLI cung cấp vào STRIPE_WEBHOOK_SECRET rồi restart API. Secret CLI khác secret endpoint Dashboard. Giai đoạn 1 route webhook **chưa tồn tại, sẽ trả 404**. Sau Giai đoạn 2, tạo Checkout session thật từ web API test, hoàn tất bằng [test payment methods](https://docs.stripe.com/testing), đối chiếu webhook với order và thử replay cùng event để chứng minh không duplicate. Event giả bằng `stripe trigger checkout.session.completed` chỉ kiểm tra delivery/signature, không thay cho checkout có ID/metadata hợp lệ của hệ thống.
+Dùng signing secret của CLI cho `STRIPE_WEBHOOK_SECRET` rồi restart API. Quy trình thử session thật, thẻ test và replay nằm trong [hướng dẫn Stripe cục bộ](../docs/web/stripe-local-testing.md).
 
 ## Troubleshooting và giới hạn hiện tại
 
@@ -110,6 +110,6 @@ Tự copy signing secret `whsec_...` CLI cung cấp vào STRIPE_WEBHOOK_SECRET r
 - Nếu Docker báo `metadata.db: input/output error`, kiểm tra dung lượng ổ lưu Docker và tình trạng Docker Desktop. Không dùng prune/reset xóa dữ liệu tùy tiện.
 - Nếu container báo `exec format error`, xem log trước khi sửa healthcheck. Ngày 28/10/2026, image Mongo 8.0.17 trong cache có entrypoint 0 byte và libcurl bị cắt cụt, dù kiến trúc đúng amd64. Đã chuyển sang Mongo 8.0.34 pin digest trong Compose; `pnpm db:up` đã chạy thành công, container healthy và `rs0` có PRIMARY. Thay container giữ nguyên volume, không cần `down -v`/prune/reset. Hãy giữ đủ dung lượng ổ lưu Docker.
 - API startup chỉ in tên biến sai hoặc thông báo connection chung; không in giá trị. `PORT` phải là integer 1–65535, CORS phải exact origin (không trailing path).
-- Có thể build/test foundation mà không có Clerk/Stripe/Cloudinary account. Các module nghiệp vụ, CI/CD và deploy chưa thuộc Giai đoạn 1.
+- Build và test chạy với adapter thử. Review mutation, notifications, admin/upload, frontend và CI/CD thuộc các mốc sau.
 
-Quyết định/biên bản nghiệm thu chi tiết: [docs/web/01-foundation.md](../docs/web/01-foundation.md). **Dừng sau Giai đoạn 1; chờ duyệt trước Giai đoạn 2.**
+API và quyết định thiết kế được ghi trong [auth](../docs/web/02-1-auth.md), [catalogue](../docs/web/02-2-catalogue.md), [customer](../docs/web/02-3-customer.md) và [checkout](../docs/web/02-4-checkout.md). Mốc duyệt hiện tại là 2.4.

@@ -7,13 +7,19 @@ import {
   rawWebhookBody,
   svixHeaders,
 } from '@storefront/shared';
-import { apiRoute, errorResponses, rawJson } from '../../plugins/route.js';
+import {
+  apiRoute,
+  bearerSecurity,
+  errorResponses,
+  rawJson,
+} from '../../plugins/route.js';
 import type { AuthService } from './service.js';
 
 export async function authRoutes(app: FastifyInstance, auth: AuthService) {
   const api = apiRoute(app);
   const schema = {
     tags: ['Account'],
+    security: bearerSecurity,
     querystring: emptyQuery,
     response: { 200: profileDto, ...errorResponses },
   };

@@ -5,6 +5,7 @@ import { errorResponseSchema } from '@storefront/shared';
 export function apiRoute(app: FastifyInstance) {
   return app.withTypeProvider<ZodTypeProvider>();
 }
+export const bearerSecurity = [{ clerkBearer: [] }];
 export const errorResponses = {
   400: errorResponseSchema,
   401: errorResponseSchema,

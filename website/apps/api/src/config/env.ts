@@ -40,10 +40,7 @@ export const envSchema = z.object({
         )
         .min(1),
     ),
-  CURRENCY: z
-    .string()
-    .regex(/^[a-z]{3}$/)
-    .default('usd'),
+  CURRENCY: z.literal('usd').default('usd'),
   SHIPPING_FEE_CENTS: z.coerce
     .number()
     .int()
