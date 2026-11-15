@@ -3,6 +3,7 @@ import { ArrowRight, CreditCard, PackageCheck, Truck } from 'lucide-react';
 import Link from 'next/link';
 import type { Metadata } from 'next';
 import { PageContainer, Section } from '@/components/common/page';
+import { FanCards } from '@/components/common/fan-cards';
 import { EmptyState, LoadingSkeleton } from '@/components/common/states';
 import { Button } from '@/components/ui/button';
 import { ProductGrid } from '@/components/catalogue/product-grid';
@@ -124,27 +125,18 @@ export default function HomePage() {
           </Suspense>
         </Section>
       ))}
-      <ul className="grid gap-6 border-t border-border pt-8 md:grid-cols-3">
-        {storeBenefits.map(({ icon, title, description }) => {
+      <FanCards
+        id="home-benefits"
+        items={storeBenefits.map(({ icon, title, description }) => {
           const Icon = icons[icon];
-          return (
-            <li key={icon} className="flex items-start gap-3">
-              <Icon
-                className="shrink-0 text-muted-foreground"
-                size={20}
-                strokeWidth={1.5}
-                aria-hidden="true"
-              />
-              <div>
-                <h2 className="text-label font-medium">{title}</h2>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  {description}
-                </p>
-              </div>
-            </li>
-          );
+          return {
+            id: icon,
+            title,
+            description,
+            icon: <Icon size={22} strokeWidth={1.5} />,
+          };
         })}
-      </ul>
+      />
     </PageContainer>
   );
 }

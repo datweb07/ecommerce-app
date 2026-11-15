@@ -59,6 +59,7 @@ export default defineConfig({
       name: 'public-chromium',
       testMatch: [
         publicMatch,
+        '**/fan-cards.spec.ts',
         '**/accessibility.spec.ts',
         '**/security.spec.ts',
       ],
@@ -66,7 +67,11 @@ export default defineConfig({
     },
     {
       name: 'public-mobile',
-      testMatch: [publicMatch, '**/accessibility.spec.ts'],
+      testMatch: [
+        publicMatch,
+        '**/accessibility.spec.ts',
+        '**/fan-cards.spec.ts',
+      ],
       use: chromiumMobile,
     },
     {

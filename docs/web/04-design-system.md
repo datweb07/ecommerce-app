@@ -38,6 +38,8 @@ Viền điều khiển có độ tương phản cao hơn đường phân vùng. 
 
 Hero dùng chữ và hai lối điều hướng. Catalogue giữ filter, sort và pagination hiện có. Nút biểu tượng yêu thích trên ô sản phẩm mở đúng vùng mua hàng ở chi tiết, nơi thao tác wishlist hiện có tiếp tục xử lý. Không thêm truy vấn membership trên mỗi thẻ.
 
+Card xòe dùng mặt `--muted`, viền 1 px và bo 4 px. Mỗi card có một vùng hover và focus đứng yên. Chỉ mặt card dịch chuyển để con trỏ vẫn ở trong vùng nhận tương tác. Tiêu đề và icon nằm trong phần căn trái cách mép chồng. Màn hình hẹp hoặc cảm ứng hiển thị danh sách dọc và reduced motion dùng lưới phẳng.
+
 Ảnh trước và sau nằm tại `website/.cache/redesign/before` và `website/.cache/redesign/after`.
 
 ## Kiểm chứng
