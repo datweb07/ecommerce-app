@@ -1,0 +1,16 @@
+﻿# EAS Build ignore rules
+node_modules/
+**/node_modules/
+.git/
+.cache/
+**/.cache/
+.expo/
+**/.expo/
+website/
+docs/
+**/android/build/
+**/android/.gradle/
+**/android/app/build/
+**/ios/build/
+.env
+.env.*

@@ -18,7 +18,7 @@
 export default {
   expo: {
     name: "ShopEase",
-    slug: "shopease",
+    slug: "mobile",
     version: "1.0.0",
 
     scheme: "anonymous",
