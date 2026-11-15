@@ -3,6 +3,8 @@ import { objectId } from './auth.js';
 import { pageInfo } from './products.js';
 import { notificationStatus } from './notifications.js';
 
+export const adminMeDto = z.object({ id: objectId, isAdmin: z.literal(true) });
+
 export const orderStatus = z.enum(['pending', 'shipped', 'delivered']);
 export const adminOrderPatch = z.strictObject({
   expectedStatus: orderStatus,

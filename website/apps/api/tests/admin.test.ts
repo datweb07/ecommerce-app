@@ -20,6 +20,7 @@ const auth = bearer('user_Admin');
 
 it('requires a verified admin for all three routes and rejects anonymous requests', async () => {
   const blocked = [
+    { method: 'GET' as const, url: base + '/me' },
     { method: 'GET' as const, url: base + '/orders' },
     {
       method: 'PATCH' as const,
@@ -35,6 +36,17 @@ it('requires a verified admin for all three routes and rejects anonymous request
         .statusCode,
     ).toBe(403);
   }
+  const result = await fixture.app.inject({ url: base + '/me', headers: auth });
+  expect(result.statusCode).toBe(200);
+  expect(result.headers['cache-control']).toBe('private, no-store');
+  expect(result.json()).toEqual({
+    id: expect.stringMatching(/^[a-f0-9]{24}$/),
+    isAdmin: true,
+  });
+  expect(
+    (await fixture.app.inject({ url: base + '/me?extra=1', headers: auth }))
+      .statusCode,
+  ).toBe(400);
 });
 
 it('lists paginated safe summaries and commits only the next status with one notification per transition', async () => {

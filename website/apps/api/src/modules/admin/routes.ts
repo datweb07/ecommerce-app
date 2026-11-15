@@ -1,5 +1,5 @@
 import type { FastifyInstance } from 'fastify';
-import { emptyQuery } from '@storefront/shared';
+import { adminMeDto, emptyQuery } from '@storefront/shared';
 import type { AuthService } from '../auth/service.js';
 import {
   apiRoute,
@@ -29,6 +29,20 @@ export async function adminRoutes(
     querystring: emptyQuery,
   };
   const preHandler = auth.requireAdmin;
+  api.get(
+    '/admin/me',
+    {
+      preHandler,
+      schema: { ...schema, response: { 200: adminMeDto, ...errorResponses } },
+    },
+    async (request, reply) => {
+      reply.header('Cache-Control', 'private, no-store');
+      return {
+        id: request.storefrontUser._id.toString(),
+        isAdmin: true as const,
+      };
+    },
+  );
   api.get(
     '/admin/orders',
     {
