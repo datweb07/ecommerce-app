@@ -1,6 +1,49 @@
 import { expect, test } from '@playwright/test';
 import { apiOrigin, webOrigin } from './safety.ts';
 import { firstProductId } from './seed.ts';
+import { androidReleaseUrl } from '../src/config/env-schema.ts';
+
+test(
+  'Android footer exposes a clickable release page and the QR when configured',
+  { tag: '@public' },
+  async ({ page }) => {
+    await page.goto('/');
+    const region = page.getByRole('region', {
+      name: 'Khám phá ShopEase trên Android',
+    });
+    await expect(region).toBeVisible();
+    const link = region.getByRole('link', { name: 'Mở trang tải cho Android' });
+    const qr = region.getByRole('img', {
+      name: 'Mã QR mở trang tải ShopEase cho Android',
+    });
+    const configured = process.env.MOBILE_ANDROID_DOWNLOAD_URL?.trim();
+    if (!configured) {
+      await expect(
+        region.getByText('Bản Android chính thức đang được chuẩn bị.'),
+      ).toBeVisible();
+      await expect(link).toHaveCount(0);
+      await expect(qr).toHaveCount(0);
+      return;
+    }
+    await expect(link).toHaveAttribute(
+      'href',
+      androidReleaseUrl.parse(configured),
+    );
+    await qr.scrollIntoViewIfNeeded();
+    await expect(qr).toBeVisible();
+    await expect
+      .poll(() =>
+        qr.evaluate((image) => (image as HTMLImageElement).naturalWidth),
+      )
+      .toBe(256);
+    const src = await qr.getAttribute('src');
+    expect(src).toMatch(/^data:image\/png;base64,/);
+    await test.info().attach('Android download QR', {
+      body: Buffer.from(src?.split(',')[1] ?? '', 'base64'),
+      contentType: 'image/png',
+    });
+  },
+);
 
 test(
   'starts a production storefront against the isolated seeded API',

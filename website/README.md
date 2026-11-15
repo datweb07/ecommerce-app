@@ -76,6 +76,10 @@ Công tắc theme và nút cuộn đầu trang dùng chung cho storefront và ad
 
 Sau `pnpm build`, chạy `pnpm --filter @storefront/web smoke:ui-extras`. Script dùng Next production, Fastify và MongoDB seed tạm. Ảnh và số đo trình duyệt được ghi vào `.cache/ui-extras/`.
 
+## Tải ứng dụng Android
+
+Footer storefront hỗ trợ mã QR và link tới GitHub Releases. Đặt `MOBILE_ANDROID_DOWNLOAD_URL` sau khi có APK ký phát hành và build lại web. [Kết quả kiểm APK và hướng dẫn phát hành](../docs/web/android-apk-distribution.md).
+
 ## Kiểm thử
 
 `pnpm e2e:env` báo biến đang có trong tiến trình. `pnpm e2e:public` chạy luồng public, axe và kiểm tra HTTP trên Next production, API local và MongoDB seed riêng. `pnpm e2e` chọn các nhóm có đủ biến test. `pnpm lighthouse` ghi ba lượt đo mỗi trang và thiết bị vào `.cache/lighthouse/`. Xem [cách cài trình duyệt, cấu hình provider và mở báo cáo](../docs/web/06-e2e-testing.md).

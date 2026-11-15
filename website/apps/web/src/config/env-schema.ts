@@ -20,6 +20,13 @@ const optionalKey = (pattern: RegExp) =>
     (value) => (value === '' ? undefined : value),
     z.string().regex(pattern).optional(),
   );
+export const androidReleaseUrl = z
+  .string()
+  .trim()
+  .regex(
+    /^https:\/\/github\.com\/datweb07\/ecommerce-app\/releases\/(?:latest|tag\/[A-Za-z0-9][A-Za-z0-9._-]{0,99})\/?$/,
+    'Dùng URL HTTPS trang phát hành GitHub của ShopEase.',
+  );
 export const publicSchema = z.object({
   NEXT_PUBLIC_MASCOT_ENABLED: z
     .enum(['true', 'false'])
@@ -40,6 +47,10 @@ export const serverSchema = z.object({
   CLERK_SECRET_KEY: optionalKey(/^sk_(test|live)_[A-Za-z0-9_-]+$/),
   CURRENCY: z.enum(['usd']),
   CART_MAX_QUANTITY: z.coerce.number().int().min(1).max(1000).default(25),
+  MOBILE_ANDROID_DOWNLOAD_URL: z.preprocess(
+    (value) => (typeof value === 'string' && !value.trim() ? undefined : value),
+    androidReleaseUrl.optional(),
+  ),
 });
 
 export function parseEnv<T extends z.ZodType>(schema: T, input: unknown) {

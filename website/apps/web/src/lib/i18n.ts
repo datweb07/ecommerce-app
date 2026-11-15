@@ -1,4 +1,12 @@
 const vi = {
+  mobileDownload: {
+    title: 'Khám phá ShopEase trên Android',
+    description:
+      'Quét mã QR bằng điện thoại hoặc mở trang phát hành để tải tệp APK.',
+    link: 'Mở trang tải cho Android',
+    qrLabel: 'Mã QR mở trang tải ShopEase cho Android',
+    pending: 'Bản Android chính thức đang được chuẩn bị.',
+  },
   banner: {
     label: 'Nổi bật tại cửa hàng',
     carousel: 'Trình chiếu',

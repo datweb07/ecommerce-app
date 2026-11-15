@@ -72,6 +72,7 @@ const webEnv: NodeJS.ProcessEnv = {
   NEXT_PUBLIC_API_URL: apiOrigin,
   API_INTERNAL_URL: apiOrigin,
   NEXT_PUBLIC_SITE_URL: webOrigin,
+  MOBILE_ANDROID_DOWNLOAD_URL: process.env.MOBILE_ANDROID_DOWNLOAD_URL,
 };
 
 const {

@@ -7,6 +7,7 @@ export const serverEnv = parseEnv(serverSchema, {
   CLERK_SECRET_KEY: process.env.CLERK_SECRET_KEY,
   CURRENCY: process.env.CURRENCY ?? 'usd',
   CART_MAX_QUANTITY: process.env.CART_MAX_QUANTITY || undefined,
+  MOBILE_ANDROID_DOWNLOAD_URL: process.env.MOBILE_ANDROID_DOWNLOAD_URL,
 });
 
 if (
