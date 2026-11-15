@@ -23,3 +23,11 @@ export const storeBenefits = [
     description: t('home', 'trackingDetail'),
   },
 ] as const;
+
+export const shoppingSteps = (['choose', 'cart', 'pay', 'track'] as const).map(
+  (id) => ({
+    id,
+    title: t('shoppingGuide', id),
+    description: t('shoppingGuide', `${id}Detail`),
+  }),
+);

@@ -1,0 +1,132 @@
+.track {
+  --pin-top: var(--header-h, calc(4rem + 1px));
+  --pin-progress: 0;
+  --pin-position: 0;
+}
+
+.frame {
+  position: relative;
+  padding-block: 2rem;
+  border-block-start: 1px solid var(--border);
+}
+
+.content {
+  margin-block-start: 1.25rem;
+}
+
+.steps {
+  display: grid;
+  gap: 0.75rem;
+  padding-inline-start: 1.75rem;
+  list-style: decimal-leading-zero outside;
+}
+
+.step {
+  padding: 0.375rem 0 0.75rem 0.375rem;
+  color: var(--foreground);
+  border-block-end: 1px solid var(--border);
+}
+
+.step::marker {
+  font-size: 0.875rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.skip {
+  position: absolute;
+  inset-block-start: 0.25rem;
+  inset-inline-start: 0.25rem;
+  z-index: 1;
+  padding: 0.25rem 0.5rem;
+  background: var(--background);
+  text-decoration: underline;
+}
+
+.skip:not(:focus-visible) {
+  clip-path: inset(50%);
+}
+
+.indicator,
+.poster {
+  display: none;
+}
+
+@media (min-width: 48rem) and (min-height: 500px) and (prefers-reduced-motion: no-preference) {
+  .track[data-pin-enhanced] {
+    block-size: min(calc(var(--pin-count) * 100svh), 400svh);
+  }
+
+  [data-pin-enhanced] > .frame {
+    position: sticky;
+    inset-block-start: var(--pin-top);
+    display: grid;
+    align-content: center;
+    block-size: calc(100svh - var(--pin-top));
+    padding-block: 1.25rem;
+  }
+
+  [data-pin-enhanced] .content {
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+    align-items: center;
+    gap: clamp(1.75rem, 7vw, 6rem);
+  }
+
+  [data-pin-enhanced] .steps {
+    gap: 0.5rem;
+  }
+
+  [data-pin-enhanced] :is(.step, .art) {
+    --pin-delta: calc(var(--pin-index) - var(--pin-position));
+    --pin-weight: max(
+      0,
+      calc(1 - max(var(--pin-delta), -1 * var(--pin-delta)))
+    );
+    transform: translateY(calc(clamp(-1, var(--pin-delta), 1) * 12px));
+  }
+
+  [data-pin-enhanced] .step {
+    opacity: calc(0.72 + 0.28 * var(--pin-weight));
+  }
+
+  [data-pin-enhanced] .indicator {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    margin-block-end: 1rem;
+    font-size: 0.875rem;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .progressRail {
+    flex: 1;
+    height: 1px;
+    margin-inline-start: 0.75rem;
+    background: var(--control-border);
+  }
+
+  .progressFill {
+    display: block;
+    height: 100%;
+    background: var(--foreground);
+    transform: scaleX(var(--pin-progress));
+    transform-origin: left;
+  }
+
+  [data-pin-enhanced] .poster {
+    display: grid;
+    place-items: center;
+    width: min(100%, 26rem, calc((100svh - var(--pin-top) - 8rem) * 4 / 3));
+    aspect-ratio: 4 / 3;
+    justify-self: end;
+    background: var(--muted);
+    border: 1px solid var(--control-border);
+    border-radius: 4px;
+    pointer-events: none;
+  }
+
+  .art {
+    grid-area: 1 / 1;
+    opacity: var(--pin-weight);
+  }
+}

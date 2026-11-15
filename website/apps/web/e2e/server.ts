@@ -46,6 +46,7 @@ if (suites.includes('upload')) checkUploadAccount(process.env);
 const requireApi = createRequire(join(apiRoot, 'package.json'));
 const requireWeb = createRequire(import.meta.url);
 const nextBin = requireWeb.resolve('next/dist/bin/next');
+const splitBuild = process.env.STOREFRONT_E2E_SPLIT_BUILD === '1';
 const osEnv = take([
   'PATH',
   'Path',
@@ -237,7 +238,12 @@ try {
       { recursive: true },
     );
   }
-  await next(['build']);
+  if (splitBuild) {
+    await next(['build', '--experimental-build-mode', 'compile']);
+    await next(['build', '--experimental-build-mode', 'generate']);
+  } else {
+    await next(['build']);
+  }
   const storefront = new URL(webOrigin);
   await next([
     'start',

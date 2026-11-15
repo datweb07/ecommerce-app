@@ -1,4 +1,16 @@
 const vi = {
+  shoppingGuide: {
+    heading: 'Cách mua sắm tại ShopEase',
+    skip: 'Bỏ qua hướng dẫn mua sắm',
+    choose: 'Chọn sản phẩm',
+    chooseDetail: 'Duyệt danh mục, xem ảnh và thông tin sản phẩm.',
+    cart: 'Thêm vào giỏ',
+    cartDetail: 'Chọn số lượng và kiểm tra lại giỏ hàng.',
+    pay: 'Thanh toán qua Stripe',
+    payDetail: 'Chọn địa chỉ giao hàng rồi hoàn tất thanh toán trên Stripe.',
+    track: 'Theo dõi đơn hàng',
+    trackDetail: 'Mở mục Đơn hàng trong tài khoản để xem trạng thái giao hàng.',
+  },
   mobileDownload: {
     title: 'Khám phá ShopEase trên Android',
     description:

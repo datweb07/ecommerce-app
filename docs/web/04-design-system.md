@@ -40,6 +40,8 @@ Hero dùng chữ và hai lối điều hướng. Catalogue giữ filter, sort v�
 
 Card xòe dùng mặt `--muted`, viền 1 px và bo 4 px. Mỗi card có một vùng hover và focus đứng yên. Chỉ mặt card dịch chuyển để con trỏ vẫn ở trong vùng nhận tương tác. Tiêu đề và icon nằm trong phần căn trái cách mép chồng. Màn hình hẹp hoặc cảm ứng hiển thị danh sách dọc và reduced motion dùng lưới phẳng.
 
+Ghim cuộn chỉ dùng cho hướng dẫn tuần tự. Nội dung vẫn là danh sách có thứ tự và dùng được khi JavaScript tắt. Đặt một liên kết bỏ qua có thể focus, giữ header ở trên khung ghim và dùng khung minh họa phẳng có tỉ lệ cố định. [Thiết kế U2](07-3d-and-scroll.md)
+
 Ảnh trước và sau nằm tại `website/.cache/redesign/before` và `website/.cache/redesign/after`.
 
 ## Kiểm chứng

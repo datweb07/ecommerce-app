@@ -60,6 +60,7 @@ export default defineConfig({
       testMatch: [
         publicMatch,
         '**/fan-cards.spec.ts',
+        '**/pinned-scroll.spec.ts',
         '**/accessibility.spec.ts',
         '**/security.spec.ts',
       ],
@@ -71,6 +72,7 @@ export default defineConfig({
         publicMatch,
         '**/accessibility.spec.ts',
         '**/fan-cards.spec.ts',
+        '**/pinned-scroll.spec.ts',
       ],
       use: chromiumMobile,
     },

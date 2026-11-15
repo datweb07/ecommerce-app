@@ -1,9 +1,17 @@
 import { Suspense } from 'react';
-import { ArrowRight, CreditCard, PackageCheck, Truck } from 'lucide-react';
+import {
+  ArrowRight,
+  CreditCard,
+  PackageCheck,
+  ShoppingBag,
+  ShoppingCart,
+  Truck,
+} from 'lucide-react';
 import Link from 'next/link';
 import type { Metadata } from 'next';
 import { PageContainer, Section } from '@/components/common/page';
 import { FanCards } from '@/components/common/fan-cards';
+import { PinnedScroll } from '@/components/common/pinned-scroll';
 import { EmptyState, LoadingSkeleton } from '@/components/common/states';
 import { Button } from '@/components/ui/button';
 import { ProductGrid } from '@/components/catalogue/product-grid';
@@ -13,7 +21,7 @@ import { getBanners } from '@/lib/api/banners';
 import { BannerCarousel } from '@/components/catalogue/banner-carousel';
 import { apiResult } from '@/lib/api/result';
 import { t } from '@/lib/i18n';
-import { storeBenefits } from '@/config/site';
+import { shoppingSteps, storeBenefits } from '@/config/site';
 
 export const metadata: Metadata = {
   title: { absolute: t('home', 'title') },
@@ -70,6 +78,12 @@ export default function HomePage() {
     payment: CreditCard,
     tracking: PackageCheck,
   };
+  const stepIcons = {
+    choose: ShoppingBag,
+    cart: ShoppingCart,
+    pay: CreditCard,
+    track: PackageCheck,
+  };
   return (
     <PageContainer className="space-y-section lg:space-y-section-lg">
       <section className="flex min-h-[22rem] items-center border-b border-border py-14 sm:min-h-[28rem] sm:py-20">
@@ -125,6 +139,16 @@ export default function HomePage() {
           </Suspense>
         </Section>
       ))}
+      <PinnedScroll
+        id="home-shopping-guide"
+        title={t('shoppingGuide', 'heading')}
+        skipTarget="home-benefits"
+        skipLabel={t('shoppingGuide', 'skip')}
+        steps={shoppingSteps.map((step) => {
+          const Icon = stepIcons[step.id];
+          return { ...step, icon: <Icon size={72} strokeWidth={1.15} /> };
+        })}
+      />
       <FanCards
         id="home-benefits"
         items={storeBenefits.map(({ icon, title, description }) => {

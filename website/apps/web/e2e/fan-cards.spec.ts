@@ -1,14 +1,5 @@
-import { mkdir } from 'node:fs/promises';
-import { dirname, join } from 'node:path';
 import { expect, test, type Page } from '@playwright/test';
-import { workspace } from './paths.ts';
-
-async function capture(page: Page, name: string) {
-  if (process.env.STOREFRONT_CAPTURE_UI3D !== '1') return;
-  const path = join(workspace, '.cache', 'ui-3d', name + '.png');
-  await mkdir(dirname(path), { recursive: true });
-  await page.screenshot({ path, animations: 'disabled' });
-}
+import { captureUI3D as capture } from './ui-3d-artifacts.ts';
 
 async function coveredLabels(page: Page) {
   return page.locator('[data-fan-face]').evaluateAll((faces) => {

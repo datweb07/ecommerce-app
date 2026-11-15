@@ -76,6 +76,10 @@ Công tắc theme và nút cuộn đầu trang dùng chung cho storefront và ad
 
 Sau `pnpm build`, chạy `pnpm --filter @storefront/web smoke:ui-extras`. Script dùng Next production, Fastify và MongoDB seed tạm. Ảnh và số đo trình duyệt được ghi vào `.cache/ui-extras/`.
 
+## Chuyển động trang chủ
+
+Khối lợi ích và hướng dẫn bốn bước dùng nội dung từ config. Xem [hướng dẫn U2](../docs/web/07-3d-and-scroll.md) để đổi nội dung, chạy thử chế độ chuyển động và chụp ảnh kiểm thử.
+
 ## Tải ứng dụng Android
 
 Footer storefront hỗ trợ mã QR và link tới GitHub Releases. Đặt `MOBILE_ANDROID_DOWNLOAD_URL` sau khi có APK ký phát hành và build lại web. [Kết quả kiểm APK và hướng dẫn phát hành](../docs/web/android-apk-distribution.md).
