@@ -51,6 +51,10 @@ Tạo, sửa và xóa từ các dòng đơn hàng có quyền theo API. Sau muta
 
 Inbox dùng cursor từ API và tải trang tiếp theo theo yêu cầu. Mark read và read-all vô hiệu hóa cả cache danh sách lẫn badge. Polling mỗi 60 giây chỉ chạy khi có phiên và tab hiển thị. Nội dung dựa trên các mốc giao hàng còn lưu trong order.
 
+## 4.B Trình chiếu banner
+
+Trang chủ giữ thứ tự và đích từ API banner. Với nhiều banner, slide đổi mỗi 6 giây khi tab đang hiện. Người dùng có thể tạm dừng, tiếp tục và chuyển trước/sau. Rê chuột dừng tạm thời. Focus bàn phím hoặc chọn slide bằng tay dừng cho đến khi bấm tiếp tục. Reduced motion tắt tự chuyển. Layout giữ chỗ theo slide cao nhất và chỉ nạp ảnh của slide đang hiện. [Hướng dẫn carousel của WAI](https://www.w3.org/WAI/ARIA/apg/patterns/carousel/)
+
 ## Cần nghiệm thu với dịch vụ thật
 
 Các test component thay Clerk và fetch ở ranh giới. Google sign-in, đồng bộ user Clerk, phiên Stripe Sandbox, webhook thật, đơn phát sinh sau thanh toán và thông báo từ các mốc của đơn đó cần chạy bằng credentials của môi trường dev. Dùng [checklist kiểm thử](04-manual-test-checklist.md) để tái hiện.

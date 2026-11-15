@@ -5,9 +5,11 @@ import type { PublicBanner } from '@storefront/shared';
 export function StorefrontBanner({
   banner,
   preview,
+  showImage = true,
 }: {
   banner: PublicBanner;
   preview?: 'desktop' | 'mobile';
+  showImage?: boolean;
 }) {
   const { alt, title, subtitle, href, ctaLabel, imageDesktop, imageMobile } =
     banner;
@@ -28,21 +30,23 @@ export function StorefrontBanner({
   const contents = (
     <>
       <picture className={'block overflow-hidden bg-muted ' + pictureClass}>
-        {!preview && (
+        {showImage && !preview && (
           <source
             media="(max-width: 639px)"
             srcSet={mobile.srcSet ?? mobile.src}
             sizes={mobile.sizes}
           />
         )}
-        <Image
-          src={displayed.url}
-          width={displayed.width}
-          height={displayed.height}
-          alt={alt}
-          sizes="(max-width: 1279px) 100vw, 1280px"
-          className="h-full w-full object-cover"
-        />
+        {showImage && (
+          <Image
+            src={displayed.url}
+            width={displayed.width}
+            height={displayed.height}
+            alt={alt}
+            sizes="(max-width: 1279px) 100vw, 1280px"
+            className="h-full w-full object-cover"
+          />
+        )}
       </picture>
       {(title || subtitle || ctaLabel) && (
         <div className="space-y-2 pt-4">

@@ -1,4 +1,14 @@
 const vi = {
+  banner: {
+    label: 'Nổi bật tại cửa hàng',
+    carousel: 'Trình chiếu',
+    slide: 'Trang trình chiếu',
+    pause: 'Tạm dừng tự chuyển',
+    resume: 'Tiếp tục tự chuyển',
+    reduced: 'Tự chuyển đã tắt',
+    previous: 'Banner trước',
+    next: 'Banner sau',
+  },
   uiExtras: {
     darkMode: 'Chế độ tối',
     scrollTop: 'Cuộn lên đầu trang',

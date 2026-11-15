@@ -9,7 +9,7 @@ import { ProductGrid } from '@/components/catalogue/product-grid';
 import { CatalogueError } from '@/components/catalogue/catalogue-error';
 import { apiFetch, serverApi } from '@/lib/api/server';
 import { getBanners } from '@/lib/api/banners';
-import { StorefrontBanner } from '@/components/catalogue/banner';
+import { BannerCarousel } from '@/components/catalogue/banner-carousel';
 import { apiResult } from '@/lib/api/result';
 import { t } from '@/lib/i18n';
 import { storeBenefits } from '@/config/site';
@@ -27,14 +27,7 @@ export const metadata: Metadata = {
 
 async function HomeBanners() {
   const banners = await getBanners(apiFetch);
-  if (!banners.length) return null;
-  return (
-    <div className="space-y-12">
-      {banners.map((banner) => (
-        <StorefrontBanner key={banner.id} banner={banner} />
-      ))}
-    </div>
-  );
+  return <BannerCarousel banners={banners} />;
 }
 
 async function FeaturedCategories() {
