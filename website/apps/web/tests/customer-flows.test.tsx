@@ -297,7 +297,7 @@ it.each(['CART_CHANGED', 'INSUFFICIENT_STOCK'])(
     await userEvent.click(
       await screen.findByRole('button', { name: 'Xem lại đơn hàng' }),
     );
-    expect(await screen.findByText(/22,96/)).toBeTruthy();
+    expect(await screen.findByText('$22.96')).toBeTruthy();
     await userEvent.click(
       screen.getByRole('button', { name: 'Thanh toán qua Stripe' }),
     );

@@ -23,7 +23,12 @@ describe('web config and values', () => {
     ).toThrow(/API_INTERNAL_URL/);
   });
   it('formats USD major units and integer cents consistently', () => {
-    expect(formatMoney(10.05)).toMatch(/10,05/);
+    expect(formatMoney(10.05)).toBe('$10.05');
+    expect(formatMoney(49)).toBe('$49');
+    expect(formatMoney(4950, { unit: 'cents' })).toBe('$49.50');
+    expect(formatMoney(49000, { currency: 'vnd' }).replace(/\s/g, '')).toBe(
+      '49.000₫',
+    );
     expect(formatMoney(1005, { unit: 'cents' })).toBe(formatMoney(10.05));
     expect(() => formatMoney(1005.2, { unit: 'cents' })).toThrow(RangeError);
   });

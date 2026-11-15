@@ -5,7 +5,7 @@ import { ProductCard } from '../common/storefront';
 export type Product = z.infer<typeof productDto>;
 export function ProductGrid({ products }: { products: Product[] }) {
   return (
-    <ul className="grid grid-cols-2 gap-3 sm:gap-5 xl:grid-cols-4">
+    <ul className="grid grid-cols-2 gap-x-4 gap-y-10 sm:gap-x-7 lg:grid-cols-4">
       {products.map((product) => (
         <li key={product.id} className="min-w-0">
           <ProductCard
@@ -14,6 +14,7 @@ export function ProductGrid({ products }: { products: Product[] }) {
             price={product.price}
             image={product.images[0]}
             stock={product.stock}
+            showWishlistLink
             {...(product.totalReviews > 0
               ? { rating: product.averageRating }
               : {})}

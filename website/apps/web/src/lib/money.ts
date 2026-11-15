@@ -3,7 +3,7 @@ export function formatMoney(
   {
     unit = 'major',
     currency = 'usd',
-  }: { unit?: 'major' | 'cents'; currency?: 'usd' } = {},
+  }: { unit?: 'major' | 'cents'; currency?: 'usd' | 'vnd' } = {},
 ) {
   if (
     !Number.isFinite(value) ||
@@ -11,8 +11,12 @@ export function formatMoney(
   ) {
     throw new RangeError('Giá tiền không hợp lệ.');
   }
-  return new Intl.NumberFormat('vi-VN', {
+  const amount = unit === 'cents' ? value / 100 : value;
+  const dollars = currency === 'usd';
+  return new Intl.NumberFormat(dollars ? 'en-US' : 'vi-VN', {
     style: 'currency',
     currency: currency.toUpperCase(),
-  }).format(unit === 'cents' ? value / 100 : value);
+    minimumFractionDigits: dollars && !Number.isInteger(amount) ? 2 : 0,
+    maximumFractionDigits: dollars ? 2 : 0,
+  }).format(amount);
 }

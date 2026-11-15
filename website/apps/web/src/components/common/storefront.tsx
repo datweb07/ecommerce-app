@@ -1,8 +1,9 @@
+import { Heart } from 'lucide-react';
 import Link from 'next/link';
 import type { checkoutStatus, orderStatus } from '@storefront/shared';
 import type { z } from 'zod';
 import { formatMoney } from '../../lib/money';
-import { Badge, Card } from '../ui/panels';
+import { Badge } from '../ui/panels';
 import { RatingStars } from './rating-stars';
 import { ProductImage } from '../catalogue/product-image';
 import { t } from '../../lib/i18n';
@@ -21,7 +22,7 @@ export function Price({
   const options = { unit, currency };
   return (
     <span className="inline-flex flex-wrap gap-2">
-      <span className="font-bold">{formatMoney(amount, options)}</span>
+      <span className="font-medium">{formatMoney(amount, options)}</span>
       {previous !== undefined && previous > amount && (
         <s className="text-sm text-muted-foreground">
           {formatMoney(previous, options)}
@@ -38,6 +39,7 @@ export function ProductCard({
   image,
   stock,
   rating,
+  showWishlistLink = false,
 }: {
   id: string;
   name: string;
@@ -45,25 +47,37 @@ export function ProductCard({
   image?: string | undefined;
   stock: number;
   rating?: number;
+  showWishlistLink?: boolean;
 }) {
   return (
-    <Card className="h-full overflow-hidden p-0">
-      <div className="relative grid aspect-[4/3] place-items-center bg-muted">
+    <article className="group h-full">
+      <div className="relative grid aspect-[4/5] place-items-center overflow-hidden rounded-[2px] bg-muted">
         <ProductImage
           source={image}
           alt={name}
-          className="object-cover"
+          className={`object-cover transition-transform duration-200 motion-safe:group-hover:scale-[1.025] ${stock <= 0 ? 'opacity-80' : ''}`}
           sizes="(max-width: 1279px) 50vw, 300px"
         />
+        {showWishlistLink && (
+          <Link
+            href={`/products/${encodeURIComponent(id)}#purchase`}
+            aria-label={`${t('nav', 'wishlist')} · ${name}`}
+            className="absolute top-2 right-2 grid size-10 place-items-center rounded-control bg-background text-muted-foreground hover:text-foreground focus-visible:text-foreground"
+          >
+            <Heart size={18} strokeWidth={1.5} aria-hidden="true" />
+          </Link>
+        )}
       </div>
-      <div className="grid gap-2 p-4">
+      <div className="grid gap-1.5 pt-3 text-label">
         <Link
           href={`/products/${encodeURIComponent(id)}`}
-          className="font-bold hover:underline"
+          className="line-clamp-2 font-medium underline-offset-4 hover:underline"
         >
           {name}
         </Link>
-        <Price amount={price} />
+        <span className="text-muted-foreground">
+          <Price amount={price} />
+        </span>
         {rating !== undefined && <RatingStars value={rating} />}
         {stock <= 0 && (
           <Badge className="justify-self-start">
@@ -71,7 +85,7 @@ export function ProductCard({
           </Badge>
         )}
       </div>
-    </Card>
+    </article>
   );
 }
 
