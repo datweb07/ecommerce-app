@@ -70,6 +70,12 @@ Cloudinary web cần Dynamic Folders và các biến `CLOUDINARY_*` trong file m
 
 Chạy `pnpm build` rồi `pnpm --filter @storefront/web smoke:admin` để kiểm tra redirect trên bản production cục bộ, axe và chụp các trang quản trị bằng dữ liệu fixture trong trình duyệt. Ảnh nằm ở `.cache/admin/`. Dùng tài khoản thật theo checklist để nghiệm thu Clerk và Cloudinary.
 
+## Tùy chọn giao diện
+
+Công tắc theme và nút cuộn đầu trang dùng chung cho storefront và admin. Tắt mascot từ footer hoặc đặt `NEXT_PUBLIC_MASCOT_ENABLED=false` trước khi build web. Xem [cấu hình, sprite và kiểm thử 4.U](../docs/web/04-ui-extras.md).
+
+Sau `pnpm build`, chạy `pnpm --filter @storefront/web smoke:ui-extras`. Script dùng Next production, Fastify và MongoDB seed tạm. Ảnh và số đo trình duyệt được ghi vào `.cache/ui-extras/`.
+
 ## Seed và import products
 
 `pnpm seed` tạo **8 sản phẩm / 4 categories** (Electronics, Fashion, Sports, Accessories) và **3 banner mẫu** liên kết các danh mục tương ứng. Ảnh banner trong `apps/web/public/banners` lấy từ ảnh sản phẩm mẫu. ID ổn định, `$setOnInsert` giữ các bản ghi bạn đã sửa. Giá theo major USD như legacy. Chưa tạo users/orders/reviews giả.

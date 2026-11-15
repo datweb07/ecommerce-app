@@ -34,3 +34,11 @@ Chọn phương án B với sprite SVG tự vẽ trong repo. Không cần thêm 
 - `NEXT_PUBLIC_MASCOT_ENABLED=false` trong env web trước build tắt nhân vật và nút footer. Với mặc định `true`, nút footer lưu lựa chọn theo origin. Lỗi storage chỉ giới hạn lựa chọn trong phiên trang hiện tại.
 - Storefront nạp sprite sau load và idle bằng một chunk động. Mascot ở z-20, dừng khi hộp thoại mở hoặc tab ẩn và ẩn hoàn toàn với reduced motion. Vùng chạm có kích thước sprite. Header, banner, phần thanh toán giỏ, nút cuộn và toast là vùng tránh. Các rect được đọc tối đa mỗi 500 ms khi viewport ổn định.
 - Mobile dùng chạm và kéo thả. Các phản ứng con trỏ chỉ dành cho chuột. Phần thanh toán giỏ có khoảng trống cạnh phải trên mobile dành cho nút cuộn lên.
+
+## Kiểm chứng
+
+`pnpm lint` và `pnpm typecheck` đạt. Lượt test toàn workspace sau tích hợp đạt 139 test trong 30 suite, 0 skip. Lượt chạy lại riêng web đạt 74 test trong 16 suite, 0 skip. Vitest dùng RNG và đồng hồ giả cho engine, jsdom cho theme, scroll, footer preference, modal và vòng lặp rAF.
+
+Chạy `pnpm build` rồi `pnpm --filter @storefront/web smoke:ui-extras` từ `website/` để chạy suite trình duyệt. Script tạo Fastify và MongoDB seed tạm từ bản build hiện có. Ảnh CDN trong bộ kiểm thử được thay bằng ảnh cục bộ để loại biến động mạng khi đo. Script ghi ảnh và số đo A/B mascot bật/tắt vào `.cache/ui-extras/`, gồm LCP, CLS và ước lượng TBT từ PerformanceObserver. Kiểm tra route bảo vệ dùng phiên khách, nên xác nhận redirect và sự vắng mặt của mascot trên luồng khách.
+
+Lượt E2E, axe và đo trình duyệt chưa có kết quả trên máy này. Yêu cầu chạy Next, Fastify, MongoDB tạm và Edge ngoài sandbox bị từ chối. Edge headless cũng thoát ngay khi khởi động trong sandbox.

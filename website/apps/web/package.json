@@ -10,7 +10,8 @@
     "typecheck": "next typegen && tsc --noEmit",
     "smoke": "node scripts/smoke.ts",
     "smoke:catalogue": "node scripts/catalogue-smoke.ts",
-    "smoke:admin": "node scripts/admin-smoke.ts"
+    "smoke:admin": "node scripts/admin-smoke.ts",
+    "smoke:ui-extras": "node scripts/ui-extras-smoke.ts"
   },
   "dependencies": {
     "@clerk/localizations": "4.24.8",
