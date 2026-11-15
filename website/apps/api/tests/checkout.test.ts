@@ -162,6 +162,34 @@ function paid(remote: PaymentSession): PaymentSession {
 const completed = 'checkout.session.completed';
 const expired = 'checkout.session.expired';
 
+it('rejects missing, stale, and body-modified Stripe signatures', async () => {
+  const raw =
+    '{"id":"evt_security_fixture","type":"checkout.session.completed"}';
+  const now = Math.floor(Date.now() / 1000);
+  const sign = (timestamp: number) =>
+    stripe.webhooks.generateTestHeaderString({
+      payload: raw,
+      secret,
+      timestamp,
+    });
+  for (const [payload, signature] of [
+    [raw, undefined],
+    [raw, sign(now - 600)],
+    [raw + ' ', sign(now)],
+  ] as const) {
+    const res = await fixture.app.inject({
+      method: 'POST',
+      url: prefix + '/webhooks/stripe',
+      headers: {
+        'content-type': 'application/json',
+        ...(signature ? { 'stripe-signature': signature } : {}),
+      },
+      payload,
+    });
+    expect(res.statusCode).toBe(400);
+  }
+});
+
 it('quotes cents from the database, denies forged money, and detects cart and ownership conflicts', async () => {
   const id = await product();
   const input = await prepare('user_Quote', id, 2);

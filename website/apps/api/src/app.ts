@@ -1,4 +1,5 @@
 import { randomUUID } from 'node:crypto';
+import type { Writable } from 'node:stream';
 import Fastify from 'fastify';
 import cors from '@fastify/cors';
 import helmet from '@fastify/helmet';
@@ -56,6 +57,7 @@ export async function buildApp(
   env: Env,
   options: {
     logger?: boolean;
+    logStream?: Writable;
     clerk?: ClerkAdapter;
     payment?: PaymentProvider;
     media?: MediaAdapter;
@@ -67,6 +69,7 @@ export async function buildApp(
         ? false
         : {
             level: env.LOG_LEVEL,
+            ...(options.logStream ? { stream: options.logStream } : {}),
             redact: [
               'req.headers.authorization',
               'req.headers.cookie',

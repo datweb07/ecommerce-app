@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { Types } from 'mongoose';
 import { mkdir, mkdtemp } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
+import { Writable } from 'node:stream';
 import { join } from 'node:path';
 import { errorResponseSchema } from '@storefront/shared';
 import { buildApp } from '../src/app.js';
@@ -111,6 +112,45 @@ describe('foundation with a real isolated Mongo replica set', () => {
       headers: { origin: 'https://unexpected.example' },
     });
     expect(denied.headers['access-control-allow-origin']).toBeUndefined();
+  });
+  it('logs the route and request ID without private headers, query values or upstream details', async () => {
+    const messages: string[] = [];
+    const logging = await buildApp(
+      parseEnv({ NODE_ENV: 'test', MONGODB_URI: uri }),
+      {
+        logStream: new Writable({
+          write(chunk: Buffer, _encoding, done) {
+            messages.push(chunk.toString('utf8'));
+            done();
+          },
+        }),
+      },
+    );
+    logging.get('/test/logging', async () => {
+      throw new Error('private-upstream-detail');
+    });
+    try {
+      const response = await logging.inject({
+        url: '/test/logging?email=private-query-marker',
+        headers: {
+          authorization: 'Bearer fixture-private-token',
+          cookie: 'fixture-private-cookie',
+          'stripe-signature': 'fixture-private-stripe-signature',
+          'svix-signature': 'fixture-private-clerk-signature',
+          'x-request-id': 'privacy-regression-test',
+        },
+      });
+      expect(response.statusCode).toBe(500);
+      const transcript = messages.join('');
+      expect(transcript).toContain('"path":"/test/logging"');
+      expect(transcript).toContain('"reqId":"privacy-regression-test"');
+      expect(transcript).not.toMatch(
+        /private-(token|cookie|stripe|clerk|query|upstream)/,
+      );
+      expect(response.body).not.toContain('private-upstream-detail');
+    } finally {
+      await logging.close();
+    }
   });
   it('validates input and serializes errors without exposing internals', async () => {
     const invalid = await app.inject({
