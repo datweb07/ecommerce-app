@@ -1,5 +1,5 @@
 const vi = {
-  uiExtras: { darkMode: 'Chế độ tối' },
+  uiExtras: { darkMode: 'Chế độ tối', scrollTop: 'Cuộn lên đầu trang' },
   admin: {
     previewDevice: 'Thiết bị xem trước',
     previewTheme: 'Giao diện xem trước',

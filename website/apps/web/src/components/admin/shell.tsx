@@ -15,6 +15,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import type { ReactNode } from 'react';
 import { ThemeToggle } from '../layout/theme-toggle';
+import { ScrollToTop } from '../layout/scroll-to-top';
 import { Button } from '../ui/button';
 import {
   Sheet,
@@ -69,6 +70,7 @@ function AdminNav({ mobile = false }: { mobile?: boolean }) {
 export function AdminShell({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-dvh">
+      <ScrollToTop />
       <header className="sticky top-0 z-30 border-b border-border bg-background">
         <div className="mx-auto flex min-h-16 max-w-[1440px] items-center justify-between gap-2 px-4 sm:px-8">
           <div className="flex items-center gap-2 lg:gap-5">

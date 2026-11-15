@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
+import { ScrollToTop } from '@/components/layout/scroll-to-top';
 
 export default function StorefrontLayout({
   children,
@@ -14,6 +15,7 @@ export default function StorefrontLayout({
         {children}
       </main>
       <Footer />
+      <ScrollToTop />
     </>
   );
 }
