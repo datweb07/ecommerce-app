@@ -74,7 +74,7 @@ function FilterForm({
     if (navigate(event.currentTarget)) close?.();
   }
   const selectStyle =
-    'min-h-11 w-full rounded-control border border-border bg-card px-3 text-sm';
+    'min-h-11 w-full rounded-control border border-control-border bg-transparent px-3 text-label';
   return (
     <form
       action="/products"
@@ -82,7 +82,7 @@ function FilterForm({
       className="grid gap-4"
       aria-busy={pending}
     >
-      <div className="grid gap-1.5">
+      <div className="grid gap-1.5 border-b border-border pb-4">
         <Label htmlFor={id + 'q'}>{t('nav', 'search')}</Label>
         <Input
           id={id + 'q'}
@@ -99,7 +99,7 @@ function FilterForm({
           }}
         />
       </div>
-      <div className="grid gap-1.5">
+      <div className="grid gap-1.5 border-b border-border pb-4">
         <Label htmlFor={id + 'category'}>{t('nav', 'categories')}</Label>
         <select
           id={id + 'category'}
@@ -115,8 +115,8 @@ function FilterForm({
           ))}
         </select>
       </div>
-      <fieldset className="grid grid-cols-2 gap-2">
-        <legend className="mb-1.5 text-sm font-semibold">
+      <fieldset className="grid grid-cols-2 gap-2 border-b border-border pb-4">
+        <legend className="mb-1.5 text-label font-medium">
           {t('catalogue', 'priceRange')}
         </legend>
         {(['minPrice', 'maxPrice'] as const).map((key) => (
@@ -136,7 +136,7 @@ function FilterForm({
           </div>
         ))}
       </fieldset>
-      <div className="grid gap-1.5">
+      <div className="grid gap-1.5 border-b border-border pb-4">
         <Label htmlFor={id + 'rating'}>{t('catalogue', 'minRating')}</Label>
         <select
           id={id + 'rating'}
@@ -161,7 +161,7 @@ function FilterForm({
           ))}
         </select>
       </div>
-      <div className="grid gap-1.5">
+      <div className="grid gap-1.5 border-b border-border pb-4">
         <Label htmlFor={id + 'sort'}>{t('catalogue', 'sort')}</Label>
         <select
           id={id + 'sort'}
@@ -176,7 +176,7 @@ function FilterForm({
           ))}
         </select>
       </div>
-      <div className="grid gap-1.5">
+      <div className="grid gap-1.5 border-b border-border pb-4">
         <Label htmlFor={id + 'stock'}>{t('catalogue', 'stock')}</Label>
         <select
           id={id + 'stock'}
@@ -214,9 +214,11 @@ export function CatalogueFilters({
     <>
       <aside
         aria-label={t('catalogue', 'filters')}
-        className="hidden self-start rounded-panel border border-border bg-card p-5 lg:block"
+        className="hidden min-w-0 self-start lg:block"
       >
-        <h2 className="mb-5 text-lg font-bold">{t('catalogue', 'filters')}</h2>
+        <h2 className="mb-5 border-b border-border pb-4 text-caption font-medium tracking-widest text-muted-foreground uppercase">
+          {t('catalogue', 'filters')}
+        </h2>
         <FilterForm key={formKey} initial={initial} categories={options} />
       </aside>
       <div className="lg:hidden">
@@ -228,7 +230,7 @@ export function CatalogueFilters({
             </Button>
           </SheetTrigger>
           <SheetContent>
-            <SheetTitle className="text-xl font-bold">
+            <SheetTitle className="text-heading font-medium">
               {t('catalogue', 'filters')}
             </SheetTitle>
             <SheetDescription className="mt-1 mb-5 text-sm text-muted-foreground">

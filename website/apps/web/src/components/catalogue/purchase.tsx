@@ -63,7 +63,7 @@ export function PurchaseControls({
 }) {
   const max = Math.max(0, Math.min(cartMax, Math.floor(product.stock)));
   return (
-    <div className="space-y-4">
+    <div id="purchase" className="scroll-mt-24 space-y-5">
       {max > 0 && !disabled && (
         <QuantityInput
           value={Math.min(quantity, max)}
@@ -71,8 +71,12 @@ export function PurchaseControls({
           max={max}
         />
       )}
-      <div className="flex flex-wrap gap-2">
-        <Button disabled={max === 0 || cartPending || disabled} onClick={add}>
+      <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto]">
+        <Button
+          className="w-full"
+          disabled={max === 0 || cartPending || disabled}
+          onClick={add}
+        >
           <ShoppingCart size={18} aria-hidden="true" />
           {t('detail', cartPending ? 'adding' : 'addCart')}
         </Button>

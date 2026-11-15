@@ -90,7 +90,7 @@ function AppliedFilters({ query }: { query: ProductFilters }) {
               asChild
               variant="outline"
               size="small"
-              className="max-w-full wrap-anywhere whitespace-normal"
+              className="max-w-full border-border wrap-anywhere whitespace-normal text-muted-foreground"
             >
               <Link
                 href={catalogueHref(next)}
@@ -122,7 +122,7 @@ export default async function ProductsPage({ searchParams }: Props) {
   const search = catalogueSearch(query);
   const data = products.ok ? products.data : undefined;
   return (
-    <PageContainer className="space-y-6">
+    <PageContainer className="space-y-8 sm:space-y-10">
       <Breadcrumb
         items={[
           { label: t('nav', 'home'), href: '/' },
@@ -133,12 +133,12 @@ export default async function ProductsPage({ searchParams }: Props) {
         title={query.category ?? t('nav', 'products')}
         description={t('catalogue', 'description')}
       />
-      <div className="grid gap-6 lg:grid-cols-[15rem_minmax(0,1fr)]">
+      <div className="grid gap-8 lg:grid-cols-[13rem_minmax(0,1fr)] lg:gap-12">
         <CatalogueFilters
           query={query}
           categories={categories.ok ? categories.data.items : []}
         />
-        <div className="min-w-0 space-y-5">
+        <div className="min-w-0 space-y-6">
           {!categories.ok && <CatalogueError message={categories.message} />}
           <AppliedFilters query={query} />
           {!products.ok && <CatalogueError message={products.message} />}

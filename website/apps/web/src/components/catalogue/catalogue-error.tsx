@@ -8,7 +8,7 @@ export function CatalogueError({ message }: { message: string }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   return (
-    <div className="flex flex-wrap items-center justify-between gap-3 rounded-panel border border-border bg-card p-5">
+    <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border py-4">
       <p role="status" className="text-sm text-muted-foreground">
         {message}
       </p>

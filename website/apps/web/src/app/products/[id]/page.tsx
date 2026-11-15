@@ -14,7 +14,7 @@ import { CatalogueError } from '../../../components/catalogue/catalogue-error';
 import { Gallery } from '../../../components/catalogue/gallery';
 import { ProductGrid } from '../../../components/catalogue/product-grid';
 import { Purchase } from '../../../components/catalogue/purchase';
-import { Badge, Card } from '../../../components/ui/panels';
+import { Badge } from '../../../components/ui/panels';
 import { Pagination } from '../../../components/ui/pagination';
 import { publicEnv } from '../../../config/public-env';
 import { serverEnv } from '../../../config/server-env';
@@ -76,7 +76,7 @@ async function Reviews({ id, page }: { id: string; page: string }) {
   return (
     <>
       {data.items.length ? (
-        <ul className="divide-y divide-border rounded-panel border border-border bg-card px-4 sm:px-6">
+        <ul className="divide-y divide-border border-y border-border">
           {data.items.map((review, index) => (
             <li key={index} className="grid gap-2 py-4">
               <div className="flex flex-wrap items-center justify-between gap-2">
@@ -120,7 +120,7 @@ export default async function ProductPage({ params, searchParams }: Props) {
   if (!result.ok)
     return (
       <PageContainer className="space-y-5">
-        <h1 className="text-3xl font-bold">{t('detail', 'title')}</h1>
+        <h1 className="text-section font-medium">{t('detail', 'title')}</h1>
         <CatalogueError message={result.message} />
       </PageContainer>
     );
@@ -166,7 +166,7 @@ export default async function ProductPage({ params, searchParams }: Props) {
       : {}),
   };
   return (
-    <PageContainer className="space-y-8 sm:space-y-12">
+    <PageContainer className="space-y-10 lg:space-y-section">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
@@ -184,15 +184,15 @@ export default async function ProductPage({ params, searchParams }: Props) {
           { label: product.name },
         ]}
       />
-      <div className="grid items-start gap-6 md:grid-cols-2 lg:gap-12">
+      <div className="grid items-start gap-8 lg:grid-cols-[1.25fr_0.75fr] lg:gap-16">
         <Gallery key={product.id} name={product.name} images={imageUrls} />
-        <Card className="space-y-5 sm:p-8">
+        <div className="space-y-7 lg:sticky lg:top-24">
           <div className="space-y-3">
             <Badge>{stockText}</Badge>
-            <h1 className="text-3xl font-extrabold tracking-tight wrap-anywhere sm:text-4xl">
+            <h1 className="text-title leading-tight font-medium tracking-tight wrap-anywhere">
               {product.name}
             </h1>
-            <div className="text-2xl text-primary">
+            <div className="text-heading text-foreground">
               <Price amount={product.price} currency={serverEnv.CURRENCY} />
             </div>
             <p className="whitespace-pre-line text-muted-foreground">
@@ -204,10 +204,10 @@ export default async function ProductPage({ params, searchParams }: Props) {
             product={product}
             cartMax={serverEnv.CART_MAX_QUANTITY}
           />
-        </Card>
+        </div>
       </div>
       <Section>
-        <h2 className="text-2xl font-bold">{t('detail', 'reviews')}</h2>
+        <h2 className="text-section font-medium">{t('detail', 'reviews')}</h2>
         <div className="flex flex-wrap items-center gap-3">
           <RatingStars value={product.averageRating} />
           <p className="text-sm text-muted-foreground">
@@ -219,7 +219,7 @@ export default async function ProductPage({ params, searchParams }: Props) {
         </Suspense>
       </Section>
       <Section>
-        <h2 className="text-2xl font-bold">{t('detail', 'related')}</h2>
+        <h2 className="text-section font-medium">{t('detail', 'related')}</h2>
         <Suspense fallback={<LoadingSkeleton variant="card" />}>
           <Related id={product.id} />
         </Suspense>

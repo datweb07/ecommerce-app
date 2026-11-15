@@ -30,7 +30,7 @@ export function Identity() {
       : undefined;
   return (
     <Card className="flex flex-wrap items-center gap-4">
-      <div className="relative size-16 overflow-hidden rounded-full">
+      <div className="relative size-16 overflow-hidden rounded-control">
         <ProductImage
           source={avatar}
           allowClerk

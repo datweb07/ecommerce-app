@@ -15,7 +15,7 @@ export function CustomerError({
   return (
     <div
       role="alert"
-      className="flex flex-wrap items-center gap-4 rounded-panel border border-border bg-card p-5"
+      className="flex flex-wrap items-center gap-4 border-t border-border py-4"
     >
       <p>{apiErrorMessage(error)}</p>
       <Button variant="outline" disabled={disabled} onClick={retry}>

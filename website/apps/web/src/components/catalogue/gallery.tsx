@@ -14,7 +14,7 @@ export function Gallery({ name, images }: { name: string; images: string[] }) {
     `${name} · ${t('detail', 'photo')} ${index + 1}`;
   return (
     <div className="min-w-0 space-y-3">
-      <div className="relative aspect-square overflow-hidden rounded-panel border border-border bg-muted">
+      <div className="relative aspect-square overflow-hidden rounded-[2px] bg-muted">
         <ProductImage
           source={images[selected]}
           alt={alt(selected)}
@@ -26,6 +26,7 @@ export function Gallery({ name, images }: { name: string; images: string[] }) {
           <div className="absolute inset-x-3 bottom-3 flex justify-between">
             <Button
               variant="outline"
+              className="bg-background"
               size="icon"
               aria-label={t('detail', 'previousPhoto')}
               onClick={() => select(selected - 1)}
@@ -34,6 +35,7 @@ export function Gallery({ name, images }: { name: string; images: string[] }) {
             </Button>
             <Button
               variant="outline"
+              className="bg-background"
               size="icon"
               aria-label={t('detail', 'nextPhoto')}
               onClick={() => select(selected + 1)}
@@ -54,7 +56,7 @@ export function Gallery({ name, images }: { name: string; images: string[] }) {
                 type="button"
                 aria-label={alt(index)}
                 aria-pressed={selected === index}
-                className="relative block size-16 overflow-hidden rounded-control border border-border aria-pressed:border-2 aria-pressed:border-primary"
+                className="relative block size-16 overflow-hidden rounded-[2px] bg-muted aria-pressed:outline-2 aria-pressed:outline-offset-2 aria-pressed:outline-primary"
                 onClick={() => select(index)}
               >
                 <ProductImage
