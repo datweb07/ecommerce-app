@@ -6,6 +6,7 @@ import { PageContainer, Section } from '@/components/common/page';
 import { FanCards } from '@/components/common/fan-cards';
 import { PinnedScroll } from '@/components/common/pinned-scroll';
 import { HeroObject, PackageScene } from '@/components/scene/scene-3d';
+import { Globe } from '@/components/globe/globe';
 import { EmptyState, LoadingSkeleton } from '@/components/common/states';
 import { Button } from '@/components/ui/button';
 import { ProductGrid } from '@/components/catalogue/product-grid';
@@ -16,6 +17,8 @@ import { BannerCarousel } from '@/components/catalogue/banner-carousel';
 import { apiResult } from '@/lib/api/result';
 import { t } from '@/lib/i18n';
 import { shoppingSteps, storeBenefits } from '@/config/site';
+import { globeConfig } from '@/config/globe';
+import { publicEnv } from '@/config/public-env';
 
 export const metadata: Metadata = {
   title: { absolute: t('home', 'title') },
@@ -67,6 +70,9 @@ async function ProductShelf({ sort }: { sort: 'newest' | 'bestselling' }) {
 }
 
 export default function HomePage() {
+  const marker = publicEnv.NEXT_PUBLIC_GLOBE_ENABLED
+    ? globeConfig.markers[0]
+    : undefined;
   const icons = {
     shipping: Truck,
     payment: CreditCard,
@@ -74,8 +80,14 @@ export default function HomePage() {
   };
   return (
     <PageContainer className="space-y-section lg:space-y-section-lg">
-      <section className="relative flex min-h-[22rem] items-center border-b border-border py-14 sm:min-h-[28rem] sm:py-20">
-        <div className="max-w-3xl space-y-6 lg:max-w-[65%]">
+      <section
+        className={
+          marker
+            ? 'grid items-center gap-x-10 gap-y-5 border-b border-border py-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,45%)]'
+            : 'flex min-h-[22rem] items-center border-b border-border py-14 sm:min-h-[28rem] sm:py-20'
+        }
+      >
+        <div className="max-w-3xl space-y-6">
           <h1 className="text-title leading-[1.04] font-medium tracking-[-0.045em] text-balance sm:text-display">
             {t('home', 'title')}
           </h1>
@@ -97,7 +109,7 @@ export default function HomePage() {
             </Link>
           </div>
         </div>
-        <HeroObject className="absolute inset-e-0 hidden w-[32%] max-w-96 lg:block" />
+        {marker && <Globe config={globeConfig} marker={marker} />}
       </section>
       <Suspense fallback={null}>
         <HomeBanners />
@@ -136,6 +148,7 @@ export default function HomePage() {
         steps={shoppingSteps}
         visual={<PackageScene className="w-full" />}
       />
+      <HeroObject className="mx-auto hidden w-64 lg:block" />
       <FanCards
         id="home-benefits"
         items={storeBenefits.map(({ icon, title, description }) => {

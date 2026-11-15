@@ -80,6 +80,8 @@ Sau `pnpm build`, chạy `pnpm --filter @storefront/web smoke:ui-extras`. Script
 
 Khối lợi ích và hướng dẫn bốn bước dùng nội dung từ config. Mở `/_dev/components` trong dev để xem các cảnh 3D và poster dự phòng. Xem [hướng dẫn U2](../docs/web/07-3d-and-scroll.md) để đổi nội dung, hình học và các mốc chuyển động.
 
+Địa cầu dùng tọa độ minh họa và có thể tắt bằng `NEXT_PUBLIC_GLOBE_ENABLED=false`. Xem [hướng dẫn U3](../docs/web/08-globe.md) để đặt vị trí thật hoặc thử chế độ poster.
+
 ## Tải ứng dụng Android
 
 Footer storefront hỗ trợ mã QR và link tới GitHub Releases. Đặt `MOBILE_ANDROID_DOWNLOAD_URL` sau khi có APK ký phát hành và build lại web. [Kết quả kiểm APK và hướng dẫn phát hành](../docs/web/android-apk-distribution.md).

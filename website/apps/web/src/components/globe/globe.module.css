@@ -1,0 +1,156 @@
+.stage {
+  position: relative;
+  aspect-ratio: 1;
+  isolation: isolate;
+  --globe-map-opacity: 0;
+}
+
+.surface,
+.poster,
+.canvas,
+.map {
+  position: absolute;
+  inset: 0;
+}
+
+.surface {
+  touch-action: pan-y;
+  opacity: calc(1 - var(--globe-map-opacity));
+}
+
+.stage[data-globe-live='true'][data-globe-mode='globe'] .surface {
+  cursor: grab;
+}
+
+.stage[data-globe-live='true'][data-globe-mode='globe']
+  .surface[data-dragging] {
+  cursor: grabbing;
+  user-select: none;
+}
+
+.canvas,
+.poster {
+  pointer-events: none;
+}
+
+.poster {
+  background: var(--foreground);
+  mask: url('/globe/poster.svg') center / contain no-repeat;
+  opacity: 0.74;
+}
+
+.stage[data-globe-live='true'] .poster {
+  visibility: hidden;
+}
+
+.marker {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  transform: translate(-50%, -50%);
+  cursor: pointer;
+  color: var(--foreground);
+}
+
+.marker[hidden] {
+  display: none;
+}
+
+.dot,
+.dot::before,
+.dot::after {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.dot {
+  position: relative;
+  background: currentColor;
+  outline: 1px solid var(--background);
+  transition: transform 150ms;
+}
+
+.dot::before,
+.dot::after {
+  position: absolute;
+  inset: 0;
+  content: '';
+  border: 1px solid currentColor;
+  animation: pulse 2s ease-out infinite;
+}
+
+.dot::after {
+  animation-delay: 1s;
+}
+
+.marker:hover .dot {
+  transform: scale(1.2);
+}
+
+.label {
+  position: absolute;
+  inset-inline-start: 36px;
+  max-width: 7.5rem;
+  padding-inline-start: 5px;
+  border-inline-start: 1px solid var(--control-border);
+  background: var(--background);
+  text-align: start;
+  font-size: 0.75rem;
+  line-height: 1.15;
+  opacity: 0.8;
+}
+
+.marker[data-label-left] .label {
+  inset-inline: auto 36px;
+  padding-inline: 0 5px;
+  border-inline: 0;
+  border-inline-end: 1px solid var(--control-border);
+  text-align: end;
+}
+
+.marker:hover .label {
+  opacity: 1;
+}
+
+.map {
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: 0.5rem;
+  margin: 9%;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--background);
+  opacity: var(--globe-map-opacity);
+}
+
+.map[hidden] {
+  display: none;
+}
+
+.map[inert] {
+  pointer-events: none;
+}
+
+@keyframes pulse {
+  from {
+    transform: scale(1);
+    opacity: 0.75;
+  }
+  to {
+    transform: scale(3.2);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dot,
+  .dot::before,
+  .dot::after {
+    animation: none;
+    transition: none;
+  }
+}

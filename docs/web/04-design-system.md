@@ -44,6 +44,8 @@ Ghim cuộn chỉ dùng cho hướng dẫn tuần tự. Nội dung vẫn là dan
 
 Cảnh 3D là minh họa, dùng màu từ token, vật liệu mờ và đường cạnh mảnh. Dành sẵn khung có tỉ lệ cố định cho poster và canvas. Đặt thông tin cần đọc và thao tác ở HTML bên cạnh. [Fallback và cấu hình 3D](07-3d-and-scroll.md)
 
+Địa cầu dùng khung vuông trong suốt, chấm đơn sắc và nút mở vị trí có thể dùng bằng bàn phím. Poster chiếm cùng chỗ với canvas. Cử chỉ ngang trên cảm ứng chỉ xoay địa cầu và vẫn cho cuộn dọc. [Địa cầu U3](08-globe.md)
+
 Ảnh trước và sau nằm tại `website/.cache/redesign/before` và `website/.cache/redesign/after`.
 
 ## Kiểm chứng
