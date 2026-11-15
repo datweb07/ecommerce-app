@@ -40,7 +40,7 @@ export function Identity() {
         />
       </div>
       <div className="min-w-0 flex-1 wrap-anywhere">
-        <p className="font-bold">{user.fullName}</p>
+        <p className="font-medium">{user.fullName}</p>
         <p className="text-muted-foreground">
           {user.primaryEmailAddress?.emailAddress}
         </p>

@@ -39,6 +39,9 @@
   --border: #e7e5e4;
   --control-border: #898785;
   --destructive: #a32d32;
+  --status-pending: #756244;
+  --status-shipped: #566977;
+  --status-done: #506954;
   --focus: #4d6473;
   --radius: 6px;
 }
@@ -53,6 +56,9 @@
   --border: #262626;
   --control-border: #737373;
   --destructive: #ff9b9d;
+  --status-pending: #bbab8e;
+  --status-shipped: #a4b6c1;
+  --status-done: #a7bea9;
   --focus: #a1bac9;
 }
 @layer base {
@@ -70,4 +76,18 @@
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
   }
+}
+[data-status='pending'],
+[data-status='expired'] {
+  color: var(--status-pending);
+}
+[data-status='shipped'] {
+  color: var(--status-shipped);
+}
+[data-status='delivered'],
+[data-status='paid'] {
+  color: var(--status-done);
+}
+[data-status='failed'] {
+  color: var(--destructive);
 }

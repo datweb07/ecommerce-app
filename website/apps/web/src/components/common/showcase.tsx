@@ -76,13 +76,13 @@ export function Showcase({
   const form = useZodForm(exampleForm, { defaultValues: { name: '' } });
   const message = form.formState.errors.name?.message;
   return (
-    <PageContainer className="space-y-8">
+    <PageContainer className="space-y-section lg:space-y-section-lg">
       <PageHeader
         title="Thư viện thành phần"
         description="Bản xem thử dành cho phát triển."
       />
       <Section>
-        <h2 className="text-xl font-bold">Điều khiển và biểu mẫu</h2>
+        <h2 className="text-section font-medium">Điều khiển và biểu mẫu</h2>
         <Card className="grid gap-6 sm:grid-cols-2">
           <Form {...form}>
             <form
@@ -149,7 +149,7 @@ export function Showcase({
         </Card>
       </Section>
       <Section>
-        <h2 className="text-xl font-bold">Điều hướng và hộp thoại</h2>
+        <h2 className="text-section font-medium">Điều hướng và hộp thoại</h2>
         <Card className="space-y-5">
           <div className="flex flex-wrap items-center gap-2">
             <Dialog>
@@ -157,7 +157,7 @@ export function Showcase({
                 <Button>Hộp thoại</Button>
               </DialogTrigger>
               <DialogContent>
-                <DialogTitle className="pr-10 font-bold">
+                <DialogTitle className="pr-10 font-medium">
                   Hộp thoại mẫu
                 </DialogTitle>
                 <DialogDescription>Thử phím Escape để đóng.</DialogDescription>
@@ -177,7 +177,7 @@ export function Showcase({
                 <Button variant="outline">Ngăn kéo</Button>
               </SheetTrigger>
               <SheetContent>
-                <SheetTitle className="font-bold">Ngăn kéo mẫu</SheetTitle>
+                <SheetTitle className="font-medium">Ngăn kéo mẫu</SheetTitle>
                 <SheetDescription>Nội dung của ngăn kéo.</SheetDescription>
               </SheetContent>
             </Sheet>
@@ -228,7 +228,7 @@ export function Showcase({
         </Card>
       </Section>
       <Section>
-        <h2 className="text-xl font-bold">Trạng thái cửa hàng</h2>
+        <h2 className="text-section font-medium">Trạng thái cửa hàng</h2>
         <div className="grid items-start gap-4 sm:grid-cols-2">
           <ProductCard
             name="Sản phẩm mẫu"

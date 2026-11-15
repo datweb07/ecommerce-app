@@ -83,10 +83,10 @@ export function Inbox() {
           <li key={item.id}>
             <Card className="flex flex-wrap items-start justify-between gap-3">
               <div className="min-w-0 space-y-1">
-                <p className="font-bold">
+                <p className="font-medium">
                   {t('inbox', item.status)}{' '}
                   {!item.readAt && (
-                    <Badge className="bg-primary text-primary-foreground">
+                    <Badge className="text-foreground">
                       {t('inbox', 'new')}
                     </Badge>
                   )}

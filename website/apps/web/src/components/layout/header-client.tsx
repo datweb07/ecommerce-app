@@ -244,11 +244,11 @@ function Actions({
         className={wishCount === undefined ? 'hidden sm:block' : 'contents'}
       >
         <Action href="/wishlist" label={t('nav', 'wishlist')} count={wishCount}>
-          <Heart size={19} />
+          <Heart size={19} strokeWidth={1.5} />
         </Action>
       </span>
       <Action href="/cart" label={t('nav', 'cart')} count={cartCount}>
-        <ShoppingCart size={19} />
+        <ShoppingCart size={19} strokeWidth={1.5} />
       </Action>
       {unread !== undefined && (
         <Action
@@ -256,7 +256,7 @@ function Actions({
           label={t('nav', 'notifications')}
           count={unread}
         >
-          <Bell size={19} />
+          <Bell size={19} strokeWidth={1.5} />
         </Action>
       )}
       <span className="hidden min-[410px]:block">

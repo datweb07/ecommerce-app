@@ -223,7 +223,7 @@ function CheckoutSteps({ userId }: { userId: string }) {
               className="grid gap-3"
               disabled={create.isPending || quote.isPending}
             >
-              <legend className="mb-3 text-xl font-bold">
+              <legend className="mb-3 text-heading font-medium">
                 {t('checkout', 'addressStep')}
               </legend>
               {!addresses.data.items.length && (
@@ -232,7 +232,7 @@ function CheckoutSteps({ userId }: { userId: string }) {
               {addresses.data.items.map((address) => (
                 <label
                   key={address.id}
-                  className="flex items-start gap-3 rounded-control border border-border p-3"
+                  className="flex items-start gap-3 border-b border-border py-3"
                 >
                   <input
                     type="radio"
@@ -247,7 +247,7 @@ function CheckoutSteps({ userId }: { userId: string }) {
                     }}
                   />
                   <div>
-                    <span className="font-bold">{address.label}</span>
+                    <span className="font-medium">{address.label}</span>
                     <AddressLines value={address} />
                   </div>
                 </label>
@@ -285,7 +285,7 @@ function CheckoutSteps({ userId }: { userId: string }) {
           {quote.isPending && <LoadingSkeleton variant="form" />}
           {ready && (
             <Card className="grid gap-4">
-              <h2 className="text-xl font-bold">
+              <h2 className="text-heading font-medium">
                 {t('checkout', 'reviewStep')}
               </h2>
               <dl className="grid gap-2">
@@ -309,7 +309,9 @@ function CheckoutSteps({ userId }: { userId: string }) {
                   </div>
                 ))}
               </dl>
-              <h2 className="text-xl font-bold">{t('checkout', 'payStep')}</h2>
+              <h2 className="text-heading font-medium">
+                {t('checkout', 'payStep')}
+              </h2>
               <Button
                 disabled={create.isPending || !addressId}
                 className="justify-self-start"

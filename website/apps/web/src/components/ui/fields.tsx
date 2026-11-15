@@ -12,7 +12,7 @@ import type { ComponentProps } from 'react';
 import { cn } from '../../lib/utils';
 
 const field =
-  'min-h-11 w-full rounded-control border border-control-border bg-transparent px-3 py-2 text-sm placeholder:text-muted-foreground disabled:opacity-50';
+  'min-h-11 w-full rounded-control border border-control-border bg-transparent px-3 py-2 text-label focus:border-focus placeholder:text-muted-foreground disabled:opacity-50';
 export function Input({ className, ref, ...props }: ComponentProps<'input'>) {
   return <input ref={ref} className={cn(field, className)} {...props} />;
 }
@@ -87,7 +87,7 @@ export function Switch({
       )}
       {...props}
     >
-      <RSwitch.Thumb className="block size-5 translate-x-0.5 rounded-control bg-white transition-transform data-[state=checked]:translate-x-[22px]" />
+      <RSwitch.Thumb className="block size-5 translate-x-0.5 rounded-control bg-white transition-transform data-[state=checked]:translate-x-[22px] data-[state=checked]:bg-primary-foreground" />
     </RSwitch.Root>
   );
 }

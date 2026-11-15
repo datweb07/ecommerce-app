@@ -156,7 +156,9 @@ export function AddressDialog({
         <Button variant={initial ? 'outline' : 'primary'}>{title}</Button>
       </DialogTrigger>
       <DialogContent className="max-h-[92dvh] overflow-auto">
-        <DialogTitle className="pr-10 text-xl font-bold">{title}</DialogTitle>
+        <DialogTitle className="pr-10 text-heading font-medium">
+          {title}
+        </DialogTitle>
         <DialogDescription className="text-sm text-muted-foreground">
           {t('account', 'addressHint')}
         </DialogDescription>
@@ -201,7 +203,7 @@ export function Addresses() {
           <li key={address.id}>
             <Card className="grid gap-3">
               <div className="flex flex-wrap items-center gap-2">
-                <h2 className="font-bold">{address.label}</h2>
+                <h2 className="font-medium">{address.label}</h2>
                 {address.isDefault && (
                   <Badge>{t('account', 'defaultAddress')}</Badge>
                 )}

@@ -10,6 +10,16 @@ export function Toaster() {
     <Sonner
       theme={resolvedTheme === 'dark' ? 'dark' : 'light'}
       position="bottom-right"
+      toastOptions={{
+        style: {
+          background: 'var(--card)',
+          color: 'var(--foreground)',
+          border: '1px solid var(--control-border)',
+          borderRadius: 'var(--radius)',
+          boxShadow: 'none',
+          fontSize: '0.875rem',
+        },
+      }}
     />
   );
 }

@@ -150,12 +150,12 @@ export function CartPageContent({ max }: { max: number }) {
                   {item.product ? (
                     <Link
                       href={'/products/' + item.productId}
-                      className="font-bold hover:underline"
+                      className="font-medium hover:underline"
                     >
                       {name}
                     </Link>
                   ) : (
-                    <p className="font-bold">{name}</p>
+                    <p className="font-medium">{name}</p>
                   )}
                   {item.product && (
                     <p>
@@ -209,7 +209,7 @@ export function CartPageContent({ max }: { max: number }) {
         })}
       </ul>
       <Card className="grid gap-3">
-        <h2 className="font-bold">{t('customer', 'subtotal')}</h2>
+        <h2 className="font-medium">{t('customer', 'subtotal')}</h2>
         <Price amount={cartSubtotal(data)} />
         <p className="text-sm text-muted-foreground">{t('customer', 'fees')}</p>
         {!cartReady(data) && (

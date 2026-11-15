@@ -48,7 +48,7 @@ export function Orders({ page }: { page: number }) {
                 <div className="min-w-0">
                   <Link
                     href={orderHref(order.id)}
-                    className="font-bold break-all hover:underline"
+                    className="font-medium break-all hover:underline"
                   >
                     #{order.id}
                   </Link>
@@ -125,7 +125,7 @@ export function OrderSnapshot({ order }: { order: Order }) {
     <div className="grid gap-4">
       <Card className="grid gap-3">
         <div className="flex flex-wrap items-center gap-3">
-          <h2 className="font-bold break-all">#{order.id}</h2>
+          <h2 className="font-medium break-all">#{order.id}</h2>
           <StatusBadge kind="order" status={order.status} />
         </div>
         <ol className="grid gap-2 md:grid-cols-3">
@@ -133,7 +133,7 @@ export function OrderSnapshot({ order }: { order: Order }) {
             <li
               key={status}
               aria-current={status === order.status ? 'step' : undefined}
-              className="grid gap-1 rounded-control border border-border p-3 text-sm"
+              className="grid gap-1 border-t border-border py-3 text-sm"
             >
               <StatusBadge kind="order" status={status} />
               {index <= current ? (
@@ -146,11 +146,11 @@ export function OrderSnapshot({ order }: { order: Order }) {
         </ol>
       </Card>
       <Card className="grid gap-3">
-        <h2 className="font-bold">{t('orders', 'shipping')}</h2>
+        <h2 className="font-medium">{t('orders', 'shipping')}</h2>
         <AddressLines value={order.shippingAddress} />
       </Card>
       <Card className="grid gap-3">
-        <h2 className="font-bold">{t('nav', 'products')}</h2>
+        <h2 className="font-medium">{t('nav', 'products')}</h2>
         <ul className="divide-y divide-border">
           {order.items.map((item, index) => (
             <li key={item.productId + index} className="grid gap-3 py-3">
@@ -164,7 +164,7 @@ export function OrderSnapshot({ order }: { order: Order }) {
                   />
                 </div>
                 <div className="min-w-0 space-y-1">
-                  <p className="font-bold wrap-anywhere">{item.name}</p>
+                  <p className="font-medium wrap-anywhere">{item.name}</p>
                   <p>
                     <Price amount={item.price} /> × {item.quantity}
                   </p>
@@ -178,7 +178,7 @@ export function OrderSnapshot({ order }: { order: Order }) {
         </ul>
         <dl>
           <div className="flex justify-between gap-3 border-t border-border pt-3">
-            <dt className="font-bold">{t('checkout', 'totalCents')}</dt>
+            <dt className="font-medium">{t('checkout', 'totalCents')}</dt>
             <dd>
               <Price amount={order.totalPrice} />
             </dd>

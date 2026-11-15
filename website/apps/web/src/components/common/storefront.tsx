@@ -108,5 +108,14 @@ export function StatusBadge(props: StatusProps) {
     props.kind === 'order'
       ? orderLabels[props.status]
       : checkoutLabels[props.status];
-  return <Badge>{label}</Badge>;
+  return (
+    <Badge>
+      <span
+        aria-hidden="true"
+        className="size-1.5 rounded-control bg-current"
+        data-status={props.status}
+      />
+      {label}
+    </Badge>
+  );
 }

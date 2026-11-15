@@ -33,14 +33,37 @@ function Authentication({ children }: { children: ReactNode }) {
       localization={viVN}
       allowedRedirectOrigins={[publicEnv.NEXT_PUBLIC_SITE_URL]}
       appearance={{
+        elements: {
+          cardBox: {
+            boxShadow: 'none',
+            border: '1px solid var(--border)',
+            borderRadius: 'var(--radius)',
+            overflow: 'hidden',
+          },
+          card: { boxShadow: 'none', backgroundImage: 'none', borderRadius: 0 },
+          footer: { background: 'var(--card)' },
+          userButtonPopoverCard: {
+            boxShadow: 'none',
+            border: '1px solid var(--border)',
+            borderRadius: 'var(--radius)',
+          },
+          formButtonPrimary: { boxShadow: 'none', backgroundImage: 'none' },
+          socialButtonsBlockButton: { boxShadow: 'none' },
+          formFieldInput: {
+            boxShadow: 'none',
+            borderColor: 'var(--control-border)',
+          },
+        },
         variables: {
           colorPrimary: 'var(--primary)',
           colorPrimaryForeground: 'var(--primary-foreground)',
           colorForeground: 'var(--foreground)',
           colorBackground: 'var(--card)',
-          colorInput: 'var(--card)',
+          colorInput: 'var(--background)',
+          fontFamily: 'var(--font-inter), Arial, sans-serif',
           colorInputForeground: 'var(--foreground)',
           colorNeutral: 'var(--foreground)',
+          colorRing: 'var(--focus)',
           colorMutedForeground: 'var(--muted-foreground)',
           borderRadius: 'var(--radius)',
         },
