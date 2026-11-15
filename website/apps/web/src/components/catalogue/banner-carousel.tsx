@@ -54,7 +54,7 @@ export function BannerCarousel({ banners }: { banners: PublicBanner[] }) {
 
   const first = banners[0];
   if (!first) return null;
-  if (count === 1) return <StorefrontBanner banner={first} />;
+  if (count === 1) return <StorefrontBanner banner={first} prioritizeImage />;
 
   return (
     <section
@@ -120,7 +120,11 @@ export function BannerCarousel({ banners }: { banners: PublicBanner[] }) {
               (index === current ? '' : 'invisible')
             }
           >
-            <StorefrontBanner banner={banner} showImage={index === current} />
+            <StorefrontBanner
+              banner={banner}
+              showImage={index === current}
+              prioritizeImage={index === 0}
+            />
           </div>
         ))}
       </div>

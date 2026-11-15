@@ -32,6 +32,15 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 
+it('prioritizes only the first banner image of a carousel', () => {
+  setup();
+  expect(screen.getByRole('img').getAttribute('loading')).toBe('eager');
+  expect(screen.getByRole('img').getAttribute('fetchpriority')).toBe('high');
+  advance();
+  expect(screen.getByRole('img').getAttribute('loading')).toBe('lazy');
+  expect(screen.getByRole('img').getAttribute('fetchpriority')).toBe('auto');
+});
+
 it('rotates in API order, pauses, resumes and wraps', () => {
   setup();
   const links = sampleBanners.map(({ href }) => href);

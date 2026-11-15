@@ -6,10 +6,12 @@ export function StorefrontBanner({
   banner,
   preview,
   showImage = true,
+  prioritizeImage = false,
 }: {
   banner: PublicBanner;
   preview?: 'desktop' | 'mobile';
   showImage?: boolean;
+  prioritizeImage?: boolean;
 }) {
   const { alt, title, subtitle, href, ctaLabel, imageDesktop, imageMobile } =
     banner;
@@ -18,7 +20,7 @@ export function StorefrontBanner({
     alt,
     width: imageMobile.width,
     height: imageMobile.height,
-    sizes: '100vw',
+    sizes: 'calc(100vw - 40px)',
   });
   const displayed = preview === 'mobile' ? imageMobile : imageDesktop;
   const pictureClass =
@@ -43,7 +45,9 @@ export function StorefrontBanner({
             width={displayed.width}
             height={displayed.height}
             alt={alt}
-            sizes="(max-width: 1279px) 100vw, 1280px"
+            sizes="(max-width: 1279px) calc(100vw - 40px), 1280px"
+            loading={prioritizeImage ? 'eager' : 'lazy'}
+            fetchPriority={prioritizeImage ? 'high' : 'auto'}
             className="h-full w-full object-cover"
           />
         )}
@@ -66,6 +70,7 @@ export function StorefrontBanner({
   ) : (
     <Link
       href={href}
+      prefetch={false}
       data-mascot-avoid=""
       className="group block focus-visible:outline-2 focus-visible:outline-offset-4"
     >
