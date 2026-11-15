@@ -17,7 +17,7 @@ export function AdminTitle({
 }: {
   title: string;
   action?: ReactNode;
-  description?: string;
+  description?: string | undefined;
 }) {
   return (
     <div className="flex flex-wrap items-end justify-between gap-4 border-b border-border pb-5">
