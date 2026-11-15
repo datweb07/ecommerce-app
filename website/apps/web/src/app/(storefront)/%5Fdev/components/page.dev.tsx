@@ -1,5 +1,10 @@
 import type { Metadata } from 'next';
 import { Showcase } from '@/components/common/showcase';
+import {
+  HeroObject,
+  PackageScene,
+  EmptyObject3D,
+} from '@/components/scene/scene-3d';
 import { serverEnv } from '@/config/server-env';
 import { toSearchParams, type RouteQuery } from '@/lib/url-state';
 
@@ -17,10 +22,26 @@ export default async function ComponentsPage({
       ? requestedPage
       : 1;
   return (
-    <Showcase
-      currency={serverEnv.CURRENCY}
-      page={page}
-      search={params.toString()}
-    />
+    <>
+      <Showcase
+        currency={serverEnv.CURRENCY}
+        page={page}
+        search={params.toString()}
+      />
+      <section className="mx-auto my-16 max-w-6xl px-4">
+        <h2 className="text-section font-medium">Hình minh họa 3D</h2>
+        <p className="mt-2 text-muted-foreground">
+          Hàng dưới hiển thị ảnh tĩnh như khi bật giảm chuyển động.
+        </p>
+        <div className="mt-6 grid grid-cols-3 gap-4">
+          <HeroObject />
+          <PackageScene />
+          <EmptyObject3D />
+          <HeroObject staticOnly />
+          <PackageScene staticOnly />
+          <EmptyObject3D staticOnly />
+        </div>
+      </section>
+    </>
   );
 }

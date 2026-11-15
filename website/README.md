@@ -78,7 +78,7 @@ Sau `pnpm build`, chạy `pnpm --filter @storefront/web smoke:ui-extras`. Script
 
 ## Chuyển động trang chủ
 
-Khối lợi ích và hướng dẫn bốn bước dùng nội dung từ config. Xem [hướng dẫn U2](../docs/web/07-3d-and-scroll.md) để đổi nội dung, chạy thử chế độ chuyển động và chụp ảnh kiểm thử.
+Khối lợi ích và hướng dẫn bốn bước dùng nội dung từ config. Mở `/_dev/components` trong dev để xem các cảnh 3D và poster dự phòng. Xem [hướng dẫn U2](../docs/web/07-3d-and-scroll.md) để đổi nội dung, hình học và các mốc chuyển động.
 
 ## Tải ứng dụng Android
 

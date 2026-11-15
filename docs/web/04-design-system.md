@@ -42,6 +42,8 @@ Card xòe dùng mặt `--muted`, viền 1 px và bo 4 px. Mỗi card có một v
 
 Ghim cuộn chỉ dùng cho hướng dẫn tuần tự. Nội dung vẫn là danh sách có thứ tự và dùng được khi JavaScript tắt. Đặt một liên kết bỏ qua có thể focus, giữ header ở trên khung ghim và dùng khung minh họa phẳng có tỉ lệ cố định. [Thiết kế U2](07-3d-and-scroll.md)
 
+Cảnh 3D là minh họa, dùng màu từ token, vật liệu mờ và đường cạnh mảnh. Dành sẵn khung có tỉ lệ cố định cho poster và canvas. Đặt thông tin cần đọc và thao tác ở HTML bên cạnh. [Fallback và cấu hình 3D](07-3d-and-scroll.md)
+
 Ảnh trước và sau nằm tại `website/.cache/redesign/before` và `website/.cache/redesign/after`.
 
 ## Kiểm chứng

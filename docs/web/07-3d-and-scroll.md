@@ -35,6 +35,21 @@ Report đường cơ sở và đồ thị bundle nằm ở `website/.cache/ui-3d
 
 Lượt Playwright sau U2.2 dừng trước khi chạy browser test vì Next báo `spawn UNKNOWN` khi tạo tiến trình con trên Windows. Lần chạy lại ngoài sandbox chưa được cấp phép. Chưa có ảnh sau, kết quả axe, bằng chứng đo hình học card/khung ghim hoặc Lighthouse/bundle sau U2.2. Vì vậy chưa thể kết luận đạt ngân sách hiệu năng hoặc xác nhận giao diện trên thiết bị cảm ứng thật.
 
-## Sau mốc duyệt U2.2
+## U2.3 · Hình minh họa 3D
 
-U2.3 sẽ dùng khung poster 4:3 và `PinProgressContext` cho cảnh kiện hàng, với fallback sẵn trong bố cục. React hiện tại là 19.3.1. R3F v9 dành cho React 19 và bản v9.8 ghi nhận hỗ trợ React 19.3. Kiểm lại peer dependencies và typings sau khi chốt thư viện cho giai đoạn tiếp theo. [Tương thích R3F](https://github.com/pmndrs/react-three-fiber/releases)
+`HeroObject` nằm bên phải phần mở đầu trên màn hình rộng. Tiêu đề và nút vẫn là nội dung chính. `PackageScene` nằm trong khung ghim và dùng bốn mốc xoay, mở nắp, đóng nắp và hiện vòng theo dõi. `EmptyObject3D` là hình tĩnh trong cảnh 3D ở trang 404. Cả ba có poster SVG 4:3 tạo trong dự án và không nhận focus hay sự kiện con trỏ.
+
+Các poster được render cùng HTML. Client chờ trang tải xong và trình duyệt rảnh, với vùng quan sát 200 px, rồi chỉ tải canvas khi cảnh nằm trong viewport. Tối đa hai canvas được cấp chỗ cùng lúc. Xóa canvas khi cảnh ra khỏi viewport, tab ẩn hoặc rời route. Cảnh kiện hàng render khi tiến độ đổi, cảnh 404 render khi cần, và hero chỉ duy trì animation khi đang hiện. Khi mất WebGL context, poster hiện lại và canvas được thử khởi tạo lại một lần cho lượt hiển thị đó.
+
+| Điều kiện                                                                                                            | Nội dung hiển thị                          |
+| -------------------------------------------------------------------------------------------------------------------- | ------------------------------------------ |
+| JavaScript tắt, WebGL2 không dùng được, tiết kiệm dữ liệu, giảm chuyển động hoặc máy báo tối đa 2 CPU logic/2 GB RAM | Poster SVG                                 |
+| Đang tải, hết chỗ canvas hoặc mất WebGL context                                                                      | Poster SVG                                 |
+| Hero dưới breakpoint `lg`                                                                                            | Khối văn bản và nút                        |
+| Hướng dẫn đang ở bố cục danh sách                                                                                    | Bốn bước bằng chữ, giữ nguyên hành vi U2.2 |
+
+Muốn chỉnh hình, sửa poster trong `apps/web/src/components/scene/scene-3d.tsx` và hình khối trong `scene-canvas.tsx`. Chỉnh các mốc của kiện hàng trong `apps/web/src/lib/scene-motion.ts`. Cảnh mới dùng lại wrapper poster và loader. Cảnh phụ thuộc cuộn có thể đọc ref hiện có qua `PinProgressContext` và yêu cầu vẽ khi section phát `pinprogress`. Xem ba cảnh và hàng poster mô phỏng giảm chuyển động tại `/_dev/components` trong dev, dùng nút theme ở header để đổi sáng/tối.
+
+`three@0.187.0` cung cấp WebGL và hình học. `@react-three/fiber@9.8.0` quản lý canvas và lịch render theo nhu cầu. Peer của Fiber chấp nhận React/React DOM 19.3.1 và Three.js 0.187.0. `@types/three@0.187.0` dùng lúc kiểm tra kiểu. Các package này dùng MIT và được pin trong lockfile. Hình học thủ tục và ánh sáng cơ bản đủ cho cả ba cảnh, vì vậy không cần Drei, model, texture hay tài nguyên ngoài. [Tương thích React Three Fiber](https://github.com/pmndrs/react-three-fiber/releases)
+
+Kiểm tra nhanh U2.3 gồm lint, typecheck và Vitest cho nội suy kiện hàng, điều kiện dùng poster, card lợi ích và ghim cuộn. Chưa đo kích thước chunk, chạy production build, Lighthouse, axe, hoặc xác nhận WebGL và khôi phục context trong trình duyệt.

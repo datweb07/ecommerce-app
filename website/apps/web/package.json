@@ -20,6 +20,7 @@
     "@clerk/nextjs": "7.10.0",
     "@fontsource-variable/inter": "5.3.0",
     "@hookform/resolvers": "7.0.6",
+    "@react-three/fiber": "9.8.0",
     "@storefront/shared": "workspace:*",
     "@tailwindcss/postcss": "4.3.5",
     "@tanstack/react-query": "5.107.1",
@@ -38,6 +39,7 @@
     "sonner": "2.0.8",
     "tailwind-merge": "3.7.0",
     "tailwindcss": "4.3.5",
+    "three": "0.187.0",
     "zod": "4.6.7"
   },
   "devDependencies": {
@@ -51,6 +53,7 @@
     "@types/qrcode": "1.5.6",
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",
+    "@types/three": "0.187.0",
     "chrome-launcher": "1.2.3",
     "jsdom": "31.0.1",
     "lighthouse": "13.6.0"

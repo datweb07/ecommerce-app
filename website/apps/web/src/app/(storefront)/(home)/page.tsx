@@ -1,17 +1,11 @@
 import { Suspense } from 'react';
-import {
-  ArrowRight,
-  CreditCard,
-  PackageCheck,
-  ShoppingBag,
-  ShoppingCart,
-  Truck,
-} from 'lucide-react';
+import { ArrowRight, CreditCard, PackageCheck, Truck } from 'lucide-react';
 import Link from 'next/link';
 import type { Metadata } from 'next';
 import { PageContainer, Section } from '@/components/common/page';
 import { FanCards } from '@/components/common/fan-cards';
 import { PinnedScroll } from '@/components/common/pinned-scroll';
+import { HeroObject, PackageScene } from '@/components/scene/scene-3d';
 import { EmptyState, LoadingSkeleton } from '@/components/common/states';
 import { Button } from '@/components/ui/button';
 import { ProductGrid } from '@/components/catalogue/product-grid';
@@ -78,16 +72,10 @@ export default function HomePage() {
     payment: CreditCard,
     tracking: PackageCheck,
   };
-  const stepIcons = {
-    choose: ShoppingBag,
-    cart: ShoppingCart,
-    pay: CreditCard,
-    track: PackageCheck,
-  };
   return (
     <PageContainer className="space-y-section lg:space-y-section-lg">
-      <section className="flex min-h-[22rem] items-center border-b border-border py-14 sm:min-h-[28rem] sm:py-20">
-        <div className="max-w-3xl space-y-6">
+      <section className="relative flex min-h-[22rem] items-center border-b border-border py-14 sm:min-h-[28rem] sm:py-20">
+        <div className="max-w-3xl space-y-6 lg:max-w-[65%]">
           <h1 className="text-title leading-[1.04] font-medium tracking-[-0.045em] text-balance sm:text-display">
             {t('home', 'title')}
           </h1>
@@ -109,6 +97,7 @@ export default function HomePage() {
             </Link>
           </div>
         </div>
+        <HeroObject className="absolute inset-e-0 hidden w-[32%] max-w-96 lg:block" />
       </section>
       <Suspense fallback={null}>
         <HomeBanners />
@@ -144,10 +133,8 @@ export default function HomePage() {
         title={t('shoppingGuide', 'heading')}
         skipTarget="home-benefits"
         skipLabel={t('shoppingGuide', 'skip')}
-        steps={shoppingSteps.map((step) => {
-          const Icon = stepIcons[step.id];
-          return { ...step, icon: <Icon size={72} strokeWidth={1.15} /> };
-        })}
+        steps={shoppingSteps}
+        visual={<PackageScene className="w-full" />}
       />
       <FanCards
         id="home-benefits"

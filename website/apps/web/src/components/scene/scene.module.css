@@ -1,0 +1,9 @@
+.island {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+[data-scene]:has(> .island [data-scene-live]) > :first-child {
+  visibility: hidden;
+}

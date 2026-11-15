@@ -16,7 +16,12 @@ const pinMedia =
 
 export const PinProgressContext = createContext<RefObject<number> | null>(null);
 
-type Step = { id: string; title: string; description: string; icon: ReactNode };
+type Step = {
+  id: string;
+  title: string;
+  description: string;
+  icon?: ReactNode;
+};
 
 export function PinnedScroll({
   id,
@@ -25,6 +30,7 @@ export function PinnedScroll({
   skipTarget,
   skipLabel,
   className,
+  visual,
 }: {
   id: string;
   title: string;
@@ -32,6 +38,7 @@ export function PinnedScroll({
   skipTarget: string;
   skipLabel: string;
   className?: string;
+  visual?: ReactNode;
 }) {
   const trackRef = useRef<HTMLElement>(null);
   const frameRef = useRef<HTMLDivElement>(null);
@@ -67,6 +74,7 @@ export function PinnedScroll({
       track.dataset.pinStep = String(active);
       const label = String(active).padStart(2, '0');
       if (number.textContent !== label) number.textContent = label;
+      track.dispatchEvent(new Event('pinprogress'));
     }
 
     function schedule() {
@@ -166,15 +174,16 @@ export function PinnedScroll({
               </ol>
             </div>
             <div className={styles.poster} aria-hidden="true" data-pin-poster>
-              {steps.map((step, index) => (
-                <div
-                  key={step.id}
-                  data-step-index={index}
-                  className={styles.art}
-                >
-                  {step.icon}
-                </div>
-              ))}
+              {visual ??
+                steps.map((step, index) => (
+                  <div
+                    key={step.id}
+                    data-step-index={index}
+                    className={styles.art}
+                  >
+                    {step.icon}
+                  </div>
+                ))}
             </div>
           </div>
         </div>
