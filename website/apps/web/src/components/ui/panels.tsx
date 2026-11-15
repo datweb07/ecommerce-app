@@ -5,7 +5,7 @@ export function Badge({ className, ...props }: ComponentProps<'span'>) {
   return (
     <span
       className={cn(
-        'inline-flex items-center rounded-full bg-muted px-2.5 py-1 text-xs font-semibold text-foreground',
+        'inline-flex items-center gap-2 text-caption font-medium text-muted-foreground',
         className,
       )}
       {...props}
@@ -16,7 +16,7 @@ export function Card({ className, ...props }: ComponentProps<'div'>) {
   return (
     <div
       className={cn(
-        'rounded-panel border border-border bg-card p-5 text-card-foreground shadow-panel',
+        'border-t border-border py-5 text-card-foreground',
         className,
       )}
       {...props}
@@ -27,10 +27,7 @@ export function Skeleton({ className, ...props }: ComponentProps<'div'>) {
   return (
     <div
       aria-hidden="true"
-      className={cn(
-        'animate-pulse rounded-control bg-muted motion-reduce:animate-none',
-        className,
-      )}
+      className={cn('rounded-control bg-muted', className)}
       {...props}
     />
   );

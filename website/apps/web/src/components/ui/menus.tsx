@@ -10,7 +10,7 @@ import type { ComponentProps } from 'react';
 import { cn } from '../../lib/utils';
 
 const floating =
-  'z-60 rounded-control border border-border bg-card p-2 text-sm shadow-panel';
+  'z-60 rounded-control border border-border bg-card p-2 text-sm';
 export const DropdownMenu = Dropdown.Root;
 export const DropdownMenuTrigger = Dropdown.Trigger;
 export function DropdownMenuContent({
@@ -82,10 +82,7 @@ export function TabsList({
 }: ComponentProps<typeof RTabs.List>) {
   return (
     <RTabs.List
-      className={cn(
-        'inline-flex flex-wrap rounded-control bg-muted p-1',
-        className,
-      )}
+      className={cn('inline-flex flex-wrap border-b border-border', className)}
       {...props}
     />
   );
@@ -97,7 +94,7 @@ export function TabsTrigger({
   return (
     <RTabs.Trigger
       className={cn(
-        'rounded-control px-3 py-2 text-sm data-[state=active]:bg-card data-[state=active]:font-semibold',
+        'rounded-control px-3 py-2 text-sm underline-offset-8 data-[state=active]:font-medium data-[state=active]:underline',
         className,
       )}
       {...props}

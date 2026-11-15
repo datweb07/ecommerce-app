@@ -3,12 +3,12 @@ import type { ComponentProps } from 'react';
 import { cn } from '../../lib/utils';
 
 export const buttonStyles =
-  'inline-flex shrink-0 items-center justify-center gap-2 rounded-control text-sm font-semibold transition-colors disabled:pointer-events-none disabled:opacity-50';
+  'inline-flex shrink-0 items-center justify-center gap-2 rounded-control text-sm font-medium transition-colors duration-150 disabled:pointer-events-none disabled:opacity-50';
 const variants = {
   primary: 'bg-primary text-primary-foreground hover:bg-primary/90',
-  outline: 'border border-border bg-card hover:bg-muted',
-  ghost: 'hover:bg-muted',
-  danger: 'bg-destructive text-white hover:bg-destructive/85',
+  outline: 'border border-control-border bg-transparent hover:bg-muted',
+  ghost: 'hover:underline underline-offset-4',
+  danger: 'border border-destructive text-destructive hover:bg-muted',
 };
 const sizes = {
   default: 'min-h-11 px-4',

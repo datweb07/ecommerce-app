@@ -28,7 +28,7 @@ export function PageHeader({
 }) {
   return (
     <header className="space-y-2">
-      <h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl">
+      <h1 className="text-section font-medium tracking-tight sm:text-title">
         {title}
       </h1>
       {description && <p className="text-muted-foreground">{description}</p>}
@@ -41,7 +41,10 @@ export function Breadcrumb({
   items: { label: string; href?: string }[];
 }) {
   return (
-    <nav aria-label="Đường dẫn" className="text-sm text-muted-foreground">
+    <nav
+      aria-label="Đường dẫn"
+      className="text-caption tracking-wide text-muted-foreground"
+    >
       <ol className="flex flex-wrap items-center gap-2">
         {items.map(({ label, href }, index) => (
           <li key={label} className="flex items-center gap-2">
@@ -78,11 +81,11 @@ export function Placeholder({
         ]}
       />
       <PageHeader title={title} />
-      <Card className="mt-6 flex min-h-44 items-center gap-4">
-        <span className="grid size-12 shrink-0 place-items-center rounded-control bg-muted text-primary">
+      <Card className="mt-6 flex min-h-32 items-center gap-3">
+        <span className="grid size-8 shrink-0 place-items-center text-muted-foreground">
           <Construction size={21} />
         </span>
-        <p className="font-semibold">{t('common', 'preview')}</p>
+        <p className="text-muted-foreground">{t('common', 'preview')}</p>
       </Card>
     </Section>
   );

@@ -17,17 +17,20 @@ export function Pagination({
   return (
     <nav className="flex flex-wrap items-center gap-2" aria-label="Phân trang">
       {page > 1 && (
-        <Button asChild variant="outline">
+        <Button asChild variant="ghost">
           <Link rel="prev" href={withPage(pathname, search, page - 1)}>
             Trang trước
           </Link>
         </Button>
       )}
-      <span aria-current="page" className="px-2 text-sm">
+      <span
+        aria-current="page"
+        className="px-2 text-label underline underline-offset-4"
+      >
         Trang {page} / {totalPages}
       </span>
       {page < totalPages && (
-        <Button asChild variant="outline">
+        <Button asChild variant="ghost">
           <Link rel="next" href={withPage(pathname, search, page + 1)}>
             Trang sau
           </Link>

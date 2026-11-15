@@ -12,7 +12,7 @@ import type { ComponentProps } from 'react';
 import { cn } from '../../lib/utils';
 
 const field =
-  'min-h-11 w-full rounded-control border border-border bg-card px-3 py-2 text-sm placeholder:text-muted-foreground disabled:opacity-50';
+  'min-h-11 w-full rounded-control border border-control-border bg-transparent px-3 py-2 text-sm placeholder:text-muted-foreground disabled:opacity-50';
 export function Input({ className, ref, ...props }: ComponentProps<'input'>) {
   return <input ref={ref} className={cn(field, className)} {...props} />;
 }
@@ -35,7 +35,7 @@ export function Label({
 }: ComponentProps<typeof RLabel.Root>) {
   return (
     <RLabel.Root
-      className={cn('text-sm font-semibold', className)}
+      className={cn('text-label font-medium', className)}
       {...props}
     />
   );
@@ -47,7 +47,7 @@ export function Checkbox({
   return (
     <RCheckbox.Root
       className={cn(
-        'grid size-5 place-items-center rounded border border-border data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground',
+        'grid size-5 place-items-center rounded border border-control-border data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground',
         className,
       )}
       {...props}
@@ -66,12 +66,12 @@ export function RadioGroupItem({
   return (
     <RRadio.Item
       className={cn(
-        'grid size-5 place-items-center rounded-full border border-border',
+        'grid size-5 place-items-center rounded-control border border-control-border',
         className,
       )}
       {...props}
     >
-      <RRadio.Indicator className="size-2.5 rounded-full bg-primary" />
+      <RRadio.Indicator className="size-2.5 rounded-control bg-primary" />
     </RRadio.Item>
   );
 }
@@ -82,12 +82,12 @@ export function Switch({
   return (
     <RSwitch.Root
       className={cn(
-        'h-6 w-11 rounded-full bg-muted-foreground transition-colors data-[state=checked]:bg-primary',
+        'h-6 w-11 rounded-control bg-muted-foreground transition-colors data-[state=checked]:bg-primary',
         className,
       )}
       {...props}
     >
-      <RSwitch.Thumb className="block size-5 translate-x-0.5 rounded-full bg-white transition-transform data-[state=checked]:translate-x-[22px]" />
+      <RSwitch.Thumb className="block size-5 translate-x-0.5 rounded-control bg-white transition-transform data-[state=checked]:translate-x-[22px]" />
     </RSwitch.Root>
   );
 }
@@ -120,7 +120,7 @@ export function SelectContent({
       <RSelect.Content
         position="popper"
         sideOffset={5}
-        className="z-60 min-w-(--radix-select-trigger-width) rounded-control border border-border bg-card p-1 shadow-panel"
+        className="z-60 min-w-(--radix-select-trigger-width) rounded-control border border-control-border bg-card p-1"
         {...props}
       >
         <RSelect.Viewport>{children}</RSelect.Viewport>

@@ -13,41 +13,61 @@
   --color-primary-foreground: var(--primary-foreground);
   --color-border: var(--border);
   --color-destructive: var(--destructive);
-  --radius-control: calc(var(--radius) * 0.65);
+  --radius-control: var(--radius);
   --radius-panel: var(--radius);
-  --shadow-panel: var(--panel-shadow);
+  --color-control-border: var(--control-border);
+  --color-focus: var(--focus);
+  --text-caption: 0.75rem;
+  --text-label: 0.875rem;
+  --text-body: 1rem;
+  --text-heading: 1.25rem;
+  --text-section: 1.75rem;
+  --text-title: 2.5rem;
+  --text-display: 3.5rem;
+  --spacing-section: 4rem;
+  --spacing-section-lg: 7rem;
   --font-sans: var(--font-inter), Arial, sans-serif;
 }
 :root {
-  --background: #f7f8f5;
-  --foreground: #142c25;
-  --card: #fff;
-  --muted: #e8eeea;
-  --muted-foreground: #465b53;
-  --primary: #185943;
-  --primary-foreground: #fff;
-  --border: #819b8e;
+  --background: #fafaf9;
+  --foreground: #111111;
+  --card: #ffffff;
+  --muted: #f3f2f0;
+  --muted-foreground: #666666;
+  --primary: #111111;
+  --primary-foreground: #ffffff;
+  --border: #e7e5e4;
+  --control-border: #898785;
   --destructive: #a32d32;
-  --radius: 1rem;
-  --panel-shadow: 0 8px 26px #173c270d;
+  --focus: #4d6473;
+  --radius: 6px;
 }
 .dark {
-  --background: #111c18;
-  --foreground: #e9f5ed;
-  --card: #182822;
-  --muted: #263a30;
-  --muted-foreground: #b2c7b9;
-  --primary: #9ae3ba;
-  --primary-foreground: #142c25;
-  --border: #667f72;
-  --destructive: #ba4149;
-  --panel-shadow: 0 8px 26px #050a0844;
+  --background: #121212;
+  --foreground: #f5f5f4;
+  --card: #191919;
+  --muted: #212121;
+  --muted-foreground: #a3a3a3;
+  --primary: #f5f5f4;
+  --primary-foreground: #111111;
+  --border: #262626;
+  --control-border: #737373;
+  --destructive: #ff9b9d;
+  --focus: #a1bac9;
 }
 @layer base {
   body {
-    @apply bg-background font-sans text-foreground;
+    @apply bg-background font-sans text-body leading-relaxed text-foreground;
   }
   :focus-visible {
-    @apply outline-2 outline-offset-2 outline-primary;
+    @apply outline-2 outline-offset-2 outline-focus;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
   }
 }

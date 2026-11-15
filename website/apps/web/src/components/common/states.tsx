@@ -16,7 +16,7 @@ export function EmptyState({
   return (
     <Card className="grid justify-items-center gap-3 py-10 text-center">
       <PackageOpen aria-hidden="true" className="text-primary" />
-      <h2 className="text-xl font-bold">{title}</h2>
+      <h2 className="text-xl font-medium">{title}</h2>
       {description && <p className="text-muted-foreground">{description}</p>}
       {action}
     </Card>
@@ -36,7 +36,7 @@ export function ErrorState({
   return (
     <Card className="grid justify-items-center gap-3 py-10 text-center">
       <CircleAlert aria-hidden="true" className="text-destructive" />
-      <h1 className="text-2xl font-bold">{title}</h1>
+      <h1 className="text-2xl font-medium">{title}</h1>
       {description && <p className="text-muted-foreground">{description}</p>}
       <div className="flex flex-wrap justify-center gap-3">
         {retry && <Button onClick={retry}>{t('common', 'retry')}</Button>}
