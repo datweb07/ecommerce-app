@@ -76,6 +76,10 @@ Công tắc theme và nút cuộn đầu trang dùng chung cho storefront và ad
 
 Sau `pnpm build`, chạy `pnpm --filter @storefront/web smoke:ui-extras`. Script dùng Next production, Fastify và MongoDB seed tạm. Ảnh và số đo trình duyệt được ghi vào `.cache/ui-extras/`.
 
+## Kiểm thử
+
+`pnpm e2e:env` báo biến đang có trong tiến trình. `pnpm e2e:public` chạy smoke production với API và MongoDB seed riêng. `pnpm e2e` chọn các nhóm có đủ biến test. Xem [cách cài trình duyệt, cấu hình provider và mở báo cáo](../docs/web/06-e2e-testing.md).
+
 ## Seed và import products
 
 `pnpm seed` tạo **8 sản phẩm / 4 categories** (Electronics, Fashion, Sports, Accessories) và **3 banner mẫu** liên kết các danh mục tương ứng. Ảnh banner trong `apps/web/public/banners` lấy từ ảnh sản phẩm mẫu. ID ổn định, `$setOnInsert` giữ các bản ghi bạn đã sửa. Giá theo major USD như legacy. Chưa tạo users/orders/reviews giả.

@@ -8,6 +8,8 @@
     "build": "next build",
     "start": "next start --port 3000",
     "typecheck": "next typegen && tsc --noEmit",
+    "e2e": "node e2e/run.ts",
+    "e2e:env": "node e2e/env-status.ts",
     "smoke": "node scripts/smoke.ts",
     "smoke:catalogue": "node scripts/catalogue-smoke.ts",
     "smoke:admin": "node scripts/admin-smoke.ts",
@@ -39,6 +41,8 @@
   },
   "devDependencies": {
     "@axe-core/playwright": "4.14.0",
+    "@clerk/backend": "3.29.0",
+    "@clerk/testing": "2.3.0",
     "@playwright/test": "1.65.1",
     "@testing-library/dom": "10.4.2",
     "@testing-library/react": "16.3.3",
