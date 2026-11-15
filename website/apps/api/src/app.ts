@@ -170,7 +170,14 @@ export async function buildApp(
       (scope) =>
         adminRoutes(
           scope,
-          adminService(database, orders, notifications, env),
+          adminService(
+            database,
+            orders,
+            notifications,
+            env,
+            auth.users,
+            checkouts,
+          ),
           auth,
         ),
       { prefix: '/api/v1' },

@@ -1,13 +1,24 @@
 import { randomUUID } from 'node:crypto';
 import { v2 as cloudinary } from 'cloudinary';
-import type { Connection } from 'mongoose';
+import {
+  Types,
+  type Connection,
+  type PipelineStage,
+  type QueryFilter,
+} from 'mongoose';
 import type { z } from 'zod';
-import { maxProductImageBytes } from '@storefront/shared';
+import {
+  maxProductImageBytes,
+  type adminOrdersQuery,
+} from '@storefront/shared';
 import type { Order, orderModel } from '../../models/order.js';
 import type { Env } from '../../config/env.js';
 import { ApiError } from '../../plugins/errors.js';
 import type { NotificationService } from '../notifications/service.js';
 import type { adminOrderPatch, pagination } from './schemas.js';
+import type { checkoutModel } from '../../models/checkout.js';
+import type { AuthService } from '../auth/service.js';
+import { escapedSearch } from './products.js';
 
 const orderFields = {
   status: 1,
@@ -35,19 +46,147 @@ export function adminService(
   orders: ReturnType<typeof orderModel>,
   notifications: NotificationService,
   env: Env,
+  users: AuthService['users'],
+  checkouts: ReturnType<typeof checkoutModel>,
 ) {
-  async function list(query: z.infer<typeof pagination>) {
+  async function list({
+    page,
+    limit,
+    q,
+    status,
+    from,
+    to,
+  }: z.infer<typeof adminOrdersQuery>) {
+    const offset = (page - 1) * limit;
+    const until = to
+      ? new Date(new Date(to).getTime() + 86_400_000)
+      : undefined;
+    const id =
+      q && /^[a-f0-9]{24}$/i.test(q) ? new Types.ObjectId(q) : undefined;
+    const filter: QueryFilter<Order> = {
+      ...(id ? { _id: id } : {}),
+      ...(status ? { status } : {}),
+      ...(from || until
+        ? {
+            createdAt: {
+              ...(from ? { $gte: new Date(from) } : {}),
+              ...(until ? { $lt: until } : {}),
+            },
+          }
+        : {}),
+    };
+    if (q && !id) {
+      const steps: PipelineStage[] = [
+        { $match: filter },
+        {
+          $lookup: {
+            from: 'users',
+            localField: 'user',
+            foreignField: '_id',
+            pipeline: [
+              { $match: { email: escapedSearch(q) } },
+              { $project: { _id: 1 } },
+            ],
+            as: 'customerMatch',
+          },
+        },
+        { $match: { 'customerMatch.0': { $exists: true } } },
+        {
+          $facet: {
+            rows: [
+              { $sort: { createdAt: -1, _id: -1 } },
+              { $skip: offset },
+              { $limit: limit },
+              { $project: orderFields },
+            ],
+            count: [{ $count: 'total' }],
+          },
+        },
+      ];
+      const [result] = await orders
+        .aggregate<{ rows: Order[]; count: { total: number }[] }>(steps)
+        .option({ maxTimeMS: 3000 });
+      return {
+        page,
+        limit,
+        total: result?.count[0]?.total ?? 0,
+        items: (result?.rows ?? []).map(view),
+      };
+    }
     const [rows, total] = await Promise.all([
       orders
-        .find()
+        .find(filter)
         .select(orderFields)
         .sort({ createdAt: -1, _id: -1 })
-        .skip((query.page - 1) * query.limit)
-        .limit(query.limit)
+        .skip(offset)
+        .limit(limit)
         .lean(),
-      orders.countDocuments(),
+      orders.countDocuments(filter),
     ]);
-    return { ...query, total, items: rows.map(view) };
+    return { page, limit, total, items: rows.map(view) };
+  }
+
+  async function detail(id: string) {
+    const order = await orders.findById(id).lean();
+    if (!order)
+      throw new ApiError(404, 'ORDER_NOT_FOUND', 'Không tìm thấy đơn hàng.');
+    const customer = await users
+      .findById(order.user)
+      .select({ name: 1, email: 1 })
+      .lean();
+    return {
+      ...view(order),
+      customer: customer
+        ? { name: customer.name, email: customer.email }
+        : null,
+      items: order.orderItems.map(
+        ({ product, name, price, quantity, image }) => ({
+          productId: product.toString(),
+          name,
+          price,
+          quantity,
+          image,
+        }),
+      ),
+      shippingAddress: order.shippingAddress,
+      paymentReference: order.paymentResult?.id?.slice(-8) || null,
+    };
+  }
+
+  async function reconciliation({ page, limit }: z.infer<typeof pagination>) {
+    const filter = { requiresReconciliation: true };
+    const [rows, total] = await Promise.all([
+      checkouts
+        .find(filter)
+        .select({
+          status: 1,
+          quote: 1,
+          orderId: 1,
+          createdAt: 1,
+          expiresAt: 1,
+          paymentIntent: 1,
+        })
+        .sort({ createdAt: -1, _id: -1 })
+        .skip((page - 1) * limit)
+        .limit(limit)
+        .lean(),
+      checkouts.countDocuments(filter),
+    ]);
+    return {
+      page,
+      limit,
+      total,
+      items: rows.map((row) => ({
+        id: row._id.toString(),
+        status: row.status,
+        orderId: row.orderId?.toString() ?? null,
+        totalCents: row.quote.totalCents,
+        currency: row.quote.currency,
+        expiresAt: row.expiresAt.toISOString(),
+        createdAt: row.createdAt.toISOString(),
+        paymentReference: row.paymentIntent?.slice(-8) ?? null,
+      })),
+    };
   }
 
   function changeStatus(
@@ -134,7 +273,7 @@ export function adminService(
     };
   }
 
-  return { list, changeStatus, uploadSignature };
+  return { list, detail, reconciliation, changeStatus, uploadSignature };
 }
 
 export type AdminService = ReturnType<typeof adminService>;

@@ -91,6 +91,10 @@ export function checkoutModel(db: Connection) {
   schema.index({ paymentIntent: 1 }, { unique: true, sparse: true });
   schema.index({ status: 1, 'items.product': 1 });
   schema.index(
+    { createdAt: -1, _id: -1 },
+    { partialFilterExpression: { requiresReconciliation: true } },
+  );
+  schema.index(
     { nextSweepAt: 1, _id: 1 },
     {
       partialFilterExpression: {

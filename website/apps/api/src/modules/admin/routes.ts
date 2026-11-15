@@ -1,5 +1,11 @@
 import type { FastifyInstance } from 'fastify';
-import { adminMeDto, emptyQuery } from '@storefront/shared';
+import {
+  adminMeDto,
+  adminOrderDetailDto,
+  adminOrdersQuery,
+  adminReconciliationList,
+  emptyQuery,
+} from '@storefront/shared';
 import type { AuthService } from '../auth/service.js';
 import {
   apiRoute,
@@ -16,6 +22,7 @@ import {
   uploadSignatureInput,
 } from './schemas.js';
 import type { AdminService } from './service.js';
+import { audit } from './product-routes.js';
 
 export async function adminRoutes(
   app: FastifyInstance,
@@ -49,11 +56,35 @@ export async function adminRoutes(
       preHandler,
       schema: {
         ...schema,
-        querystring: pagination,
+        querystring: adminOrdersQuery,
         response: { 200: adminOrderList, ...errorResponses },
       },
     },
     async (request) => service.list(request.query),
+  );
+  api.get(
+    '/admin/orders/:id',
+    {
+      preHandler,
+      schema: {
+        ...schema,
+        params: idParams,
+        response: { 200: adminOrderDetailDto, ...errorResponses },
+      },
+    },
+    (request) => service.detail(request.params.id),
+  );
+  api.get(
+    '/admin/reconciliation',
+    {
+      preHandler,
+      schema: {
+        ...schema,
+        querystring: pagination,
+        response: { 200: adminReconciliationList, ...errorResponses },
+      },
+    },
+    (request) => service.reconciliation(request.query),
   );
   api.patch(
     '/admin/orders/:id/status',
@@ -67,7 +98,11 @@ export async function adminRoutes(
         response: { 200: adminOrderDto, ...errorResponses },
       },
     },
-    async (request) => service.changeStatus(request.params.id, request.body),
+    async (request) => {
+      const order = await service.changeStatus(request.params.id, request.body);
+      audit(request, 'order.' + request.body.status, order.id);
+      return order;
+    },
   );
   api.post(
     '/admin/uploads/signature',

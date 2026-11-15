@@ -16,3 +16,9 @@ Admin cũ có dashboard tổng, danh sách khách, chỉnh sản phẩm và chuy
 Chỉnh tồn dùng delta nguyên tử có điều kiện. Khi xóa, giao dịch ghi lên cùng document Product mà checkout ghi lúc giữ hàng rồi kiểm tra phiên pending. MongoDB buộc một giao dịch đọc lại khi hai thao tác tranh chấp, ngăn xóa món vừa được giữ.
 
 Dọn ảnh do web quản lý theo best-effort. Ảnh đã dùng trong snapshot đơn được giữ để đơn cũ vẫn hiển thị. Catalogue có TTL 60 giây. Mọi route admin trả `private, no-store`.
+
+## Đơn hàng
+
+`GET /orders` lọc `status`, `from`, `to`, `q` và phân trang. Ngày là ngày UTC bao gồm hai đầu. Tìm theo mã ObjectId đầy đủ hoặc một phần email, với ký tự biểu thức chính quy được escape. `GET /orders/:id` đọc snapshot, địa chỉ giao, thông tin khách tối thiểu và 8 ký tự cuối mã thanh toán. `PATCH /orders/:id/status` giữ chuyển trạng thái một bước và tạo thông báo trong giao dịch hiện có.
+
+`GET /reconciliation` chỉ đọc các phiên được đánh dấu cần đối soát. DTO cung cấp mã tham chiếu nội bộ, trạng thái, số tiền, thời gian và phần cuối mã thanh toán để đối chiếu thủ công.

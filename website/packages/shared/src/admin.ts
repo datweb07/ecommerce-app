@@ -2,6 +2,7 @@ import { z } from 'zod';
 import { objectId } from './auth.js';
 import { pageInfo, paginationFields, productDto } from './products.js';
 import { notificationStatus } from './notifications.js';
+import { checkoutQuote, checkoutStatus, orderDto } from './checkout.js';
 
 export const adminMeDto = z.object({ id: objectId, isAdmin: z.literal(true) });
 
@@ -27,6 +28,39 @@ export const adminOrderList = z.object({
 export const adminSearch = z.string().trim().min(1).max(100);
 export const withinAdminPage = (query: { page: number; limit: number }) =>
   (query.page - 1) * query.limit <= 10_000;
+export const adminOrdersQuery = z
+  .strictObject({
+    ...paginationFields,
+    status: orderStatus.optional(),
+    q: adminSearch.optional(),
+    from: z.iso.date().optional(),
+    to: z.iso.date().optional(),
+  })
+  .refine(
+    (query) =>
+      withinAdminPage(query) &&
+      (!query.from || !query.to || query.from <= query.to),
+  );
+export const adminOrderDetailDto = adminOrderDto.extend({
+  customer: z.object({ name: z.string(), email: z.string() }).nullable(),
+  items: z.array(
+    orderDto.shape.items.element.omit({ canReview: true, review: true }),
+  ),
+  shippingAddress: orderDto.shape.shippingAddress,
+  paymentReference: z.string().max(8).nullable(),
+});
+export const adminReconciliationList = pageInfo.extend({
+  items: z.array(
+    checkoutStatus
+      .pick({ id: true, status: true, expiresAt: true, orderId: true })
+      .extend({
+        totalCents: checkoutQuote.shape.totalCents,
+        currency: checkoutQuote.shape.currency,
+        createdAt: z.iso.datetime(),
+        paymentReference: z.string().max(8).nullable(),
+      }),
+  ),
+});
 export const imageAssetRef = z.strictObject({
   url: z.url().max(2048),
   publicId: z.string().max(200),

@@ -173,3 +173,104 @@ it('signs only fixed Cloudinary upload fields and validates the upload declarati
   expect(response.body).not.toContain(secret);
   expect((await sign(image)).statusCode).toBe(429);
 });
+
+it('filters orders by UTC days, status, customer email and exact order id', async () => {
+  const profile = await fixture.app.inject({
+    url: '/api/v1/me',
+    headers: bearer('user_Buyer'),
+  });
+  const customerId = new Types.ObjectId(profile.json().id);
+  const orders = fixture.db.collection('orders');
+  const orderId = (
+    await orders.insertOne({
+      user: customerId,
+      status: 'shipped',
+      totalPrice: 34.95,
+      createdAt: new Date('2026-04-20T23:59:59Z'),
+      orderItems: [
+        {
+          product: new Types.ObjectId(),
+          quantity: 2,
+          name: 'Snapshot',
+          price: 10,
+          image: '/archive.jpg',
+        },
+      ],
+      shippingAddress: {
+        fullName: 'Buyer',
+        streetAddress: '123 Road',
+        city: 'City',
+        state: 'State',
+        zipCode: '111',
+        phoneNumber: '123',
+        other: 'private',
+      },
+      paymentResult: { id: 'pi_example12345678', secret: 'private' },
+    })
+  ).insertedId;
+  const url = base + '/orders';
+  const get = (path: string, headers = auth) =>
+    fixture.app.inject({ url: path, headers });
+  const list = await get(
+    url + '?status=shipped&from=2026-04-20&to=2026-04-20&q=BUYER&limit=1',
+  );
+  expect(list.statusCode, list.body).toBe(200);
+  expect(list.json()).toMatchObject({
+    total: 1,
+    items: [{ id: orderId.toString() }],
+  });
+  expect((await get(url + '?q=' + orderId)).json().total).toBe(1);
+  expect((await get(url + '?q=.%2A')).json().total).toBe(0);
+  expect((await get(url + '?page=2&q=Buyer&limit=1')).json().items).toEqual([]);
+  expect((await get(url + '?from=2026-04-21&to=2026-04-20')).statusCode).toBe(
+    400,
+  );
+  const detail = await get(url + '/' + orderId);
+  expect(detail.statusCode, detail.body).toBe(200);
+  expect(detail.json()).toMatchObject({
+    customer: { name: 'user_Buyer', email: 'user_Buyer@example.test' },
+    paymentReference: '12345678',
+    items: [{ name: 'Snapshot' }],
+  });
+  expect(detail.body).not.toContain('private');
+  expect((await get(url + '/' + new Types.ObjectId())).statusCode).toBe(404);
+  expect((await get(url + '/invalid')).statusCode).toBe(400);
+  for (const guarded of [url + '/' + orderId, base + '/reconciliation']) {
+    expect((await fixture.app.inject({ url: guarded })).statusCode).toBe(401);
+    expect((await get(guarded, bearer())).statusCode).toBe(403);
+  }
+});
+
+it('lists cases needing payment reconciliation without checkout credentials', async () => {
+  const now = new Date();
+  const entry = {
+    user: new Types.ObjectId(),
+    key: 'private',
+    clerkId: 'private',
+    status: 'expired',
+    quote: { totalCents: 2999, currency: 'usd' },
+    expiresAt: now,
+    createdAt: now,
+    paymentIntent: 'pi_reference99999999',
+    requiresReconciliation: true,
+  };
+  await fixture.db.collection('web_checkout_sessions').insertOne(entry);
+  const result = await fixture.app.inject({
+    url: base + '/reconciliation',
+    headers: auth,
+  });
+  expect(result.statusCode, result.body).toBe(200);
+  expect(result.json()).toMatchObject({
+    total: 1,
+    items: [{ totalCents: 2999, paymentReference: '99999999' }],
+  });
+  expect(result.body).not.toContain('private');
+  expect(
+    (
+      await fixture.app.inject({
+        url: base + '/reconciliation?limit=101',
+        headers: auth,
+      })
+    ).statusCode,
+  ).toBe(400);
+});
