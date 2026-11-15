@@ -18,7 +18,10 @@ export async function Header() {
     .catch(() => ({ items: [] }));
   const categories = items.slice(0, 4);
   return (
-    <header className="sticky top-0 z-30 border-b border-border bg-background">
+    <header
+      data-mascot-avoid=""
+      className="sticky top-0 z-30 border-b border-border bg-background"
+    >
       <div className="mx-auto flex min-h-16 max-w-7xl items-center gap-1 px-3 sm:px-8 lg:grid lg:grid-cols-[1fr_auto_1fr] lg:gap-5">
         <div className="flex min-w-0 items-center gap-1">
           <MobileMenu categories={categories} />

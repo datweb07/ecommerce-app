@@ -1,5 +1,13 @@
 const vi = {
-  uiExtras: { darkMode: 'Chế độ tối', scrollTop: 'Cuộn lên đầu trang' },
+  uiExtras: {
+    darkMode: 'Chế độ tối',
+    scrollTop: 'Cuộn lên đầu trang',
+    hideMascot: 'Ẩn linh vật',
+    showMascot: 'Hiện linh vật',
+    mascotHello: 'Chào bạn!',
+    mascotExplore: 'Mình đi dạo một chút.',
+    mascotBreak: 'Nghỉ chân một lát nhé.',
+  },
   admin: {
     previewDevice: 'Thiết bị xem trước',
     previewTheme: 'Giao diện xem trước',

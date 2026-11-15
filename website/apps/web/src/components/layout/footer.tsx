@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { site } from '../../config/site';
 import { t } from '../../lib/i18n';
+import { MascotPreferenceButton } from '../mascot/mascot-layer';
 
 export function Footer() {
   return (
@@ -52,6 +53,7 @@ export function Footer() {
           >
             Bảo mật
           </Link>
+          <MascotPreferenceButton />
         </div>
       </div>
       <div className="border-t border-border px-5 py-4 text-center text-xs text-muted-foreground">

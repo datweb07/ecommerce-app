@@ -27,7 +27,12 @@ export function DialogContent({
   return (
     <Modal.Portal>
       <Modal.Overlay className={overlay} />
-      <Modal.Content className={cn(modal, className)} {...props}>
+      <Modal.Content
+        className={cn(modal, className)}
+        {...props}
+        data-mascot-modal=""
+        data-mascot-avoid=""
+      >
         {children}
         <CloseButton />
       </Modal.Content>
@@ -62,6 +67,8 @@ export function SheetContent({
           className,
         )}
         {...props}
+        data-mascot-modal=""
+        data-mascot-avoid=""
       >
         {children}
         <CloseButton />
@@ -82,7 +89,12 @@ export function AlertDialogContent({
   return (
     <Alert.Portal>
       <Alert.Overlay className={overlay} />
-      <Alert.Content className={cn(modal, className)} {...props} />
+      <Alert.Content
+        className={cn(modal, className)}
+        {...props}
+        data-mascot-modal=""
+        data-mascot-avoid=""
+      />
     </Alert.Portal>
   );
 }

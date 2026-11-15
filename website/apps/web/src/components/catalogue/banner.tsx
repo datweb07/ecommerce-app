@@ -62,6 +62,7 @@ export function StorefrontBanner({
   ) : (
     <Link
       href={href}
+      data-mascot-avoid=""
       className="group block focus-visible:outline-2 focus-visible:outline-offset-4"
     >
       {contents}

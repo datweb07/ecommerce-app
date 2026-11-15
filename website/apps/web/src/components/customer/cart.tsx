@@ -208,7 +208,10 @@ export function CartPageContent({ max }: { max: number }) {
           );
         })}
       </ul>
-      <Card className="grid gap-3">
+      <Card
+        data-mascot-avoid=""
+        className="grid gap-3 max-sm:pr-[calc(3rem+env(safe-area-inset-right))]"
+      >
         <h2 className="font-medium">{t('customer', 'subtotal')}</h2>
         <Price amount={cartSubtotal(data)} />
         <p className="text-sm text-muted-foreground">{t('customer', 'fees')}</p>

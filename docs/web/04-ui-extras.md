@@ -27,3 +27,10 @@ Chọn phương án B với sprite SVG tự vẽ trong repo. Không cần thêm 
 ## Engine
 
 `src/lib/mascot/engine.ts` là state machine TypeScript nhận đồng hồ, RNG, kích thước viewport, tọa độ/vận tốc trỏ và hình chữ nhật cần tránh. Vận tốc dùng px/giây, dt kẹp ở 50 ms. Engine không đọc DOM hoặc asset. Khi rơi, mascot đáp ở mép dưới hoặc ở ngay phía trên vùng tránh cắt đường rơi, rồi nảy một lần. Khi viewport bị che kín, engine trả `visible: false` cho đến khi có chỗ an toàn.
+
+## Tùy chỉnh và tích hợp
+
+- Đổi kích thước, tốc độ đi/chạy, thời gian ngủ và danh sách route ẩn trong `website/apps/web/src/config/mascot.ts`. Thay ảnh ở `public/mascot/`; cập nhật manifest gồm kích thước ô, lưới, khung/hướng và lật gương. Asset gốc `shop-cat.svg` do dự án vẽ, gồm 12 ô 32 px trong lưới 4×3. Không dùng sprite hoặc mã oneko.
+- `NEXT_PUBLIC_MASCOT_ENABLED=false` trong env web trước build tắt nhân vật và nút footer. Với mặc định `true`, nút footer lưu lựa chọn theo origin. Lỗi storage chỉ giới hạn lựa chọn trong phiên trang hiện tại.
+- Storefront nạp sprite sau load và idle bằng một chunk động. Mascot ở z-20, dừng khi hộp thoại mở hoặc tab ẩn và ẩn hoàn toàn với reduced motion. Vùng chạm có kích thước sprite. Header, banner, phần thanh toán giỏ, nút cuộn và toast là vùng tránh. Các rect được đọc tối đa mỗi 500 ms khi viewport ổn định.
+- Mobile dùng chạm và kéo thả. Các phản ứng con trỏ chỉ dành cho chuột. Phần thanh toán giỏ có khoảng trống cạnh phải trên mobile dành cho nút cuộn lên.

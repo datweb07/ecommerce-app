@@ -21,6 +21,10 @@ const optionalKey = (pattern: RegExp) =>
     z.string().regex(pattern).optional(),
   );
 export const publicSchema = z.object({
+  NEXT_PUBLIC_MASCOT_ENABLED: z
+    .enum(['true', 'false'])
+    .default('true')
+    .transform((value) => value === 'true'),
   NEXT_PUBLIC_API_URL: httpOrigin,
   NEXT_PUBLIC_SITE_URL: httpOrigin,
   NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: optionalKey(

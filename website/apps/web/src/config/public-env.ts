@@ -1,6 +1,7 @@
 import { parseEnv, publicSchema } from './env-schema';
 
 export const publicEnv = parseEnv(publicSchema, {
+  NEXT_PUBLIC_MASCOT_ENABLED: process.env.NEXT_PUBLIC_MASCOT_ENABLED,
   NEXT_PUBLIC_API_URL:
     process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000',
   NEXT_PUBLIC_SITE_URL:
