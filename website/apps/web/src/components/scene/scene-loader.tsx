@@ -18,8 +18,8 @@ const SceneCanvas = dynamic(() => import('./scene-canvas'), { ssr: false });
 const activeScenes = new Set<object>();
 const retrySlot = new EventTarget();
 
-class CanvasBoundary extends Component<
-  { children: ReactNode },
+export class CanvasBoundary extends Component<
+  { children: ReactNode; onError?: () => void },
   { failed: boolean }
 > {
   state = { failed: false };
@@ -28,18 +28,21 @@ class CanvasBoundary extends Component<
     return { failed: true };
   }
 
+  componentDidCatch() {
+    this.props.onError?.();
+  }
+
   render() {
     return this.state.failed ? null : this.props.children;
   }
 }
 
-export function SceneLoader({ kind }: { kind: SceneKind }) {
-  const progress = useContext(PinProgressContext);
+export function useSceneActivation(disabled = false) {
   const host = useRef<HTMLDivElement>(null);
   const [active, setActive] = useState(false);
 
   useEffect(() => {
-    if (!host.current || !window.IntersectionObserver) return;
+    if (disabled || !host.current || !window.IntersectionObserver) return;
     const element = host.current;
     const slot = {};
     const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -122,8 +125,14 @@ export function SceneLoader({ kind }: { kind: SceneKind }) {
       cancelIdle?.();
       release();
     };
-  }, []);
+  }, [disabled]);
 
+  return { host, active: !disabled && active };
+}
+
+export function SceneLoader({ kind }: { kind: SceneKind }) {
+  const progress = useContext(PinProgressContext);
+  const { host, active } = useSceneActivation();
   return (
     <div ref={host} className={styles.island}>
       {active && (
