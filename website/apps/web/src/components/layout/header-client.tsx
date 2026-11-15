@@ -172,7 +172,7 @@ function MobileSheet({ categories }: { categories: string[] }) {
               </Link>
             </SheetClose>
           </nav>
-          <div className="mt-4 min-[410px]:hidden">
+          <div className="mt-4">
             <ThemeToggle />
           </div>
         </SheetContent>

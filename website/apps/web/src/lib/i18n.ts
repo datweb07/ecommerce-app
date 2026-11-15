@@ -1,4 +1,5 @@
 const vi = {
+  uiExtras: { darkMode: 'Chế độ tối' },
   admin: {
     previewDevice: 'Thiết bị xem trước',
     previewTheme: 'Giao diện xem trước',

@@ -92,3 +92,80 @@
 [data-status='failed'] {
   color: var(--destructive);
 }
+
+.theme-thumb {
+  transform: translateX(0);
+}
+.dark .theme-thumb {
+  transform: translateX(20px);
+}
+.theme-sun,
+.dark .theme-moon {
+  opacity: 1;
+  transform: rotate(0);
+}
+.theme-moon,
+.dark .theme-sun {
+  opacity: 0;
+  transform: rotate(-55deg);
+}
+@media (prefers-reduced-motion: no-preference) {
+  [data-theme-used] .theme-thumb {
+    animation: theme-thumb-left 240ms ease-out;
+  }
+  .dark [data-theme-used] .theme-thumb {
+    animation-name: theme-thumb-right;
+  }
+  [data-theme-used] .theme-sun,
+  .dark [data-theme-used] .theme-moon {
+    animation: theme-icon-in 240ms ease-out;
+  }
+  [data-theme-used] .theme-moon,
+  .dark [data-theme-used] .theme-sun {
+    animation: theme-icon-out 240ms ease-out;
+  }
+}
+@keyframes theme-thumb-left {
+  from {
+    transform: translateX(20px);
+  }
+}
+@keyframes theme-thumb-right {
+  from {
+    transform: translateX(0);
+  }
+}
+@keyframes theme-icon-in {
+  from {
+    opacity: 0;
+    transform: rotate(55deg);
+  }
+}
+@keyframes theme-icon-out {
+  from {
+    opacity: 1;
+    transform: rotate(0);
+  }
+}
+
+html[data-theme-reveal]::view-transition-group(root),
+html[data-theme-reveal]::view-transition-old(root) {
+  animation: none;
+}
+html[data-theme-reveal]::view-transition-old(root),
+html[data-theme-reveal]::view-transition-new(root) {
+  mix-blend-mode: normal;
+}
+html[data-theme-reveal]::view-transition-new(root) {
+  animation: theme-reveal 400ms ease-out both;
+}
+@keyframes theme-reveal {
+  from {
+    clip-path: circle(0 at var(--theme-reveal-x) var(--theme-reveal-y));
+  }
+  to {
+    clip-path: circle(
+      var(--theme-reveal-radius) at var(--theme-reveal-x) var(--theme-reveal-y)
+    );
+  }
+}

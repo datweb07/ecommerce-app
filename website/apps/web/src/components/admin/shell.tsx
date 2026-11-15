@@ -91,6 +91,9 @@ export function AdminShell({ children }: { children: ReactNode }) {
                     {t('admin', 'workspace')}
                   </SheetDescription>
                   <AdminNav mobile />
+                  <div className="mt-4">
+                    <ThemeToggle />
+                  </div>
                 </SheetContent>
               </Sheet>
             </div>
