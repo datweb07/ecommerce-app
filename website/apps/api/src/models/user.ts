@@ -22,6 +22,7 @@ export interface User {
   expoPushToken?: string;
   wishlist: Types.ObjectId[];
   addresses: Address[];
+  createdAt?: Date;
 }
 const address = new Schema<Address>({
   label: { type: String, required: true },
@@ -48,6 +49,7 @@ export function userModels(db: Connection) {
     },
     { timestamps: true },
   );
+  users.index({ createdAt: -1, _id: -1 });
   const identities = new Schema<{
     _id: string;
     timestamp: number;

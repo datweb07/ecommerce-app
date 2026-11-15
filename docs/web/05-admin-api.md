@@ -22,3 +22,9 @@ Dọn ảnh do web quản lý theo best-effort. Ảnh đã dùng trong snapshot 
 `GET /orders` lọc `status`, `from`, `to`, `q` và phân trang. Ngày là ngày UTC bao gồm hai đầu. Tìm theo mã ObjectId đầy đủ hoặc một phần email, với ký tự biểu thức chính quy được escape. `GET /orders/:id` đọc snapshot, địa chỉ giao, thông tin khách tối thiểu và 8 ký tự cuối mã thanh toán. `PATCH /orders/:id/status` giữ chuyển trạng thái một bước và tạo thông báo trong giao dịch hiện có.
 
 `GET /reconciliation` chỉ đọc các phiên được đánh dấu cần đối soát. DTO cung cấp mã tham chiếu nội bộ, trạng thái, số tiền, thời gian và phần cuối mã thanh toán để đối chiếu thủ công.
+
+## Khách hàng và thống kê
+
+`GET /customers` phân trang, tìm theo tên hoặc email. DTO chỉ có ID nội bộ, tên, email, ngày tạo, số đơn và tổng chi tiêu. Phần tổng hợp đơn chạy một lần cho cả trang. `GET /stats?range=7d|30d|90d` dùng ngày UTC, tính từ đầu ngày đầu tiên đến hết hôm nay, điền số 0 cho ngày trống và cache 60 giây theo khoảng.
+
+Doanh thu là tổng giá trị đơn đã tạo trong khoảng, gồm mọi trạng thái giao hàng. Checkout web chỉ tạo đơn sau xác nhận thanh toán. Tổng khách, sản phẩm và mức tồn là số hiện tại toàn cửa hàng. Top 5 tính theo số lượng mua trong snapshot. Tiền trả theo USD đơn vị chính. Index theo ngày và theo người mua đã được kiểm tra bằng `explain`.

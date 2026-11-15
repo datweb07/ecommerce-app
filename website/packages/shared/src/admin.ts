@@ -65,6 +65,45 @@ export const imageAssetRef = z.strictObject({
   url: z.url().max(2048),
   publicId: z.string().max(200),
 });
+export const adminCustomersQuery = z
+  .strictObject({
+    ...paginationFields,
+    q: adminSearch.optional(),
+  })
+  .refine(withinAdminPage);
+export const adminCustomerList = pageInfo.extend({
+  items: z.array(
+    z.object({
+      id: objectId,
+      name: z.string(),
+      email: z.string(),
+      createdAt: z.iso.datetime().nullable(),
+      orderCount: z.number().int().nonnegative(),
+      totalSpent: z.number(),
+    }),
+  ),
+});
+export const adminStatsQuery = z.strictObject({
+  range: z.enum(['7d', '30d', '90d']).default('30d'),
+});
+export const adminStatsDto = z.object({
+  range: adminStatsQuery.shape.range.unwrap(),
+  revenue: z.number(),
+  orderCount: z.number().int(),
+  customerCount: z.number().int(),
+  productCount: z.number().int(),
+  lowStockCount: z.number().int(),
+  outOfStockCount: z.number().int(),
+  ordersByStatus: z.object({
+    pending: z.number().int(),
+    shipped: z.number().int(),
+    delivered: z.number().int(),
+  }),
+  revenueByDay: z.array(z.object({ date: z.iso.date(), revenue: z.number() })),
+  topProducts: z.array(
+    z.object({ id: objectId, name: z.string(), quantity: z.number() }),
+  ),
+});
 export const adminProductQuery = z
   .strictObject({
     ...paginationFields,

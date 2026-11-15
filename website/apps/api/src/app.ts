@@ -41,6 +41,8 @@ import { notificationService } from './modules/notifications/service.js';
 import { notificationRoutes } from './modules/notifications/routes.js';
 import { adminRoutes } from './modules/admin/routes.js';
 import { adminService } from './modules/admin/service.js';
+import { adminInsights } from './modules/admin/insights.js';
+import { adminInsightRoutes } from './modules/admin/insight-routes.js';
 import { adminProducts } from './modules/admin/products.js';
 import { adminProductRoutes } from './modules/admin/product-routes.js';
 import { createMedia, type MediaAdapter } from './modules/admin/media.js';
@@ -152,6 +154,20 @@ export async function buildApp(
     ]);
     const catalogue = catalogueModels(database);
     const orders = orderModel(database);
+    await app.register(
+      (scope) =>
+        adminInsightRoutes(
+          scope,
+          adminInsights(
+            auth.users,
+            orders,
+            catalogue.products,
+            env.ADMIN_LOW_STOCK,
+          ),
+          auth,
+        ),
+      { prefix: '/api/v1' },
+    );
     const checkouts = checkoutModel(database);
     const media = createMedia(env, app.log, options.media);
     await app.register(
