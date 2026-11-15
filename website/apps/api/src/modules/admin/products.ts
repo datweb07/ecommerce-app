@@ -99,15 +99,17 @@ export function adminProducts(
   }
   async function cleanup(images: AssetRef[], id: string) {
     await Promise.all(
-      images.map(async (asset) => {
-        // Preserve snapshots and stop cleanup on uncertain reference checks.
-        const stillUsed = await Promise.all([
-          orders.exists({ 'orderItems.image': asset.url }),
-          checkouts.exists({ 'items.image': asset.url, status: 'pending' }),
-          products.exists({ images: asset.url }),
-        ]).catch(() => [true]);
-        if (!stillUsed.some(Boolean)) await media.remove(asset, 'products', id);
-      }),
+      images.map((asset) =>
+        media.remove(asset, 'products', id, async () => {
+          // Preserve snapshots and stop cleanup on uncertain reference checks.
+          const stillUsed = await Promise.all([
+            orders.exists({ 'orderItems.image': asset.url }),
+            checkouts.exists({ 'items.image': asset.url, status: 'pending' }),
+            products.exists({ images: asset.url }),
+          ]);
+          return stillUsed.some(Boolean);
+        }),
+      ),
     );
   }
   async function create({

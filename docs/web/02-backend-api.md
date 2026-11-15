@@ -13,7 +13,7 @@ Prefix bên dưới là /api/v1. Swagger UI chạy ở /docs/ và đặc tả �
 | Đơn hàng | GET /orders, /orders/:id |
 | Đánh giá | POST /reviews, PATCH/DELETE /reviews/:id |
 | Thông báo | GET /notifications, PATCH /notifications/:id/read, POST /notifications/read-all |
-| Admin | GET /admin/orders, PATCH /admin/orders/:id/status, POST /admin/uploads/signature |
+| Admin và banner | API quản trị và GET /banners theo [hợp đồng A1](05-admin-api.md) |
 
 Order item có canReview và review của chính người gọi, gồm id và rating, để frontend có thể chỉnh/xóa review sau khi tải lại. Review công khai chỉ có tên hiển thị, rating và thời gian.
 
@@ -28,7 +28,7 @@ Chi tiết theo module nằm trong [Auth](02-1-auth.md), [Catalogue](02-2-catalo
 | Rate limit và tài nguyên | IP budget theo process, route nhạy cảm có quota thấp hơn. Body tối đa 1 MiB và pagination có giới hạn. Khi chạy nhiều process hoặc qua proxy cần kiểm tra trusted proxy và quota dùng chung. Reconcile inbox đọc lịch sử order và thêm tối đa 100 mục mới mỗi poll, có thể cần nhiều lượt cho dữ liệu lớn. |
 | DTO và log PII | Review public và admin list chọn field cố định. Order của chủ sở hữu có địa chỉ snapshot. HTTP log bỏ query và redact header nhạy cảm. Cần chốt retention cho dữ liệu checkout và order. |
 | Webhook | Svix/Stripe xác minh chữ ký trên body gốc. Ghi receipt cùng transaction. Stripe kiểm mode, session, tổng tiền và currency. Delivery đi muộn hoặc thiếu xác nhận có thể cần đối soát. |
-| Upload | Signed folder, định dạng, public ID, overwrite=false. API kiểm dung lượng khai báo, trần byte thực tế phụ thuộc luồng upload provider/client. TTL một giờ. |
+| Upload | Giai đoạn A1 kiểm policy chữ ký và metadata byte thực trước khi lưu sản phẩm/banner. Giới hạn ở phía provider được mô tả trong tài liệu A1. |
 | Legacy DB | Nếu dùng chung DB sau này, writer legacy có thể vượt qua khóa review của web và thay đổi tồn kho/cart ngoài transaction web. Inbox chỉ thấy timestamp còn lưu trong DB đang kết nối. |
 
 Tham chiếu checklist [OWASP API Security Top 10](https://api-security.owasp.org/editions/2023/en/0x11-t10/).

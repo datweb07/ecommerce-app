@@ -62,9 +62,15 @@ pnpm --filter @storefront/web smoke
 
 Ảnh lưu trong `.cache/web-smoke/`. Khi Web và API dùng port/domain khác, cập nhật `NEXT_PUBLIC_SITE_URL`, `NEXT_PUBLIC_API_URL`, `API_INTERNAL_URL`, `WEB_ORIGIN` và `CORS_ORIGINS` ở đúng file mẫu. Đặt `SMOKE_SITE_URL` và `SMOKE_API_URL` tương ứng khi chạy smoke.
 
+## Quản trị
+
+Đặt `ADMIN_EMAIL` ở cấu hình API theo email chính đã xác minh trên Clerk. API trả 200 từ `GET /api/v1/admin/me` với Bearer token của tài khoản đó. Xem [Swagger local](http://localhost:4000/docs/) và [hợp đồng Admin API](../docs/web/05-admin-api.md). Trang `/admin` thuộc A2.
+
+Cloudinary web cần Dynamic Folders và các biến `CLOUDINARY_*` trong file mẫu API để ký và xác minh ảnh. Đặt `WEB_ORIGIN` trùng origin của `NEXT_PUBLIC_SITE_URL` để chấp nhận đích banner tuyệt đối cùng origin. Banner API và catalogue trang chủ có TTL 60 giây.
+
 ## Seed và import products
 
-`pnpm seed` tạo **8 sản phẩm / 4 categories** (Electronics, Fashion, Sports, Accessories), ảnh HTTPS Unsplash. ID ổn định, `$setOnInsert`: chạy lại không tăng bản sao và không ghi đè stock/name bạn đã sửa. Giá theo major USD như legacy. Chưa tạo users/orders/reviews giả.
+`pnpm seed` tạo **8 sản phẩm / 4 categories** (Electronics, Fashion, Sports, Accessories) và **3 banner mẫu** liên kết các danh mục tương ứng. Ảnh banner trong `apps/web/public/banners` lấy từ ảnh sản phẩm mẫu. ID ổn định, `$setOnInsert` giữ các bản ghi bạn đã sửa. Giá theo major USD như legacy. Chưa tạo users/orders/reviews giả.
 
 Import tùy chọn: tự điền `LEGACY_PRODUCTS_URI` trong `.env`, dùng Mongo account **chỉ có quyền read trên database nguồn**. Không dùng credentials readWrite. Script chỉ thực hiện `find` với projection trên collection products; không tạo model/index/migration trên nguồn. Không có dữ liệu production nào được import tự động.
 

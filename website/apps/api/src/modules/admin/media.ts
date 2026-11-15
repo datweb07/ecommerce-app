@@ -110,10 +110,15 @@ export function createMedia(
       throw invalid();
     return { ...ref, width: asset.width, height: asset.height };
   }
-  async function remove(ref: AssetRef, folder: Folder, targetId: string) {
+  async function remove(
+    ref: AssetRef,
+    folder: Folder,
+    targetId: string,
+    isReferenced: () => Promise<boolean>,
+  ) {
     if (!adapter || !owns(ref, folder)) return;
     try {
-      await adapter.destroy(ref.publicId);
+      if (!(await isReferenced())) await adapter.destroy(ref.publicId);
     } catch {
       log.warn(
         { action: 'cloudinary.cleanup', targetId },

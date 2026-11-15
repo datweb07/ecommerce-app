@@ -1,4 +1,9 @@
-import { Types, type ClientSession, type Connection } from 'mongoose';
+import {
+  Types,
+  type ClientSession,
+  type Connection,
+  type QueryFilter,
+} from 'mongoose';
 import type { z } from 'zod';
 import type { catalogueModels, Review } from '../../models/catalogue.js';
 import type { orderModel } from '../../models/order.js';
@@ -128,9 +133,8 @@ export function reviewService(
     });
   }
 
-  function remove(user: User, id: string) {
+  function removeByFilter(filter: QueryFilter<Review>) {
     return db.transaction(async (session) => {
-      const filter = { _id: id, userId: user._id };
       const existing = await reviews.findOne(filter).session(session).lean();
       if (!existing) throw missingReview();
       const present = await lockProduct(existing.productId, session);
@@ -140,6 +144,12 @@ export function reviewService(
     });
   }
 
-  return { create, update, remove };
+  return {
+    create,
+    update,
+    remove: (user: User, id: string) =>
+      removeByFilter({ _id: id, userId: user._id }),
+    removeAdmin: (id: string) => removeByFilter({ _id: id }),
+  };
 }
 export type ReviewService = ReturnType<typeof reviewService>;

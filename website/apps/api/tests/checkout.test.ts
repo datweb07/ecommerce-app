@@ -517,6 +517,43 @@ it('documents every implemented route and authenticated request shape in OpenAPI
   const spec = await fixture.app.inject('/openapi.json');
   expect(spec.statusCode, spec.body).toBe(200);
   const paths = spec.json().paths;
+  const adminOperations = {
+    '/me': { get: '200' },
+    '/products': { get: '200', post: '201' },
+    '/products/{id}': { get: '200', patch: '200', delete: '200' },
+    '/products/{id}/stock': { post: '200' },
+    '/orders': { get: '200' },
+    '/orders/{id}': { get: '200' },
+    '/orders/{id}/status': { patch: '200' },
+    '/reconciliation': { get: '200' },
+    '/customers': { get: '200' },
+    '/stats': { get: '200' },
+    '/banners': { get: '200', post: '201' },
+    '/banners/{id}': { patch: '200', delete: '200' },
+    '/banners/order': { put: '200' },
+    '/uploads/signature': { post: '200' },
+    '/reviews': { get: '200' },
+    '/reviews/{id}': { delete: '200' },
+  };
+  for (const [path, methods] of Object.entries(adminOperations)) {
+    const documented = paths['/api/v1/admin' + path];
+    expect(documented, path).toBeDefined();
+    for (const [method, status] of Object.entries(methods)) {
+      const operation = documented[method];
+      expect(operation?.security, method + ' ' + path).toEqual([
+        { clerkBearer: [] },
+      ]);
+      expect(
+        operation.responses[status]?.content['application/json'].schema,
+      ).toBeDefined();
+      expect(operation.responses['401']).toBeDefined();
+      expect(operation.responses['403']).toBeDefined();
+    }
+  }
+  expect(
+    paths['/api/v1/banners'].get.responses['200'].content['application/json']
+      .schema,
+  ).toBeDefined();
   expect(Object.keys(paths)).toEqual(
     expect.arrayContaining([
       '/api/v1/admin/me',

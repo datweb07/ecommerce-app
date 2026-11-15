@@ -36,3 +36,36 @@ Doanh thu là tổng giá trị đơn đã tạo trong khoảng, gồm mọi tr�
 Admin có `GET/POST /banners`, `PATCH/DELETE /banners/:id`, `PUT /banners/order` với toàn bộ ID hiện có. Một document khóa trong `web_banner_guard` khiến các giao dịch banner tuần tự hóa ở MongoDB. Nhờ đó, reorder nhìn thấy cùng một danh sách và hai lần tạo đồng thời không vượt giới hạn. Đặt `WEB_ORIGIN` trùng origin của `NEXT_PUBLIC_SITE_URL`; URL cùng origin lưu dưới dạng đường dẫn tương đối.
 
 `POST /uploads/signature` nhận `purpose: product | banner` để chọn folder và public ID phía server. Request bỏ qua `purpose` vẫn dùng hợp đồng sản phẩm cũ. Cloudinary dùng Dynamic Folders. Chữ ký còn hiệu lực khoảng 5 phút dựa trên cửa sổ timestamp 1 giờ của Cloudinary. Admin API đọc metadata Cloudinary để xác nhận folder, URL, đúng định dạng, kích thước và số byte thật trước khi gắn ảnh. Ảnh banner tối thiểu desktop 1200×500, mobile 540×675. Byte thật mặc định tối đa 5 MiB. Provider vẫn có thể nhận tệp lớn hơn trước bước lưu, nên ảnh upload bỏ dở cần được quản lý trong Cloudinary. [Thời hạn chữ ký](https://cloudinary.com/documentation/authentication_signatures) · [Cloudinary Admin API](https://cloudinary.com/documentation/admin_api)
+
+## Đánh giá
+
+`GET /reviews` lọc `productId`, `rating` từ 1 đến 5 và phân trang. Tên khách và tên sản phẩm được lấy theo lô. DTO đánh giá dùng tên hiển thị và giữ tên sản phẩm nullable khi sản phẩm đã bị xóa. `DELETE /reviews/:id` tái sử dụng cùng giao dịch xóa và tính lại rating của API khách hàng. Route khách hàng tiếp tục lọc theo chủ sở hữu.
+
+## Danh mục endpoint
+
+| Đường dẫn dưới `/api/v1/admin` | Phương thức |
+| --- | --- |
+| `/me` | GET |
+| `/products` | GET, POST |
+| `/products/:id` | GET, PATCH, DELETE |
+| `/products/:id/stock` | POST |
+| `/orders` | GET |
+| `/orders/:id` | GET |
+| `/orders/:id/status` | PATCH |
+| `/reconciliation` | GET |
+| `/customers` | GET |
+| `/stats` | GET |
+| `/banners` | GET, POST |
+| `/banners/:id` | PATCH, DELETE |
+| `/banners/order` | PUT |
+| `/uploads/signature` | POST |
+| `/reviews` | GET |
+| `/reviews/:id` | DELETE |
+
+Route công khai mới là `GET /api/v1/banners`. OpenAPI và Swagger UI chạy ở development. Mọi thao tác admin có security scheme Clerk Bearer và response 401/403. Thao tác ghi log `adminId`, `action`, `targetId` và mã lý do nếu chỉnh tồn. API đọc khách hàng và địa chỉ giao đơn chỉ ở route admin có xác thực và dùng `private, no-store`.
+
+## Cấu hình và giới hạn
+
+Đặt `ADMIN_EMAIL` trong cấu hình API, khớp email chính đã xác minh của tài khoản trong cùng Clerk application với web. Dùng `GET /api/v1/admin/me` với Bearer token để xác nhận quyền. Giao diện `/admin` thuộc A2.
+
+Ảnh legacy giữ URL cũ khi sửa các trường khác của sản phẩm. Với danh sách ảnh mới, API yêu cầu ảnh Cloudinary đã xác minh. Dọn ảnh là best-effort và giữ các ảnh còn được tham chiếu khi kiểm tra. Các kiểm thử quyền và upload dùng adapter fixture, cần nghiệm thu đăng nhập và upload qua tài khoản Clerk và Cloudinary thật.

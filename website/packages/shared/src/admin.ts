@@ -28,6 +28,25 @@ export const adminOrderList = z.object({
 export const adminSearch = z.string().trim().min(1).max(100);
 export const withinAdminPage = (query: { page: number; limit: number }) =>
   (query.page - 1) * query.limit <= 10_000;
+export const adminReviewsQuery = z
+  .strictObject({
+    ...paginationFields,
+    productId: objectId.optional(),
+    rating: z.enum(['1', '2', '3', '4', '5']).transform(Number).optional(),
+  })
+  .refine(withinAdminPage);
+export const adminReviewList = pageInfo.extend({
+  items: z.array(
+    z.object({
+      id: objectId,
+      productId: objectId,
+      productName: z.string().nullable(),
+      displayName: z.string(),
+      rating: z.number().int().min(1).max(5),
+      createdAt: z.iso.datetime().nullable(),
+    }),
+  ),
+});
 export const adminOrdersQuery = z
   .strictObject({
     ...paginationFields,

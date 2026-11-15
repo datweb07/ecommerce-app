@@ -156,18 +156,18 @@ export function bannerService(
     await Promise.all(
       [...images.values()]
         .filter((entry) => !retained.has(entry.publicId))
-        .map(async (entry) => {
-          const referenced = await banners
-            .exists({
-              $or: [
-                { 'imageDesktop.publicId': entry.publicId },
-                { 'imageMobile.publicId': entry.publicId },
-              ],
-            })
-            .catch(() => true);
-          if (!referenced)
-            await media.remove(entry, 'banners', String(row._id));
-        }),
+        .map((entry) =>
+          media.remove(entry, 'banners', String(row._id), async () =>
+            Boolean(
+              await banners.exists({
+                $or: [
+                  { 'imageDesktop.publicId': entry.publicId },
+                  { 'imageMobile.publicId': entry.publicId },
+                ],
+              }),
+            ),
+          ),
+        ),
     );
   }
   async function create(input: z.infer<typeof adminBannerCreate>) {

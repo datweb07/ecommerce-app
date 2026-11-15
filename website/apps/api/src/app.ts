@@ -43,6 +43,8 @@ import { adminRoutes } from './modules/admin/routes.js';
 import { adminService } from './modules/admin/service.js';
 import { adminInsights } from './modules/admin/insights.js';
 import { adminInsightRoutes } from './modules/admin/insight-routes.js';
+import { adminReviews } from './modules/admin/reviews.js';
+import { adminReviewRoutes } from './modules/admin/review-routes.js';
 import { bannerModels } from './models/banner.js';
 import { bannerService } from './modules/admin/banners.js';
 import { bannerRoutes } from './modules/admin/banner-routes.js';
@@ -217,9 +219,18 @@ export async function buildApp(
       (scope) => notificationRoutes(scope, notifications, auth),
       { prefix: '/api/v1' },
     );
+    const reviews = reviewService(database, catalogue, orders);
+    await app.register((scope) => reviewRoutes(scope, reviews, auth), {
+      prefix: '/api/v1',
+    });
     await app.register(
       (scope) =>
-        reviewRoutes(scope, reviewService(database, catalogue, orders), auth),
+        adminReviewRoutes(
+          scope,
+          adminReviews(catalogue, auth.users),
+          reviews,
+          auth,
+        ),
       { prefix: '/api/v1' },
     );
     const carts = cartModel(database);

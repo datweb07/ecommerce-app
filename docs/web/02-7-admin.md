@@ -1,5 +1,7 @@
 # 2.7 Admin và upload ảnh
 
+Hợp đồng tại thời điểm Giai đoạn 2.7. Các route và chính sách hiện tại nằm trong [hợp đồng A1](05-admin-api.md).
+
 | Method | Route dưới /api/v1 | Hợp đồng |
 | --- | --- | --- |
 | GET | /admin/orders | Phân trang page/limit. DTO gồm id, status, totalPrice, itemCount và các mốc thời gian. |

@@ -56,6 +56,8 @@ export function catalogueModels(db: Connection) {
   );
   review.index({ productId: 1, createdAt: -1, _id: -1 });
   review.index({ userId: 1, productId: 1 });
+  review.index({ createdAt: -1, _id: -1 });
+  review.index({ rating: 1, createdAt: -1, _id: -1 });
   return {
     products: db.model('StorefrontProduct', product, 'products'),
     reviews: db.model('StorefrontReview', review, 'reviews'),
