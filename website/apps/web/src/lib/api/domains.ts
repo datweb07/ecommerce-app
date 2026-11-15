@@ -1,5 +1,5 @@
 import * as shared from '@storefront/shared';
-import type { z } from 'zod';
+import { z } from 'zod';
 import type { ApiOptions, ApiRequest } from './transport';
 
 export type ProductFilters = z.input<typeof shared.productQuery>;
@@ -11,6 +11,7 @@ const id = (value: string) => {
   return value === '.' || value === '..' ? '%20' : encodeURIComponent(value);
 };
 const catalogue = { revalidate: 60, tags: ['catalogue'] };
+const deleted = z.object({ deleted: z.literal(true) });
 
 export function createApi(request: ApiRequest) {
   const call = <S extends z.ZodType>(
@@ -31,6 +32,83 @@ export function createApi(request: ApiRequest) {
     idempotencyKey?: string,
   ) => call(path, schema, { method, private: true, body, idempotencyKey });
   return {
+    admin: {
+      me: () => read('/admin/me', shared.adminMeDto),
+      stats: (query: Input<typeof shared.adminStatsQuery> = {}) =>
+        read('/admin/stats', shared.adminStatsDto, query),
+      products: (query: Input<typeof shared.adminProductQuery> = {}) =>
+        read('/admin/products', shared.adminProductList, query),
+      product: (value: string) =>
+        read('/admin/products/' + id(value), shared.adminProductDto),
+      createProduct: (body: Input<typeof shared.adminProductCreate>) =>
+        write('POST', '/admin/products', shared.adminProductDto, body),
+      updateProduct: (
+        value: string,
+        body: Input<typeof shared.adminProductPatch>,
+      ) =>
+        write(
+          'PATCH',
+          '/admin/products/' + id(value),
+          shared.adminProductDto,
+          body,
+        ),
+      deleteProduct: (value: string) =>
+        write('DELETE', '/admin/products/' + id(value), deleted),
+      stock: (value: string, body: Input<typeof shared.adminStockInput>) =>
+        write(
+          'POST',
+          '/admin/products/' + id(value) + '/stock',
+          shared.adminProductDto,
+          body,
+        ),
+      orders: (query: Input<typeof shared.adminOrdersQuery> = {}) =>
+        read('/admin/orders', shared.adminOrderList, query),
+      order: (value: string) =>
+        read('/admin/orders/' + id(value), shared.adminOrderDetailDto),
+      orderStatus: (
+        value: string,
+        body: Input<typeof shared.adminOrderPatch>,
+      ) =>
+        write(
+          'PATCH',
+          '/admin/orders/' + id(value) + '/status',
+          shared.adminOrderDto,
+          body,
+        ),
+      reconciliation: (query: PageFilters = {}) =>
+        read('/admin/reconciliation', shared.adminReconciliationList, query),
+      customers: (query: Input<typeof shared.adminCustomersQuery> = {}) =>
+        read('/admin/customers', shared.adminCustomerList, query),
+      reviews: (query: Input<typeof shared.adminReviewsQuery> = {}) =>
+        read('/admin/reviews', shared.adminReviewList, query),
+      deleteReview: (value: string) =>
+        write('DELETE', '/admin/reviews/' + id(value), deleted),
+      banners: (query: PageFilters = {}) =>
+        read('/admin/banners', shared.adminBannerList, query),
+      createBanner: (body: Input<typeof shared.adminBannerCreate>) =>
+        write('POST', '/admin/banners', shared.adminBannerDto, body),
+      updateBanner: (
+        value: string,
+        body: Input<typeof shared.adminBannerPatch>,
+      ) =>
+        write(
+          'PATCH',
+          '/admin/banners/' + id(value),
+          shared.adminBannerDto,
+          body,
+        ),
+      deleteBanner: (value: string) =>
+        write('DELETE', '/admin/banners/' + id(value), deleted),
+      reorderBanners: (ids: string[]) =>
+        write('PUT', '/admin/banners/order', shared.bannerOrderInput, { ids }),
+      signature: (body: Input<typeof shared.uploadSignatureInput>) =>
+        write(
+          'POST',
+          '/admin/uploads/signature',
+          shared.uploadSignatureDto,
+          body,
+        ),
+    },
     products: {
       list: (query: ProductFilters = {}) =>
         call('/products', shared.productListDto, { query, next: catalogue }),

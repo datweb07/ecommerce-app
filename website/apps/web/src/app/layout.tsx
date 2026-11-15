@@ -4,8 +4,6 @@ import type { ReactNode } from 'react';
 import { publicEnv } from '../config/public-env';
 import { site } from '../config/site';
 import { t } from '../lib/i18n';
-import { Header } from '../components/layout/header';
-import { Footer } from '../components/layout/footer';
 import { Providers } from '../components/layout/providers';
 import './globals.css';
 
@@ -49,11 +47,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           >
             {t('nav', 'skip')}
           </a>
-          <Header />
-          <main id="content" tabIndex={-1} className="flex-1">
-            {children}
-          </main>
-          <Footer />
+          {children}
         </Providers>
       </body>
     </html>

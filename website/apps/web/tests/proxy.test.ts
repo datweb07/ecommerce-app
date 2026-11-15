@@ -57,4 +57,19 @@ describe('route protection', () => {
     expect(response?.headers.get('x-robots-tag')).toContain('noindex');
     expect(response?.headers.get('cache-control')).toContain('no-store');
   });
+  it('preserves the full admin URL through sign-in and keeps it private', async () => {
+    const url = publicEnv.NEXT_PUBLIC_SITE_URL + '/admin/orders?status=shipped';
+    const guest = await proxy(new NextRequest(url), event);
+    expect(guest?.status).toBe(307);
+    expect(
+      new URL(String(guest?.headers.get('location'))).searchParams.get(
+        'redirect_url',
+      ),
+    ).toBe(url);
+    fake.userId = 'user_123';
+    const signedIn = await proxy(new NextRequest(url), event);
+    expect(signedIn?.headers.get('location')).toBeNull();
+    expect(signedIn?.headers.get('cache-control')).toContain('no-store');
+    expect(signedIn?.headers.get('x-robots-tag')).toContain('noindex');
+  });
 });

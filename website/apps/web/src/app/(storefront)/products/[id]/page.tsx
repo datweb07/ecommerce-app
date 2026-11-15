@@ -2,32 +2,25 @@ import { objectId } from '@storefront/shared';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { cache, Suspense } from 'react';
-import {
-  Breadcrumb,
-  PageContainer,
-  Section,
-} from '../../../components/common/page';
-import { EmptyState, LoadingSkeleton } from '../../../components/common/states';
-import { Price } from '../../../components/common/storefront';
-import { RatingStars } from '../../../components/common/rating-stars';
-import { CatalogueError } from '../../../components/catalogue/catalogue-error';
-import { Gallery } from '../../../components/catalogue/gallery';
-import { ProductGrid } from '../../../components/catalogue/product-grid';
-import { Purchase } from '../../../components/catalogue/purchase';
-import { Badge } from '../../../components/ui/panels';
-import { Pagination } from '../../../components/ui/pagination';
-import { publicEnv } from '../../../config/public-env';
-import { serverEnv } from '../../../config/server-env';
-import { apiResult } from '../../../lib/api/result';
-import { serverApi } from '../../../lib/api/server';
-import { ApiError } from '../../../lib/api/transport';
-import {
-  boundedPageCount,
-  normalizeCatalogue,
-} from '../../../lib/catalogue-query';
-import { t } from '../../../lib/i18n';
-import { productImageUrl } from '../../../lib/product-image-url';
-import type { RouteQuery } from '../../../lib/url-state';
+import { Breadcrumb, PageContainer, Section } from '@/components/common/page';
+import { EmptyState, LoadingSkeleton } from '@/components/common/states';
+import { Price } from '@/components/common/storefront';
+import { RatingStars } from '@/components/common/rating-stars';
+import { CatalogueError } from '@/components/catalogue/catalogue-error';
+import { Gallery } from '@/components/catalogue/gallery';
+import { ProductGrid } from '@/components/catalogue/product-grid';
+import { Purchase } from '@/components/catalogue/purchase';
+import { Badge } from '@/components/ui/panels';
+import { Pagination } from '@/components/ui/pagination';
+import { publicEnv } from '@/config/public-env';
+import { serverEnv } from '@/config/server-env';
+import { apiResult } from '@/lib/api/result';
+import { serverApi } from '@/lib/api/server';
+import { ApiError } from '@/lib/api/transport';
+import { boundedPageCount, normalizeCatalogue } from '@/lib/catalogue-query';
+import { t } from '@/lib/i18n';
+import { productImageUrl } from '@/lib/product-image-url';
+import type { RouteQuery } from '@/lib/url-state';
 
 type Props = {
   params: Promise<{ id: string }>;

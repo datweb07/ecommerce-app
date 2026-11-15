@@ -1,6 +1,12 @@
 import { publicEnv } from '../config/public-env';
 
-export const privateRoots = ['/cart', '/checkout', '/wishlist', '/account'];
+export const privateRoots = [
+  '/cart',
+  '/checkout',
+  '/wishlist',
+  '/account',
+  '/admin',
+];
 export const isPrivatePath = (path: string) =>
   privateRoots.some((root) => path === root || path.startsWith(root + '/'));
 export function signInUrl(origin: string, returnPath: string) {

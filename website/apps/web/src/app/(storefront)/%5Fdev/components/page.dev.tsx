@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
-import { Showcase } from '../../../components/common/showcase';
-import { serverEnv } from '../../../config/server-env';
-import { toSearchParams, type RouteQuery } from '../../../lib/url-state';
+import { Showcase } from '@/components/common/showcase';
+import { serverEnv } from '@/config/server-env';
+import { toSearchParams, type RouteQuery } from '@/lib/url-state';
 
 export const metadata: Metadata = { robots: { index: false, follow: false } };
 

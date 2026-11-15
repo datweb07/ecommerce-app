@@ -4,7 +4,7 @@ import { ErrorState } from '../components/common/states';
 import { Button } from '../components/ui/button';
 export default function NotFound() {
   return (
-    <PageContainer>
+    <PageContainer id="content" tabIndex={-1}>
       <ErrorState
         title="Không tìm thấy trang"
         description="Kiểm tra đường dẫn hoặc quay về trang chủ."
