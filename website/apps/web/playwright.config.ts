@@ -49,8 +49,26 @@ export default defineConfig({
     gracefulShutdown: { signal: 'SIGTERM', timeout: 5000 },
   },
   projects: [
-    { name: 'public-chromium', testMatch: publicMatch, use: chromium },
-    { name: 'public-mobile', testMatch: publicMatch, use: chromiumMobile },
+    { name: 'zap', testMatch: '**/zap.spec.ts' },
+    {
+      name: 'performance',
+      testMatch: '**/performance.spec.ts',
+      use: { ...chromium, trace: 'off', screenshot: 'off', video: 'off' },
+    },
+    {
+      name: 'public-chromium',
+      testMatch: [
+        publicMatch,
+        '**/accessibility.spec.ts',
+        '**/security.spec.ts',
+      ],
+      use: chromium,
+    },
+    {
+      name: 'public-mobile',
+      testMatch: [publicMatch, '**/accessibility.spec.ts'],
+      use: chromiumMobile,
+    },
     {
       name: 'public-firefox',
       testMatch: publicMatch,
@@ -68,13 +86,13 @@ export default defineConfig({
     },
     {
       name: 'auth-chromium',
-      testMatch: authMatch,
+      testMatch: [authMatch, '**/private-accessibility.spec.ts'],
       dependencies: ['clerk-setup'],
       use: { ...chromium, storageState: paths.state('customer') },
     },
     {
       name: 'auth-mobile',
-      testMatch: authMatch,
+      testMatch: [authMatch, '**/private-accessibility.spec.ts'],
       dependencies: ['clerk-setup'],
       use: { ...chromiumMobile, storageState: paths.state('customer') },
     },
@@ -82,7 +100,7 @@ export default defineConfig({
       name: 'payment-chromium',
       testMatch: '**/payment.spec.ts',
       dependencies: ['clerk-setup'],
-      use: { ...chromium, storageState: paths.state('customer') },
+      use: { ...chromium, storageState: paths.state('payer') },
     },
     {
       name: 'upload-chromium',

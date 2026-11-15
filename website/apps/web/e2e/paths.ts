@@ -6,7 +6,7 @@ export const appRoot = fileURLToPath(new URL('../', import.meta.url));
 export const workspace = dirname(dirname(appRoot));
 export const apiRoot = join(workspace, 'apps', 'api');
 export const e2eCache = join(workspace, '.cache', 'e2e');
-export const roles = ['customer', 'customer2', 'admin'] as const;
+export const roles = ['customer', 'customer2', 'admin', 'payer'] as const;
 export type Role = (typeof roles)[number];
 export const pathsFor = (id: string) => {
   requireRunId({ STOREFRONT_E2E_RUN: id });

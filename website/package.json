@@ -16,6 +16,8 @@
     "e2e:payment": "node scripts/pnpm.mjs --filter @storefront/web e2e payment",
     "e2e:upload": "node scripts/pnpm.mjs --filter @storefront/web e2e upload",
     "e2e:env": "node scripts/pnpm.mjs --filter @storefront/web e2e:env",
+    "lighthouse": "node scripts/pnpm.mjs --filter @storefront/web e2e performance",
+    "security:zap": "node scripts/pnpm.mjs --filter @storefront/web e2e zap",
     "build": "node scripts/pnpm.mjs --workspace-concurrency=1 -r build",
     "seed": "node scripts/pnpm.mjs --filter @storefront/shared build && node scripts/pnpm.mjs --filter @storefront/api seed",
     "import:products": "node scripts/pnpm.mjs --filter @storefront/shared build && node scripts/pnpm.mjs --filter @storefront/api import:products",

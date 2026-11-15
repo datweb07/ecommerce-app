@@ -199,7 +199,7 @@ try {
   }
   app = await buildApp(
     parseEnv({
-      NODE_ENV: 'test',
+      NODE_ENV: process.env.STOREFRONT_E2E_ZAP === '1' ? 'production' : 'test',
       MONGODB_URI: uri,
       WEB_ORIGIN: webOrigin,
       CORS_ORIGINS: webOrigin,
@@ -226,7 +226,16 @@ try {
   );
   const api = new URL(apiOrigin);
   await app.listen({ host: api.hostname, port: Number(api.port) });
+  await writeFile(join(paths.privateDir, 'mongo-uri'), uri, { mode: 0o600 });
   await copyWeb();
+  if (process.env.STOREFRONT_E2E_ANALYZE === '1') {
+    await next(['experimental-analyze', '--output']);
+    await cp(
+      join(paths.project, '.next', 'diagnostics', 'analyze'),
+      join(paths.root, 'bundle'),
+      { recursive: true },
+    );
+  }
   await next(['build']);
   const storefront = new URL(webOrigin);
   await next([

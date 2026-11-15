@@ -2,6 +2,8 @@ packages:
   - apps/*
   - packages/*
 saveExact: true
+overrides:
+  '@fastify/swagger-ui>@fastify/static': 10.1.11
 onlyBuiltDependencies:
   - node
   - esbuild

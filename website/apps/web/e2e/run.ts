@@ -16,6 +16,10 @@ import {
 
 const [task = 'all', ...args] = process.argv.slice(2);
 const list = args.includes('--list');
+const performanceRun = task === 'performance';
+const zapRun = task === 'zap';
+const homeOnly = performanceRun && args.includes('--home-only');
+const analyze = performanceRun && args.includes('--analyze');
 const available = Object.keys(projects) as Suite[];
 const nodeRequire = createRequire(import.meta.url);
 function execute(arguments_: string[], cwd: string, env: NodeJS.ProcessEnv) {
@@ -34,18 +38,29 @@ function execute(arguments_: string[], cwd: string, env: NodeJS.ProcessEnv) {
 async function run() {
   assertSafeEnvironment(process.env);
   if (
-    (task !== 'all' && !available.some((name) => name === task)) ||
-    args.some((option) => option !== '--list')
+    (!performanceRun &&
+      !zapRun &&
+      task !== 'all' &&
+      !available.some((name) => name === task)) ||
+    args.some(
+      (option) =>
+        option !== '--list' &&
+        !(performanceRun && ['--home-only', '--analyze'].includes(option)),
+    )
   )
     throw new Error('Dùng pnpm e2e[:public|:auth|:payment|:upload] [--list].');
-  const selected = (task === 'all' ? available : [task as Suite]).filter(
-    (suite) => {
-      const missing = missingFor(suite, process.env);
-      if (missing.length)
-        console.log('@' + suite + ' CHƯA CHẠY vì thiếu ' + missing.join(', '));
-      return missing.length === 0;
-    },
-  );
+  const selected = (
+    performanceRun || zapRun
+      ? ['public' as const]
+      : task === 'all'
+        ? available
+        : [task as Suite]
+  ).filter((suite) => {
+    const missing = missingFor(suite, process.env);
+    if (missing.length)
+      console.log('@' + suite + ' CHƯA CHẠY vì thiếu ' + missing.join(', '));
+    return missing.length === 0;
+  });
   if (!selected.length) return 2;
   if (selected.some((suite) => suite !== 'public'))
     clerkFrontendHost(process.env);
@@ -59,10 +74,19 @@ async function run() {
       join(workspace, '.cache', 'playwright'),
     STOREFRONT_E2E_RUN: id,
     STOREFRONT_E2E_SUITES: selected.join(','),
+    STOREFRONT_E2E_HOME_ONLY: homeOnly ? '1' : '0',
+    STOREFRONT_E2E_ANALYZE: analyze ? '1' : '0',
+    STOREFRONT_E2E_ZAP: zapRun ? '1' : '0',
   };
   delete env.CLERK_TESTING_TOKEN;
   delete env.CLERK_FAPI;
-  if (!list) await mkdir(paths.privateDir, { recursive: true, mode: 0o700 });
+  if (!list) {
+    const temporary = join(paths.privateDir, 'tmp');
+    await mkdir(temporary, { recursive: true, mode: 0o700 });
+    env.TEMP = temporary;
+    env.TMP = temporary;
+    env.TMPDIR = temporary;
+  }
   try {
     if (!list) {
       const build = await execute(
@@ -84,10 +108,12 @@ async function run() {
       [
         nodeRequire.resolve('@playwright/test/cli'),
         'test',
-        ...selected.flatMap((suite) =>
-          projects[suite].map((project) => '--project=' + project),
-        ),
-        ...args,
+        ...(performanceRun || zapRun
+          ? ['--project=' + (zapRun ? 'zap' : 'performance'), '--workers=1']
+          : selected.flatMap((suite) =>
+              projects[suite].map((project) => '--project=' + project),
+            )),
+        ...(list ? ['--list'] : []),
       ],
       appRoot,
       env,
