@@ -1,4 +1,11 @@
 const vi = {
+  globe: {
+    sampleLocation: 'Vị trí minh họa',
+    open: 'Xem vị trí trên bản đồ',
+    back: 'Quay lại địa cầu',
+    preview: 'Xem trước vị trí',
+    map: 'Mở trên OpenStreetMap',
+  },
   shoppingGuide: {
     heading: 'Cách mua sắm tại ShopEase',
     skip: 'Bỏ qua hướng dẫn mua sắm',

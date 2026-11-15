@@ -28,6 +28,10 @@ export const androidReleaseUrl = z
     'Dùng URL HTTPS trang phát hành GitHub của ShopEase.',
   );
 export const publicSchema = z.object({
+  NEXT_PUBLIC_GLOBE_ENABLED: z
+    .enum(['true', 'false'])
+    .default('true')
+    .transform((value) => value === 'true'),
   NEXT_PUBLIC_MASCOT_ENABLED: z
     .enum(['true', 'false'])
     .default('true')
