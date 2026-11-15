@@ -147,21 +147,26 @@ export const adminProductList = pageInfo.extend({
 
 export const maxProductImageBytes = 5 * 1024 * 1024;
 export const uploadSignatureInput = z.strictObject({
-  sizeBytes: z.number().int().min(1).max(maxProductImageBytes),
-  contentType: z.enum(['image/jpeg', 'image/png', 'image/webp']),
+  sizeBytes: z
+    .number()
+    .int()
+    .min(1)
+    .max(20 * 1024 * 1024),
+  contentType: z.enum(['image/jpeg', 'image/png', 'image/webp', 'image/avif']),
+  purpose: z.enum(['product', 'banner']).optional(),
 });
 export const uploadSignatureDto = z.object({
   uploadUrl: z.url(),
   apiKey: z.string(),
   signature: z.string(),
   expiresAt: z.iso.datetime(),
-  maxBytes: z.literal(maxProductImageBytes),
+  maxBytes: z.number().int().positive(),
   params: z.object({
     timestamp: z.number().int().positive(),
-    asset_folder: z.literal('products'),
+    asset_folder: z.enum(['products', 'banners']),
     public_id: z.string(),
     type: z.literal('upload'),
     overwrite: z.literal(false),
-    allowed_formats: z.literal('jpg,jpeg,png,webp'),
+    allowed_formats: z.enum(['jpg,jpeg,png,webp', 'jpg,jpeg,png,webp,avif']),
   }),
 });

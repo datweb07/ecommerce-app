@@ -64,6 +64,7 @@ export const envSchema = z.object({
   CLOUDINARY_API_KEY: optionalSecret,
   CLOUDINARY_API_SECRET: optionalSecret,
   ADMIN_LOW_STOCK: z.coerce.number().int().min(1).max(1_000_000).default(5),
+  ADMIN_BANNER_MAX_COUNT: z.coerce.number().int().min(1).max(50).default(10),
   ADMIN_PRODUCT_MAX_IMAGES: z.coerce.number().int().min(1).max(20).default(5),
   ADMIN_IMAGE_MAX_BYTES: z.coerce
     .number()

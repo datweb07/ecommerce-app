@@ -64,5 +64,8 @@ export function replica(
     get db() {
       return connection;
     },
+    get uri() {
+      return mongo.getUri('storefront_web');
+    },
   };
 }

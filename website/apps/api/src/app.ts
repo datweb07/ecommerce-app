@@ -43,6 +43,9 @@ import { adminRoutes } from './modules/admin/routes.js';
 import { adminService } from './modules/admin/service.js';
 import { adminInsights } from './modules/admin/insights.js';
 import { adminInsightRoutes } from './modules/admin/insight-routes.js';
+import { bannerModels } from './models/banner.js';
+import { bannerService } from './modules/admin/banners.js';
+import { bannerRoutes } from './modules/admin/banner-routes.js';
 import { adminProducts } from './modules/admin/products.js';
 import { adminProductRoutes } from './modules/admin/product-routes.js';
 import { createMedia, type MediaAdapter } from './modules/admin/media.js';
@@ -170,6 +173,18 @@ export async function buildApp(
     );
     const checkouts = checkoutModel(database);
     const media = createMedia(env, app.log, options.media);
+    const banners = bannerModels(database);
+    await banners.banners.createIndexes();
+    await banners.guard.updateOne(
+      { _id: 'banners' },
+      { $setOnInsert: { revision: 0 } },
+      { upsert: true },
+    );
+    await app.register(
+      (scope) =>
+        bannerRoutes(scope, bannerService(database, banners, media, env), auth),
+      { prefix: '/api/v1' },
+    );
     await app.register(
       (scope) =>
         adminProductRoutes(

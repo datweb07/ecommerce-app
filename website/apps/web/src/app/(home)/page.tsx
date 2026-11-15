@@ -7,7 +7,9 @@ import { EmptyState, LoadingSkeleton } from '@/components/common/states';
 import { Button } from '@/components/ui/button';
 import { ProductGrid } from '@/components/catalogue/product-grid';
 import { CatalogueError } from '@/components/catalogue/catalogue-error';
-import { serverApi } from '@/lib/api/server';
+import { apiFetch, serverApi } from '@/lib/api/server';
+import { getBanners } from '@/lib/api/banners';
+import { StorefrontBanner } from '@/components/catalogue/banner';
 import { apiResult } from '@/lib/api/result';
 import { t } from '@/lib/i18n';
 import { storeBenefits } from '@/config/site';
@@ -22,6 +24,18 @@ export const metadata: Metadata = {
     url: '/',
   },
 };
+
+async function HomeBanners() {
+  const banners = await getBanners(apiFetch);
+  if (!banners.length) return null;
+  return (
+    <div className="space-y-12">
+      {banners.map((banner) => (
+        <StorefrontBanner key={banner.id} banner={banner} />
+      ))}
+    </div>
+  );
+}
 
 async function FeaturedCategories() {
   const result = await apiResult(serverApi.categories.list());
@@ -88,6 +102,9 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+      <Suspense fallback={null}>
+        <HomeBanners />
+      </Suspense>
       <Section id="home-categories" className="scroll-mt-24">
         <h2 className="text-section font-medium tracking-tight">
           {t('home', 'stay')}

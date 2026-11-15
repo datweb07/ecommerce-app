@@ -21,6 +21,9 @@ const resourceSchema = z.object({
   resource_type: z.literal('image'),
   type: z.literal('upload'),
 });
+const missingResource = z.object({
+  error: z.object({ http_code: z.literal(404) }),
+});
 const invalid = () =>
   new ApiError(
     400,
@@ -84,10 +87,11 @@ export function createMedia(
       .resource(ref.publicId)
       .catch((error: unknown) => {
         if (
-          typeof error === 'object' &&
-          error &&
-          'http_code' in error &&
-          error.http_code === 404
+          missingResource.safeParse(error).success ||
+          (typeof error === 'object' &&
+            error &&
+            'http_code' in error &&
+            error.http_code === 404)
         )
           throw invalid();
         throw unavailable();

@@ -7,9 +7,9 @@ import {
   type QueryFilter,
 } from 'mongoose';
 import type { z } from 'zod';
-import {
-  maxProductImageBytes,
-  type adminOrdersQuery,
+import type {
+  adminOrdersQuery,
+  uploadSignatureInput,
 } from '@storefront/shared';
 import type { Order, orderModel } from '../../models/order.js';
 import type { Env } from '../../config/env.js';
@@ -239,7 +239,11 @@ export function adminService(
     });
   }
 
-  function uploadSignature() {
+  function uploadSignature({
+    purpose,
+    sizeBytes,
+    contentType,
+  }: z.infer<typeof uploadSignatureInput>) {
     const {
       CLOUDINARY_CLOUD_NAME: cloud,
       CLOUDINARY_API_KEY: apiKey,
@@ -251,14 +255,25 @@ export function adminService(
         'UPLOAD_UNCONFIGURED',
         'Dịch vụ tải ảnh chưa được cấu hình.',
       );
-    const timestamp = Math.floor(Date.now() / 1000);
+    if (
+      sizeBytes > env.ADMIN_IMAGE_MAX_BYTES ||
+      (!purpose && contentType === 'image/avif')
+    )
+      throw new ApiError(
+        400,
+        'INVALID_UPLOAD',
+        'Định dạng hoặc dung lượng ảnh không hợp lệ.',
+      );
+    // Cloudinary accepts timestamps for an hour. Leave five minutes in that window.
+    const timestamp = Math.floor(Date.now() / 1000) - 55 * 60;
+    const folder = purpose === 'banner' ? 'banners' : 'products';
     const params = {
       timestamp,
-      asset_folder: 'products',
-      public_id: 'products/' + randomUUID(),
+      asset_folder: folder,
+      public_id: folder + '/' + randomUUID(),
       type: 'upload',
       overwrite: false,
-      allowed_formats: 'jpg,jpeg,png,webp',
+      allowed_formats: purpose ? 'jpg,jpeg,png,webp,avif' : 'jpg,jpeg,png,webp',
     } as const;
     return {
       uploadUrl:
@@ -269,7 +284,7 @@ export function adminService(
       signature: cloudinary.utils.api_sign_request(params, secret),
       params,
       expiresAt: new Date((timestamp + 3600) * 1000).toISOString(),
-      maxBytes: maxProductImageBytes,
+      maxBytes: env.ADMIN_IMAGE_MAX_BYTES,
     };
   }
 

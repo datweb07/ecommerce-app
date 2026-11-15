@@ -28,3 +28,11 @@ Dọn ảnh do web quản lý theo best-effort. Ảnh đã dùng trong snapshot 
 `GET /customers` phân trang, tìm theo tên hoặc email. DTO chỉ có ID nội bộ, tên, email, ngày tạo, số đơn và tổng chi tiêu. Phần tổng hợp đơn chạy một lần cho cả trang. `GET /stats?range=7d|30d|90d` dùng ngày UTC, tính từ đầu ngày đầu tiên đến hết hôm nay, điền số 0 cho ngày trống và cache 60 giây theo khoảng.
 
 Doanh thu là tổng giá trị đơn đã tạo trong khoảng, gồm mọi trạng thái giao hàng. Checkout web chỉ tạo đơn sau xác nhận thanh toán. Tổng khách, sản phẩm và mức tồn là số hiện tại toàn cửa hàng. Top 5 tính theo số lượng mua trong snapshot. Tiền trả theo USD đơn vị chính. Index theo ngày và theo người mua đã được kiểm tra bằng `explain`.
+
+## Banner và upload
+
+`GET /api/v1/banners` trả banner bật và đang hiệu lực, sắp theo `sortOrder`. Mốc bắt đầu bao gồm và mốc kết thúc loại trừ. API và trang chủ đều dùng TTL 60 giây. Khi API lỗi, web dùng banner mẫu. Mảng rỗng hợp lệ ẩn toàn bộ khối. Repo tại thời điểm triển khai chưa có ảnh hoặc config 4.B, nên banner seed dùng ba ảnh từ catalogue mẫu có sẵn.
+
+Admin có `GET/POST /banners`, `PATCH/DELETE /banners/:id`, `PUT /banners/order` với toàn bộ ID hiện có. Một document khóa trong `web_banner_guard` khiến các giao dịch banner tuần tự hóa ở MongoDB. Nhờ đó, reorder nhìn thấy cùng một danh sách và hai lần tạo đồng thời không vượt giới hạn. Đặt `WEB_ORIGIN` trùng origin của `NEXT_PUBLIC_SITE_URL`; URL cùng origin lưu dưới dạng đường dẫn tương đối.
+
+`POST /uploads/signature` nhận `purpose: product | banner` để chọn folder và public ID phía server. Request bỏ qua `purpose` vẫn dùng hợp đồng sản phẩm cũ. Cloudinary dùng Dynamic Folders. Chữ ký còn hiệu lực khoảng 5 phút dựa trên cửa sổ timestamp 1 giờ của Cloudinary. Admin API đọc metadata Cloudinary để xác nhận folder, URL, đúng định dạng, kích thước và số byte thật trước khi gắn ảnh. Ảnh banner tối thiểu desktop 1200×500, mobile 540×675. Byte thật mặc định tối đa 5 MiB. Provider vẫn có thể nhận tệp lớn hơn trước bước lưu, nên ảnh upload bỏ dở cần được quản lý trong Cloudinary. [Thời hạn chữ ký](https://cloudinary.com/documentation/authentication_signatures) · [Cloudinary Admin API](https://cloudinary.com/documentation/admin_api)

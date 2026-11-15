@@ -115,6 +115,10 @@ export async function adminRoutes(
         response: { 200: uploadSignatureDto, ...errorResponses },
       },
     },
-    async () => service.uploadSignature(),
+    async (request) => {
+      const signature = service.uploadSignature(request.body);
+      audit(request, 'upload.signature', signature.params.public_id);
+      return signature;
+    },
   );
 }
