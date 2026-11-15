@@ -16,7 +16,7 @@ export function AccountNav() {
   return (
     <nav
       aria-label="Tài khoản"
-      className="flex flex-wrap gap-1 rounded-panel border border-border bg-card p-2 lg:grid"
+      className="flex flex-wrap gap-1 border-b border-border pb-3 lg:grid lg:border-r lg:border-b-0 lg:pr-4"
     >
       {links.map(([slug, label, Icon]) => {
         const href = `/account/${slug}`;
@@ -28,8 +28,8 @@ export function AccountNav() {
             prefetch={false}
             aria-current={active ? 'page' : undefined}
             className={cn(
-              'flex min-h-11 items-center gap-2 rounded-control px-3 text-sm font-semibold hover:bg-muted',
-              active && 'bg-muted text-primary',
+              'flex min-h-11 items-center gap-2 rounded-control px-3 text-sm font-medium underline-offset-4 hover:underline',
+              active && 'text-primary underline',
             )}
           >
             <Icon size={17} />

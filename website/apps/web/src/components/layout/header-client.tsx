@@ -13,6 +13,11 @@ import { inboxBadgeFilters, inboxPollMs, queryKeys } from '../../lib/query';
 import { Button } from '../ui/button';
 import { Input } from '../ui/fields';
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogTitle,
+  DialogTrigger,
   Sheet,
   SheetClose,
   SheetContent,
@@ -47,7 +52,7 @@ export function SearchForm({
       role="search"
       action="/products"
       onSubmit={search}
-      className="flex items-center gap-1 rounded-control bg-muted p-1"
+      className="flex items-center gap-1"
     >
       <label htmlFor={id} className="sr-only">
         {t('nav', 'search')}
@@ -58,12 +63,44 @@ export function SearchForm({
         name="q"
         maxLength={80}
         placeholder={t('nav', 'search')}
-        className="min-w-0 border-transparent bg-transparent"
+        className="min-w-0"
       />
       <Button type="submit" variant="ghost" size="icon" aria-label="Tìm kiếm">
         <Search size={18} />
       </Button>
     </form>
+  );
+}
+
+export function SearchControl() {
+  const [open, setOpen] = useState(false);
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button
+          variant="ghost"
+          size="icon"
+          aria-label={t('nav', 'search')}
+          className="size-9 sm:size-11"
+        >
+          <Search size={18} strokeWidth={1.5} />
+        </Button>
+      </DialogTrigger>
+      <DialogContent
+        onOpenAutoFocus={(event) => {
+          event.preventDefault();
+          document.getElementById('catalogue-search')?.focus();
+        }}
+      >
+        <DialogTitle className="pr-10 text-heading font-medium">
+          {t('nav', 'search')}
+        </DialogTitle>
+        <DialogDescription className="sr-only">
+          {t('catalogue', 'description')}
+        </DialogDescription>
+        <SearchForm onNavigate={() => setOpen(false)} />
+      </DialogContent>
+    </Dialog>
   );
 }
 
@@ -77,7 +114,12 @@ function MobileSheet({ categories }: { categories: string[] }) {
     <div className="lg:hidden">
       <Sheet open={open} onOpenChange={setOpen}>
         <SheetTrigger asChild>
-          <Button size="icon" variant="ghost" aria-label={t('nav', 'menu')}>
+          <Button
+            size="icon"
+            variant="ghost"
+            className="size-9 sm:size-11"
+            aria-label={t('nav', 'menu')}
+          >
             <Menu size={21} />
           </Button>
         </SheetTrigger>
@@ -95,7 +137,7 @@ function MobileSheet({ categories }: { categories: string[] }) {
           <nav className="mt-5 grid gap-1" aria-label="Điều hướng di động">
             <SheetClose asChild>
               <Link
-                className="rounded-control p-3 hover:bg-muted"
+                className="py-3 text-heading underline-offset-4 hover:underline"
                 href="/products"
               >
                 {t('nav', 'products')}
@@ -104,7 +146,7 @@ function MobileSheet({ categories }: { categories: string[] }) {
             {categories.map((category) => (
               <SheetClose asChild key={category}>
                 <Link
-                  className="rounded-control p-3 hover:bg-muted"
+                  className="py-3 text-heading underline-offset-4 hover:underline"
                   href={{ pathname: '/products', query: { category } }}
                 >
                   {category}
@@ -113,7 +155,7 @@ function MobileSheet({ categories }: { categories: string[] }) {
             ))}
             <SheetClose asChild>
               <Link
-                className="rounded-control p-3 hover:bg-muted"
+                className="py-3 text-heading underline-offset-4 hover:underline"
                 href="/wishlist"
                 prefetch={false}
               >
@@ -122,7 +164,7 @@ function MobileSheet({ categories }: { categories: string[] }) {
             </SheetClose>
             <SheetClose asChild>
               <Link
-                className="rounded-control p-3 hover:bg-muted"
+                className="py-3 text-heading underline-offset-4 hover:underline"
                 href="/account"
                 prefetch={false}
               >
@@ -130,7 +172,7 @@ function MobileSheet({ categories }: { categories: string[] }) {
               </Link>
             </SheetClose>
           </nav>
-          <div className="mt-4 min-[370px]:hidden">
+          <div className="mt-4 min-[410px]:hidden">
             <ThemeToggle />
           </div>
         </SheetContent>
@@ -151,7 +193,12 @@ function Action({
   children: ReactNode;
 }) {
   return (
-    <Button size="icon" variant="ghost" className="relative" asChild>
+    <Button
+      size="icon"
+      variant="ghost"
+      className="relative size-9 sm:size-11"
+      asChild
+    >
       <Link
         href={href}
         prefetch={false}
@@ -161,7 +208,7 @@ function Action({
         {Boolean(count) && (
           <span
             aria-hidden="true"
-            className="absolute top-0 right-0 rounded-full bg-primary px-1 text-[11px] leading-4 text-primary-foreground"
+            className="absolute top-0 right-0 rounded-control bg-primary px-1 text-[10px] leading-4 text-primary-foreground"
           >
             {count && count > 99 ? '99+' : count}
           </span>
@@ -173,7 +220,7 @@ function Action({
 
 function SignInLink() {
   return (
-    <Button asChild size="small">
+    <Button asChild variant="ghost" size="small" className="px-1.5 sm:px-3">
       <Link href={publicEnv.NEXT_PUBLIC_CLERK_SIGN_IN_URL}>
         {t('nav', 'signIn')}
       </Link>
@@ -212,7 +259,7 @@ function Actions({
           <Bell size={19} />
         </Action>
       )}
-      <span className="hidden min-[370px]:block">
+      <span className="hidden min-[410px]:block">
         <ThemeToggle />
       </span>
       {account}

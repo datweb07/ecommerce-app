@@ -4,10 +4,10 @@ import { t } from '../../lib/i18n';
 
 export function Footer() {
   return (
-    <footer className="border-t border-border bg-card">
-      <div className="mx-auto grid max-w-7xl gap-7 px-5 py-9 sm:grid-cols-[2fr_1fr_1fr] sm:px-7">
+    <footer className="border-t border-border bg-background">
+      <div className="mx-auto grid max-w-7xl gap-8 px-5 py-12 sm:grid-cols-[2fr_1fr_1fr] sm:px-7">
         <div>
-          <p className="text-lg font-extrabold">{site.name}</p>
+          <p className="text-heading font-medium">{site.name}</p>
           <p className="mt-2 max-w-xs text-sm text-muted-foreground">
             {site.description}
           </p>
@@ -21,15 +21,15 @@ export function Footer() {
           )}
         </div>
         <div className="grid content-start gap-2 text-sm">
-          <p className="font-semibold">Mua sắm</p>
+          <p className="font-medium">Mua sắm</p>
           <Link
-            className="text-muted-foreground hover:text-foreground"
+            className="text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
             href="/products"
           >
             {t('nav', 'products')}
           </Link>
           <Link
-            className="text-muted-foreground hover:text-foreground"
+            className="text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
             href="/wishlist"
             prefetch={false}
           >
@@ -37,16 +37,16 @@ export function Footer() {
           </Link>
         </div>
         <div className="grid content-start gap-2 text-sm">
-          <p className="font-semibold">{t('nav', 'account')}</p>
+          <p className="font-medium">{t('nav', 'account')}</p>
           <Link
-            className="text-muted-foreground hover:text-foreground"
+            className="text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
             href="/account/orders"
             prefetch={false}
           >
             Đơn hàng
           </Link>
           <Link
-            className="text-muted-foreground hover:text-foreground"
+            className="text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
             href="/account/security"
             prefetch={false}
           >
