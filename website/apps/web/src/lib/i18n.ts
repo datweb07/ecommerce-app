@@ -1,5 +1,8 @@
 const vi = {
   admin: {
+    previewDevice: 'Thiết bị xem trước',
+    previewTheme: 'Giao diện xem trước',
+    bannerMissing: 'Không tìm thấy banner',
     workspace: 'Quản trị cửa hàng',
     navigation: 'Điều hướng quản trị',
     store: 'Về cửa hàng',

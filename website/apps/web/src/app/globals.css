@@ -28,7 +28,8 @@
   --spacing-section-lg: 7rem;
   --font-sans: var(--font-inter), Arial, sans-serif;
 }
-:root {
+:root,
+.light {
   --background: #fafaf9;
   --foreground: #111111;
   --card: #ffffff;
