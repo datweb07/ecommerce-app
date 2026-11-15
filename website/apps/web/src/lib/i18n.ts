@@ -239,6 +239,16 @@ const vi = {
     bio: 'Giới thiệu',
   },
   errors: {
+    ORDER_STATUS_CONFLICT:
+      'Trạng thái đơn vừa thay đổi. Đã yêu cầu tải lại đơn.',
+    BANNER_ORDER_CONFLICT: 'Danh sách banner vừa thay đổi. Vui lòng thử lại.',
+    PRODUCT_RESERVED:
+      'Sản phẩm đang được giữ cho phiên checkout. Hãy thử xóa sau khi phiên kết thúc.',
+    STOCK_OUT_OF_RANGE:
+      'Điều chỉnh này vượt số lượng tồn hiện tại. Kiểm tra lại số lượng.',
+    INVALID_IMAGE_ASSET:
+      'Ảnh không hợp lệ, sai thư mục hoặc vượt giới hạn của cửa hàng.',
+    UPLOAD_UNCONFIGURED: 'Chưa kết nối được Cloudinary.',
     USERNAME_TAKEN: 'Tên người dùng đã được sử dụng. Hãy chọn tên khác.',
     ADDRESS_LIMIT: 'Sổ địa chỉ đã đầy. Xóa bớt địa chỉ trước khi thêm.',
     INSUFFICIENT_STOCK: 'Tồn kho đã thay đổi. Kiểm tra lại giỏ hàng.',

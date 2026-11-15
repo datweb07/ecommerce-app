@@ -83,10 +83,10 @@ export function Dashboard({ range }: { range: Range }) {
     queryKey: adminKey('orders', { limit: '5' }),
     queryFn: () => api.orders({ limit: '5' }),
   });
+  const lowFilters = { stockStatus: 'low', limit: '5', sort: 'stock' } as const;
   const low = useQuery({
-    queryKey: adminKey('products', { stockStatus: 'low', limit: '5' }),
-    queryFn: () =>
-      api.products({ stockStatus: 'low', limit: '5', sort: 'stock' }),
+    queryKey: adminKey('products', lowFilters),
+    queryFn: () => api.products(lowFilters),
   });
   const reconciliation = useQuery({
     queryKey: adminKey('reconciliation'),

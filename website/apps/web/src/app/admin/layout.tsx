@@ -3,6 +3,8 @@ import type { ReactNode } from 'react';
 import { AdminShell } from '../../components/admin/shell';
 import { requireAdminPage } from '../../lib/admin/guard';
 
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
   title: { default: 'Quản trị', template: '%s | Quản trị ShopEase' },
   robots: { index: false, follow: false },

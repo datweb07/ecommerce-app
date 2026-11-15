@@ -15,7 +15,6 @@ import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useApiClient } from '../../lib/api/browser';
-import { ApiError } from '../../lib/api/transport';
 import { refreshStorefront } from '../../lib/admin/cache-client';
 import {
   imageFileInput,
@@ -70,11 +69,7 @@ function StockEditor({
       setOpen(false);
       toast.success(t('admin', 'saved'));
     },
-    onError: (error) => {
-      if (error instanceof ApiError && error.code === 'STOCK_OUT_OF_RANGE')
-        toast.error(t('admin', 'stockConflict'));
-      else toastApiError(error);
-    },
+    onError: toastApiError,
   });
   return (
     <section className="flex flex-wrap items-center justify-between gap-3 border-y border-border py-4">
@@ -221,11 +216,7 @@ export function ProductEditor({ product }: { product?: Product }) {
       toast.success(t('admin', 'deleted'));
       router.push(productPath);
     },
-    onError: (error) => {
-      if (error instanceof ApiError && error.code === 'PRODUCT_RESERVED')
-        toast.error(t('admin', 'productReserved'));
-      else toastApiError(error);
-    },
+    onError: toastApiError,
   });
   const busy = upload.isPending || mutation.isPending || remove.isPending;
   const fieldError = (name: keyof Create) => {

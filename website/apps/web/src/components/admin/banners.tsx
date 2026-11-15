@@ -54,7 +54,7 @@ export function AdminBanners() {
     onSuccess: saved,
     onError: (error) => {
       if (error instanceof ApiError && error.status === 409) {
-        toast.error(t('admin', 'bannerOrderConflict'));
+        toastApiError(error);
         void list.refetch();
       } else toastApiError(error);
     },

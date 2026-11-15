@@ -134,7 +134,7 @@ export function AdminOrderDetail({ id }: { id: string }) {
     },
     onError: (error) => {
       if (error instanceof ApiError && error.status === 409) {
-        toast.error(t('admin', 'orderConflict'));
+        toastApiError(error);
         void info.refetch();
       } else toastApiError(error);
     },

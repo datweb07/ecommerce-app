@@ -64,9 +64,11 @@ pnpm --filter @storefront/web smoke
 
 ## Quản trị
 
-Đặt `ADMIN_EMAIL` ở cấu hình API theo email chính đã xác minh trên Clerk. API trả 200 từ `GET /api/v1/admin/me` với Bearer token của tài khoản đó. Xem [Swagger local](http://localhost:4000/docs/) và [hợp đồng Admin API](../docs/web/05-admin-api.md). Trang `/admin` thuộc A2.
+Đặt `ADMIN_EMAIL` ở cấu hình API theo email chính đã xác minh trên Clerk. Đăng nhập bằng tài khoản đó rồi mở [localhost:3000/admin](http://localhost:3000/admin). Tài khoản thiếu quyền nhận 404 ở giao diện và 403 ở API. Xem [hướng dẫn quản trị](../docs/web/05-admin-frontend.md), [checklist kiểm thử thật](../docs/web/05-admin-manual-test-checklist.md), [Swagger local](http://localhost:4000/docs/) và [hợp đồng Admin API](../docs/web/05-admin-api.md).
 
 Cloudinary web cần Dynamic Folders và các biến `CLOUDINARY_*` trong file mẫu API để ký và xác minh ảnh. Đặt `WEB_ORIGIN` trùng origin của `NEXT_PUBLIC_SITE_URL` để chấp nhận đích banner tuyệt đối cùng origin. Banner API và catalogue trang chủ có TTL 60 giây.
+
+Chạy `pnpm build` rồi `pnpm --filter @storefront/web smoke:admin` để kiểm tra redirect trên bản production cục bộ, axe và chụp các trang quản trị bằng dữ liệu fixture trong trình duyệt. Ảnh nằm ở `.cache/admin/`. Dùng tài khoản thật theo checklist để nghiệm thu Clerk và Cloudinary.
 
 ## Seed và import products
 

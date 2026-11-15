@@ -66,6 +66,6 @@ Route công khai mới là `GET /api/v1/banners`. OpenAPI và Swagger UI chạy 
 
 ## Cấu hình và giới hạn
 
-Đặt `ADMIN_EMAIL` trong cấu hình API, khớp email chính đã xác minh của tài khoản trong cùng Clerk application với web. Dùng `GET /api/v1/admin/me` với Bearer token để xác nhận quyền. Giao diện `/admin` thuộc A2.
+Đặt `ADMIN_EMAIL` trong cấu hình API, khớp email chính đã xác minh của tài khoản trong cùng Clerk application với web. Dùng `GET /api/v1/admin/me` với Bearer token để xác nhận quyền. Xem [giao diện `/admin`](05-admin-frontend.md) và [checklist tài khoản thật](05-admin-manual-test-checklist.md).
 
 Ảnh legacy giữ URL cũ khi sửa các trường khác của sản phẩm. Với danh sách ảnh mới, API yêu cầu ảnh Cloudinary đã xác minh. Dọn ảnh là best-effort và giữ các ảnh còn được tham chiếu khi kiểm tra. Các kiểm thử quyền và upload dùng adapter fixture, cần nghiệm thu đăng nhập và upload qua tài khoản Clerk và Cloudinary thật.

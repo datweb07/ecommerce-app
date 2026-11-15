@@ -13,3 +13,11 @@ Tổng quan dùng cùng hợp đồng thống kê A1, hiển thị 7/30/90 ngày
 Upload gửi dữ liệu trực tiếp sang Cloudinary với chữ ký do API cấp. `XMLHttpRequest` cung cấp tiến trình upload; API kiểm lại metadata trước khi gắn ảnh. Chỉnh tồn đi qua endpoint delta. Sau thay đổi, Server Action chỉ chấp nhận tag cố định và kiểm quyền qua Admin API trước khi yêu cầu Next làm mới cache. Lỗi làm mới cache chỉ báo cảnh báo.
 
 `/admin/banners`, `/admin/banners/new` và `/admin/banners/[id]` hỗ trợ ảnh desktop/mobile, xem trước, đích nội bộ và lịch hiệu lực. Form đọc thời gian theo giờ máy và gửi ISO UTC. Ảnh được kiểm định dạng, dung lượng, kích thước tối thiểu và sai số tỉ lệ 3%. Kéo thả và các nút lên/xuống cùng gửi thứ tự đầy đủ trong một lệnh. Xem trước dùng `StorefrontBanner` với chế độ ép khổ và theme, giữ bề mặt phẳng của storefront hiện tại.
+
+## Kiểm chứng
+
+Chạy `pnpm build` rồi `pnpm --filter @storefront/web smoke:admin` từ `website/`. Script kiểm tra redirect, header riêng tư, robots và sitemap qua một tiến trình Next production tạm. Script chụp ảnh và chạy axe bằng Playwright trên bundle fixture của chính các component admin, dùng CSS từ build Next. Mocks Clerk, API và Next client nằm riêng trong `tests/browser-admin`; không có route preview trong bản production. Ảnh nằm ở `.cache/admin/`.
+
+Lượt nghiệm thu A2 đạt lint, typecheck, build và 118 test trong 26 suite với 0 skip. Axe đạt 44 tổ hợp trang, viewport, theme và 2 lượt mở drawer bằng bàn phím. Smoke HTTP trên Next production xác nhận redirect 307 giữ nguyên đường dẫn và bộ lọc, header riêng tư, robots, sitemap và 404 khi gọi route fixture.
+
+Dùng [checklist tài khoản thật](05-admin-manual-test-checklist.md) để nghiệm thu Clerk và upload Cloudinary trên cấu hình của cửa hàng.
