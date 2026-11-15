@@ -63,6 +63,14 @@ export const envSchema = z.object({
   CLOUDINARY_CLOUD_NAME: optionalSecret,
   CLOUDINARY_API_KEY: optionalSecret,
   CLOUDINARY_API_SECRET: optionalSecret,
+  ADMIN_LOW_STOCK: z.coerce.number().int().min(1).max(1_000_000).default(5),
+  ADMIN_PRODUCT_MAX_IMAGES: z.coerce.number().int().min(1).max(20).default(5),
+  ADMIN_IMAGE_MAX_BYTES: z.coerce
+    .number()
+    .int()
+    .min(1)
+    .max(20 * 1024 * 1024)
+    .default(5 * 1024 * 1024),
   WEB_ORIGIN: httpUrl.default('http://localhost:3000'),
   CART_MAX_QUANTITY: z.preprocess(
     (value) => (value === '' ? undefined : value),

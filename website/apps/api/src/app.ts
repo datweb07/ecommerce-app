@@ -41,6 +41,9 @@ import { notificationService } from './modules/notifications/service.js';
 import { notificationRoutes } from './modules/notifications/routes.js';
 import { adminRoutes } from './modules/admin/routes.js';
 import { adminService } from './modules/admin/service.js';
+import { adminProducts } from './modules/admin/products.js';
+import { adminProductRoutes } from './modules/admin/product-routes.js';
+import { createMedia, type MediaAdapter } from './modules/admin/media.js';
 
 export async function buildApp(
   env: Env,
@@ -48,6 +51,7 @@ export async function buildApp(
     logger?: boolean;
     clerk?: ClerkAdapter;
     payment?: PaymentProvider;
+    media?: MediaAdapter;
   } = {},
 ) {
   const app = Fastify({
@@ -83,6 +87,8 @@ export async function buildApp(
   registerErrors(app);
   app.addHook('onRequest', async (request, reply) => {
     reply.header('x-request-id', request.id);
+    if (request.url.startsWith('/api/v1/admin/'))
+      reply.header('Cache-Control', 'private, no-store');
   });
 
   try {
@@ -146,6 +152,17 @@ export async function buildApp(
     ]);
     const catalogue = catalogueModels(database);
     const orders = orderModel(database);
+    const checkouts = checkoutModel(database);
+    const media = createMedia(env, app.log, options.media);
+    await app.register(
+      (scope) =>
+        adminProductRoutes(
+          scope,
+          adminProducts(database, catalogue, checkouts, orders, media, env),
+          auth,
+        ),
+      { prefix: '/api/v1' },
+    );
     const inbox = notificationModel(database);
     await inbox.createIndexes();
     const notifications = notificationService(inbox, orders);
@@ -168,7 +185,6 @@ export async function buildApp(
       { prefix: '/api/v1' },
     );
     const carts = cartModel(database);
-    const checkouts = checkoutModel(database);
     await checkouts.createIndexes();
     const payment =
       options.payment ??

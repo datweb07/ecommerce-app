@@ -8,6 +8,7 @@ export interface Product {
   price: number;
   stock: number;
   images: string[];
+  webImageAssets?: { url: string; publicId: string }[];
   averageRating?: number;
   totalReviews?: number;
   createdAt?: Date;
@@ -29,6 +30,10 @@ export function catalogueModels(db: Connection) {
       price: { type: Number, required: true, min: 0 },
       stock: { type: Number, required: true, min: 0, default: 0 },
       images: [String],
+      webImageAssets: {
+        type: [new Schema({ url: String, publicId: String }, { _id: false })],
+        default: undefined,
+      },
       averageRating: { type: Number, min: 0, max: 5, default: 0 },
       totalReviews: { type: Number, default: 0 },
     },
@@ -39,6 +44,7 @@ export function catalogueModels(db: Connection) {
   product.index({ category: 1, price: 1, _id: 1 });
   product.index({ price: 1, _id: 1 });
   product.index({ averageRating: -1, _id: -1 });
+  product.index({ stock: 1, _id: 1 });
   const review = new Schema<Review>(
     {
       productId: { type: Schema.Types.ObjectId, required: true },
