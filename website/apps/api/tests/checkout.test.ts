@@ -1,4 +1,4 @@
-import { expect, it } from 'vitest';
+import { expect, it, vi } from 'vitest';
 import { Types, Schema } from 'mongoose';
 import Stripe from 'stripe';
 import { bearer, replica } from './support/replica.js';
@@ -18,8 +18,15 @@ import {
 } from '../src/modules/checkout/payment-provider.js';
 
 const secret = 'whsec_checkout_test_fixture';
-const stripe = new Stripe('sk_test_fixture');
-const provider = stripeProvider('sk_test_fixture', secret);
+const accountId = 'acct_storefront_fixture';
+const stripeFetch = vi.fn(async (url: RequestInfo | URL) => {
+  expect(new URL(String(url)).pathname).toBe('/v1/account');
+  return Response.json({ id: accountId, object: 'account' });
+});
+const stripe = new Stripe('sk_test_fixture', {
+  httpClient: Stripe.createFetchHttpClient(stripeFetch),
+});
+const provider = stripeProvider('sk_test_fixture', secret, stripe);
 if (!provider) throw new Error('Missing fixture provider');
 const remoteSessions = new Map<string, PaymentSession>();
 const failCreation = new Set<string>();
@@ -119,9 +126,16 @@ function event(
   type: string,
   remote: PaymentSession,
   invalid = false,
+  scope?: { context?: string; account?: string },
 ) {
   const payload = JSON.stringify(
-    { id: 'evt_' + id, type, livemode: false, data: { object: remote } },
+    {
+      id: 'evt_' + id,
+      type,
+      livemode: false,
+      ...scope,
+      data: { object: remote },
+    },
     null,
     2,
   );
@@ -271,7 +285,28 @@ it('requires a signed matching event and only creates one legacy order across co
     (await request('GET', '/checkout/sessions/' + checkout.id, user)).json()
       .status,
   ).toBe('pending');
-  expect((await event('bad', completed, session, true)).statusCode).toBe(400);
+  expect(
+    (await event('bad', completed, session, true, { context: accountId }))
+      .statusCode,
+  ).toBe(400);
+  expect(stripeFetch).not.toHaveBeenCalled();
+  expect(
+    (
+      await event('connect', completed, session, false, {
+        context: accountId,
+        account: 'acct_connect',
+      })
+    ).statusCode,
+  ).toBe(200);
+  expect(stripeFetch).not.toHaveBeenCalled();
+  expect(
+    (
+      await event('foreign_context', completed, session, false, {
+        context: 'acct_other',
+      })
+    ).statusCode,
+  ).toBe(200);
+  expect(stripeFetch).toHaveBeenCalledTimes(1);
   expect(
     (await event('wrong_amount', completed, { ...session, amount_total: 1 }))
       .statusCode,
@@ -292,11 +327,14 @@ it('requires a signed matching event and only creates one legacy order across co
     ).statusCode,
   ).toBe(200);
   const results = await Promise.all([
-    event('paid_one', completed, session),
-    event('paid_one', completed, session),
-    event('paid_other_delivery', completed, session),
+    event('paid_one', completed, session, false, { context: accountId }),
+    event('paid_one', completed, session, false, { context: accountId }),
+    event('paid_other_delivery', completed, session, false, {
+      context: accountId,
+    }),
   ]);
   expect(results.map((r) => r.statusCode)).toEqual([200, 200, 200]);
+  expect(stripeFetch).toHaveBeenCalledTimes(1);
   expect(
     await fixture.db.collection('orders').countDocuments({ clerkId: user }),
   ).toBe(1);

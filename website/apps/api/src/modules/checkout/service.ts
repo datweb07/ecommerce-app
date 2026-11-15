@@ -518,7 +518,7 @@ export function checkoutService(
 
   async function receive(raw: string, signature: string) {
     if (!payment) throw paymentUnavailable();
-    const event = payment.verify(raw, signature);
+    const event = await payment.verify(raw, signature);
     if (event) await apply(event, 'webhook');
   }
 

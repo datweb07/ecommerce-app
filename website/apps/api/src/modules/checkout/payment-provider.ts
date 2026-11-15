@@ -13,7 +13,7 @@ export type PaymentEvent = {
 export interface PaymentProvider {
   create(checkout: Checkout): Promise<PaymentSession>;
   retrieve(id: string): Promise<PaymentSession>;
-  verify(raw: string, signature: string): PaymentEvent | null;
+  verify(raw: string, signature: string): Promise<PaymentEvent | null>;
 }
 const eventTypes = new Map<string, PaymentEvent['type']>([
   ['checkout.session.completed', 'paid'],
@@ -25,9 +25,26 @@ const eventTypes = new Map<string, PaymentEvent['type']>([
 export function stripeProvider(
   key?: string,
   signingSecret?: string,
+  client?: Stripe,
 ): PaymentProvider | undefined {
   if (!key || !signingSecret) return;
-  const stripe = new Stripe(key, { maxNetworkRetries: 1, timeout: 8000 });
+  const stripe =
+    client ?? new Stripe(key, { maxNetworkRetries: 1, timeout: 8000 });
+  let accountId: Promise<string> | undefined;
+  function configuredAccountId() {
+    accountId ??= stripe.accounts.retrieveCurrent().then(
+      (account) => account.id,
+      () => {
+        accountId = undefined;
+        throw new ApiError(
+          503,
+          'STRIPE_ACCOUNT_UNAVAILABLE',
+          'Chưa thể xác minh tài khoản Stripe.',
+        );
+      },
+    );
+    return accountId;
+  }
   return {
     async create(checkout) {
       const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] =
@@ -70,7 +87,7 @@ export function stripeProvider(
     async retrieve(id) {
       return stripeSession.parse(await stripe.checkout.sessions.retrieve(id));
     },
-    verify(raw, signature) {
+    async verify(raw, signature) {
       let event: Stripe.Event;
       try {
         event = stripe.webhooks.constructEvent(raw, signature, signingSecret);
@@ -82,7 +99,9 @@ export function stripeProvider(
         );
       }
       const type = eventTypes.get(event.type);
-      if (!type || event.livemode || event.account || event.context)
+      if (!type || event.livemode || event.account) return null;
+      // Resolve the owner of our API key without routing the lookup using the event.
+      if (event.context && event.context !== (await configuredAccountId()))
         return null;
       const parsed = stripeEvent.safeParse(event);
       if (!parsed.success)
