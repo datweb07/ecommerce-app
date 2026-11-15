@@ -78,7 +78,9 @@ Sau `pnpm build`, chạy `pnpm --filter @storefront/web smoke:ui-extras`. Script
 
 ## Kiểm thử
 
-`pnpm e2e:env` báo biến đang có trong tiến trình. `pnpm e2e:public` chạy smoke production với API và MongoDB seed riêng. `pnpm e2e` chọn các nhóm có đủ biến test. Xem [cách cài trình duyệt, cấu hình provider và mở báo cáo](../docs/web/06-e2e-testing.md).
+`pnpm e2e:env` báo biến đang có trong tiến trình. `pnpm e2e:public` chạy luồng public, axe và kiểm tra HTTP trên Next production, API local và MongoDB seed riêng. `pnpm e2e` chọn các nhóm có đủ biến test. `pnpm lighthouse` ghi ba lượt đo mỗi trang và thiết bị vào `.cache/lighthouse/`. Xem [cách cài trình duyệt, cấu hình provider và mở báo cáo](../docs/web/06-e2e-testing.md).
+
+[Hiệu năng](../docs/web/06-performance-report.md) · [A11y](../docs/web/06-a11y-report.md) · [Bảo mật](../docs/web/06-security-review.md) · [Hạng mục còn mở](../docs/web/06-known-issues.md).
 
 ## Seed và import products
 
