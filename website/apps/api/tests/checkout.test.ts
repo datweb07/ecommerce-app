@@ -2,7 +2,10 @@ import { expect, it, vi } from 'vitest';
 import { Types, Schema } from 'mongoose';
 import Stripe from 'stripe';
 import { bearer, replica } from './support/replica.js';
-import { sampleProducts } from '../src/scripts/product-data.js';
+import {
+  openDataConnection,
+  sampleProducts,
+} from '../src/scripts/product-data.js';
 import { cartModel, type Cart } from '../src/models/cart.js';
 import { checkoutModel } from '../src/models/checkout.js';
 import { catalogueModels } from '../src/models/catalogue.js';
@@ -67,13 +70,14 @@ function request(
   user: string,
   body?: object,
   key?: string,
+  api = fixture.app,
 ) {
   let remoteAddress = clientAddresses.get(user);
   if (!remoteAddress) {
     remoteAddress = '192.0.2.' + (clientAddresses.size + 1);
     clientAddresses.set(user, remoteAddress);
   }
-  return fixture.app.inject({
+  return api.inject({
     method,
     remoteAddress,
     url: prefix + path,
@@ -113,8 +117,13 @@ async function prepare(user: string, productId: Types.ObjectId, quantity = 1) {
     version: cart.json().version as number,
   };
 }
-function create(user: string, input: object, key = 'test-key-0001') {
-  return request('POST', '/checkout/sessions', user, input, key);
+function create(
+  user: string,
+  input: object,
+  key = 'test-key-0001',
+  api = fixture.app,
+) {
+  return request('POST', '/checkout/sessions', user, input, key, api);
 }
 function remoteFor(id: string) {
   const remote = remoteSessions.get('cs_test_' + id);
@@ -127,6 +136,7 @@ function event(
   remote: PaymentSession,
   invalid = false,
   scope?: { context?: string; account?: string },
+  api = fixture.app,
 ) {
   const payload = JSON.stringify(
     {
@@ -139,7 +149,7 @@ function event(
     null,
     2,
   );
-  return fixture.app.inject({
+  return api.inject({
     method: 'POST',
     url: prefix + '/webhooks/stripe',
     payload,
@@ -215,12 +225,13 @@ it('quotes cents from the database, denies forged money, and detects cart and ow
   expect((await fixture.app.inject('/api/v1/orders')).statusCode).toBe(401);
 });
 it('allows exactly one concurrent reservation for the final unit', async () => {
+  const peer = await fixture.peer();
   const id = await product(1);
   const left = await prepare('user_Left', id);
   const right = await prepare('user_Right', id);
   const results = await Promise.all([
     create('user_Left', left),
-    create('user_Right', right),
+    create('user_Right', right, undefined, peer),
   ]);
   expect(results.map((r) => r.statusCode).sort()).toEqual([200, 409]);
   expect(
@@ -298,6 +309,7 @@ it('retries an ambiguous Stripe create with the same reservation and idempotency
   ).toBe(3);
 });
 it('requires a signed matching event and only creates one legacy order across concurrent deliveries', async () => {
+  const peer = await fixture.peer();
   const id = await product();
   const user = 'user_Payment';
   const input = await prepare(user, id, 2);
@@ -356,7 +368,7 @@ it('requires a signed matching event and only creates one legacy order across co
   ).toBe(200);
   const results = await Promise.all([
     event('paid_one', completed, session, false, { context: accountId }),
-    event('paid_one', completed, session, false, { context: accountId }),
+    event('paid_one', completed, session, false, { context: accountId }, peer),
     event('paid_other_delivery', completed, session, false, {
       context: accountId,
     }),
@@ -535,7 +547,32 @@ it('claims due sessions once and preserves stock if remote expiry cannot be conf
     { $set: { nextSweepAt: new Date(0) } },
   );
   remoteSessions.set(remote.id, { ...remote, status: 'expired' });
-  await Promise.all([sweep(), sweep()]);
+  const peerDatabase = await openDataConnection(fixture.uri);
+  try {
+    const { products } = catalogueModels(peerDatabase);
+    const { users } = userModels(peerDatabase);
+    const peerSweep = checkoutService(
+      peerDatabase,
+      {
+        checkouts: checkoutModel(peerDatabase),
+        carts: cartModel(peerDatabase),
+        users,
+        products,
+        orders: orderModel(peerDatabase),
+        receipts: webhookEvents(peerDatabase),
+      },
+      parseEnv({}),
+      payment,
+      fixture.app.log,
+    ).sweep;
+    const cancelled = new AbortController();
+    cancelled.abort();
+    await peerSweep(cancelled.signal);
+    expect((await checkouts.findById(key).lean())?.status).toBe('pending');
+    await Promise.all([sweep(), peerSweep()]);
+  } finally {
+    await peerDatabase.close();
+  }
   expect((await products.findById(id).lean())?.stock).toBe(3);
   expect((await checkouts.findById(key).lean())?.status).toBe('expired');
 });

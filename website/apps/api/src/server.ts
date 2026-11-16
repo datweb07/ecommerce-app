@@ -8,7 +8,21 @@ async function main() {
   const shutdown = async () => {
     if (closing) return;
     closing = true;
-    await app.close();
+    app.log.info('API draining');
+    const deadline = setTimeout(() => {
+      app.log.error('API drain deadline exceeded');
+      process.exit(1);
+    }, 25_000);
+    deadline.unref();
+    try {
+      await app.close();
+      app.log.info('API drained');
+    } catch {
+      app.log.error('API shutdown failed');
+      process.exitCode = 1;
+    } finally {
+      clearTimeout(deadline);
+    }
   };
   process.once('SIGINT', () => {
     void shutdown();
@@ -16,7 +30,12 @@ async function main() {
   process.once('SIGTERM', () => {
     void shutdown();
   });
-  await app.listen({ host: env.HOST, port: env.PORT });
+  try {
+    await app.listen({ host: env.HOST, port: env.PORT });
+  } catch (error) {
+    await app.close().catch(() => undefined);
+    throw error;
+  }
 }
 
 main().catch((error: unknown) => {

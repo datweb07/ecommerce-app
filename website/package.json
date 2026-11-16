@@ -4,6 +4,9 @@
   "private": true,
   "type": "module",
   "packageManager": "pnpm@10.17.1",
+  "engines": {
+    "node": "26.x"
+  },
   "scripts": {
     "dev": "node scripts/pnpm.mjs --filter @storefront/shared build && node scripts/dev.mjs",
     "lint": "eslint . && prettier --check .",
@@ -22,7 +25,9 @@
     "seed": "node scripts/pnpm.mjs --filter @storefront/shared build && node scripts/pnpm.mjs --filter @storefront/api seed",
     "import:products": "node scripts/pnpm.mjs --filter @storefront/shared build && node scripts/pnpm.mjs --filter @storefront/api import:products",
     "db:up": "docker compose up -d --wait",
-    "db:down": "docker compose down"
+    "db:down": "docker compose down",
+    "db:indexes": "node scripts/pnpm.mjs --filter @storefront/api db:indexes",
+    "rehearse:api": "node scripts/rehearse-api.mjs"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",

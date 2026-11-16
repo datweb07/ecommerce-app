@@ -52,6 +52,7 @@ import { bannerRoutes } from './modules/admin/banner-routes.js';
 import { adminProducts } from './modules/admin/products.js';
 import { adminProductRoutes } from './modules/admin/product-routes.js';
 import { createMedia, type MediaAdapter } from './modules/admin/media.js';
+import { createStorefrontIndexes } from './models/indexes.js';
 
 export async function buildApp(
   env: Env,
@@ -84,6 +85,12 @@ export async function buildApp(
           },
     bodyLimit: 1024 * 1024,
     requestTimeout: 15_000,
+    keepAliveTimeout: 65_000,
+    forceCloseConnections: 'idle',
+    trustProxy:
+      env.TRUST_PROXY_HOPS > 0
+        ? (_address, hop) => hop < env.TRUST_PROXY_HOPS
+        : false,
     requestIdHeader: false,
     genReqId: (request) => {
       const id = request.headers['x-request-id'];
@@ -95,6 +102,17 @@ export async function buildApp(
   app.setValidatorCompiler(validatorCompiler);
   app.setSerializerCompiler(serializerCompiler);
   registerErrors(app);
+  let draining = false;
+  app.addHook('preClose', async () => {
+    draining = true;
+  });
+  app.addHook('onSend', async (request, reply, payload) => {
+    // An active HTTP/1 request must not keep its socket idle after drain.
+    if (draining && request.raw.httpVersionMajor === 1) {
+      reply.header('connection', 'close');
+    }
+    return payload;
+  });
   app.addHook('onRequest', async (request, reply) => {
     reply.header('x-request-id', request.id);
     if (request.url.startsWith('/api/v1/admin/'))
@@ -149,17 +167,20 @@ export async function buildApp(
         return result;
       },
     });
-    const database = await connectDatabase(app, env.MONGODB_URI);
+    const hosted =
+      env.DEPLOY_ENV === 'staging' || env.DEPLOY_ENV === 'production';
+    const database = await connectDatabase(
+      app,
+      env.MONGODB_URI,
+      env.MONGO_MAX_POOL_SIZE,
+      hosted,
+    );
     const auth = authService(
       database,
       options.clerk ?? clerkAdapter(env),
       env.ADMIN_EMAIL,
       env.CLERK_WEBHOOK_SIGNING_SECRET,
     );
-    await Promise.all([
-      auth.users.createIndexes(),
-      auth.receipts.createIndexes(),
-    ]);
     const catalogue = catalogueModels(database);
     const orders = orderModel(database);
     await app.register(
@@ -179,7 +200,6 @@ export async function buildApp(
     const checkouts = checkoutModel(database);
     const media = createMedia(env, app.log, options.media);
     const banners = bannerModels(database);
-    await banners.banners.createIndexes();
     await banners.guard.updateOne(
       { _id: 'banners' },
       { $setOnInsert: { revision: 0 } },
@@ -200,7 +220,6 @@ export async function buildApp(
       { prefix: '/api/v1' },
     );
     const inbox = notificationModel(database);
-    await inbox.createIndexes();
     const notifications = notificationService(inbox, orders);
     await app.register(
       (scope) =>
@@ -237,7 +256,6 @@ export async function buildApp(
       { prefix: '/api/v1' },
     );
     const carts = cartModel(database);
-    await checkouts.createIndexes();
     const payment =
       options.payment ??
       stripeProvider(env.STRIPE_SECRET_KEY, env.STRIPE_WEBHOOK_SECRET);
@@ -257,10 +275,11 @@ export async function buildApp(
     );
     if (payment && env.NODE_ENV !== 'test') {
       let running: Promise<void> | undefined;
+      const stopSweep = new AbortController();
       const timer = setInterval(() => {
         if (running) return;
         running = checkout
-          .sweep()
+          .sweep(stopSweep.signal)
           .catch(() => app.log.error('Checkout sweep failed'))
           .finally(() => {
             running = undefined;
@@ -269,6 +288,7 @@ export async function buildApp(
       timer.unref();
       app.addHook('preClose', async () => {
         clearInterval(timer);
+        stopSweep.abort();
         await running;
       });
     }
@@ -282,7 +302,6 @@ export async function buildApp(
         ),
       { prefix: '/api/v1' },
     );
-    await carts.createIndexes();
     await app.register(
       (scope) =>
         customerRoutes(
@@ -292,11 +311,7 @@ export async function buildApp(
         ),
       { prefix: '/api/v1' },
     );
-    await Promise.all([
-      catalogue.products.createIndexes(),
-      catalogue.reviews.createIndexes(),
-      orders.createIndexes(),
-    ]);
+    if (!hosted) await createStorefrontIndexes(database);
     await app.register(
       (scope) =>
         catalogueRoutes(scope, catalogueService(catalogue, orders, auth.users)),

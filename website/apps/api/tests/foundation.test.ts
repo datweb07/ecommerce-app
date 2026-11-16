@@ -17,10 +17,98 @@ import {
   seedProducts,
 } from '../src/scripts/product-data.js';
 
+function gate() {
+  let open = () => {};
+  const promise = new Promise<void>((resolve) => {
+    open = resolve;
+  });
+  return { promise, open };
+}
+
 describe('foundation with a real isolated Mongo replica set', () => {
   let mongo: MongoMemoryReplSet;
   let app: Awaited<ReturnType<typeof buildApp>>;
   let uri: string;
+  it('drains a request already using Mongo before closing the database', async () => {
+    const entered = gate();
+    const finish = gate();
+    const draining = gate();
+    const instance = await buildApp(
+      parseEnv({ MONGODB_URI: uri, NODE_ENV: 'test' }),
+      {
+        logger: false,
+        clerk: {
+          async authenticate() {
+            entered.open();
+            await finish.promise;
+            return 'user_drain_fixture';
+          },
+          async identity() {
+            return {
+              name: 'Drain fixture',
+              email: 'drain@example.test',
+              imageUrl: '',
+              verified: true,
+            };
+          },
+        },
+      },
+    );
+    instance.addHook('preClose', async () => draining.open());
+    try {
+      const origin = await instance.listen({ host: '127.0.0.1', port: 0 });
+      const response = fetch(origin + '/api/v1/me', {
+        headers: { authorization: 'Bearer user_drain_fixture' },
+        signal: AbortSignal.timeout(5_000),
+      });
+      await Promise.race([
+        entered.promise,
+        response.then(() => {
+          throw new Error('Request did not enter the drain fixture');
+        }),
+      ]);
+      const closed = instance.close();
+      await draining.promise;
+      finish.open();
+      const completed = await response;
+      expect(completed.status).toBe(200);
+      expect(completed.headers.get('connection')).toBe('close');
+      await completed.body?.cancel();
+      await closed;
+    } finally {
+      finish.open();
+      await instance.close();
+    }
+  });
+  it('uses the address at the trusted hop for rate limits, ignoring a spoofed leading address', async () => {
+    const proxy = await buildApp(
+      parseEnv({ MONGODB_URI: uri, TRUST_PROXY_HOPS: '1', NODE_ENV: 'test' }),
+      { logger: false },
+    );
+    try {
+      const attempt = (spoofed: string, client: string) =>
+        proxy.inject({
+          method: 'POST',
+          url: '/api/v1/checkout/sessions',
+          remoteAddress: '192.0.2.2',
+          headers: { 'x-forwarded-for': spoofed + ', ' + client },
+        });
+      for (let index = 0; index < 10; index++) {
+        expect(
+          (await attempt('203.0.113.' + (index + 1), '198.51.100.2'))
+            .statusCode,
+        ).not.toBe(429);
+      }
+      expect((await attempt('203.0.113.40', '198.51.100.2')).statusCode).toBe(
+        429,
+      );
+      expect(
+        (await attempt('203.0.113.40', '198.51.100.3')).statusCode,
+      ).not.toBe(429);
+    } finally {
+      await proxy.close();
+    }
+  });
   beforeAll(async () => {
     const cache = fileURLToPath(new URL('../../../.cache/', import.meta.url));
     await mkdir(cache, { recursive: true });
@@ -317,7 +405,11 @@ describe('foundation with a real isolated Mongo replica set', () => {
   });
   it('hides development docs in production', async () => {
     const production = await buildApp(
-      parseEnv({ NODE_ENV: 'production', MONGODB_URI: uri }),
+      parseEnv({
+        NODE_ENV: 'production',
+        DEPLOY_ENV: 'local',
+        MONGODB_URI: uri,
+      }),
       { logger: false },
     );
     try {

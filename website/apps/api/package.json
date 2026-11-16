@@ -3,13 +3,20 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
+  "engines": {
+    "node": "26.x"
+  },
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "dev": "tsx watch src/server.ts",
     "build": "tsc -p tsconfig.json",
     "start": "node dist/server.js",
     "typecheck": "tsc -p tsconfig.check.json --noEmit",
     "seed": "tsx src/scripts/seed.ts",
-    "import:products": "tsx src/scripts/import-products.ts"
+    "import:products": "tsx src/scripts/import-products.ts",
+    "db:indexes": "node dist/scripts/indexes.js"
   },
   "dependencies": {
     "@clerk/fastify": "3.1.100",

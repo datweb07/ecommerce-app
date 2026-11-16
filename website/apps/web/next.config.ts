@@ -1,4 +1,7 @@
 import type { NextConfig } from 'next';
+import { assertWebDeployment } from './src/config/deploy-env';
+
+assertWebDeployment(process.env);
 
 function apiOrigin() {
   try {

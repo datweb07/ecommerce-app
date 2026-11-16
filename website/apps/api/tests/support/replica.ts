@@ -30,6 +30,13 @@ export function replica(
   let mongo: MongoMemoryReplSet;
   let app: Awaited<ReturnType<typeof buildApp>>;
   let connection: Awaited<ReturnType<typeof openDataConnection>>;
+  const peers: (typeof app)[] = [];
+  const newApp = (uri: string) =>
+    buildApp(parseEnv({ ...values, NODE_ENV: 'test', MONGODB_URI: uri }), {
+      logger: false,
+      clerk: clerkFixture,
+      ...options,
+    });
   beforeAll(async () => {
     const cache = fileURLToPath(
       new URL('../../../../.cache/', import.meta.url),
@@ -45,19 +52,23 @@ export function replica(
       },
     });
     const uri = mongo.getUri('storefront_web');
-    app = await buildApp(
-      parseEnv({ ...values, NODE_ENV: 'test', MONGODB_URI: uri }),
-      { logger: false, clerk: clerkFixture, ...options },
-    );
+    app = await newApp(uri);
     connection = await openDataConnection(uri);
     await app.ready();
   });
   afterAll(async () => {
+    await Promise.all(peers.map((peer) => peer.close()));
     await app?.close();
     await connection?.close();
     await mongo?.stop({ doCleanup: true, force: true });
   });
   return {
+    async peer() {
+      const peer = await newApp(mongo.getUri('storefront_web'));
+      peers.push(peer);
+      await peer.ready();
+      return peer;
+    },
     get app() {
       return app;
     },

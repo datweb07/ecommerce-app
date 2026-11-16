@@ -522,8 +522,8 @@ export function checkoutService(
     if (event) await apply(event, 'webhook');
   }
 
-  async function sweep() {
-    if (!payment) return;
+  async function sweep(signal?: AbortSignal) {
+    if (!payment || signal?.aborted) return;
     const now = new Date();
     const unknown = await checkouts.updateMany(
       {
@@ -550,6 +550,7 @@ export function checkoutService(
       .select({ stripeId: 1 })
       .lean();
     for (const row of due) {
+      if (signal?.aborted) break;
       if (!row.stripeId) continue;
       const claimed = await checkouts.updateOne(
         { _id: row._id, status: 'pending', nextSweepAt: { $lte: now } },

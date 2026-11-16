@@ -69,6 +69,7 @@ const webEnv: NodeJS.ProcessEnv = {
   ...osEnv,
   ...clerkEnv,
   NODE_ENV: 'production',
+  DEPLOY_ENV: 'local',
   NEXT_TELEMETRY_DISABLED: '1',
   NEXT_PUBLIC_API_URL: apiOrigin,
   API_INTERNAL_URL: apiOrigin,
@@ -202,6 +203,7 @@ try {
   app = await buildApp(
     parseEnv({
       NODE_ENV: process.env.STOREFRONT_E2E_ZAP === '1' ? 'production' : 'test',
+      DEPLOY_ENV: 'local',
       MONGODB_URI: uri,
       WEB_ORIGIN: webOrigin,
       CORS_ORIGINS: webOrigin,

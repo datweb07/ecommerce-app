@@ -18,7 +18,15 @@ export default [
   js.configs.recommended,
   {
     files: ['scripts/*.mjs'],
-    languageOptions: { globals: { process: 'readonly' } },
+    languageOptions: {
+      globals: {
+        process: 'readonly',
+        URL: 'readonly',
+        fetch: 'readonly',
+        AbortSignal: 'readonly',
+        console: 'readonly',
+      },
+    },
   },
   ...tseslint.configs.recommended,
   {
