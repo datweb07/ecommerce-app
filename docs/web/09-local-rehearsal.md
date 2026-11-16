@@ -59,3 +59,17 @@ Nếu Windows báo hết bộ nhớ ở bước kiểm tra TypeScript ngay sau c
 - Bản build Next tách hai bước đã khởi động với API trỏ cổng chết. `/sitemap.xml` trả 200 với các URL tĩnh.
 - Test HTTP giữ request đang chạy đến khi drain bắt đầu, nhận lại 200 với `Connection: close` rồi mới đóng Mongo. Test checkout dùng hai kết nối độc lập qua cùng replica set với adapter Stripe kiểm thử.
 - Compose đã qua kiểm tra cấu hình. Docker Desktop trên máy Windows dừng ở bước xuất image và tiếp tục không mở được Linux engine sau lần khởi động lại, báo lỗi WSL/VHDX. Chưa đo được kích thước image cuối, kiểm layer, chạy hai container, gửi SIGTERM trong container hoặc quét Trivy tại local. Các bước diễn tập và quét cũng đã được cấu hình ở job **Website image scan** để bạn chạy sau khi push.
+
+## Kết quả bàn giao 6.5
+
+| Kiểm tra                                                  | Kết quả                                                                                                                                                                 |
+| --------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `pnpm lint`, `pnpm typecheck`                             | Đạt. Typecheck chạy trên bản sao cô lập không có env thật                                                                                                               |
+| `pnpm test --maxWorkers=1`                                | 175 Vitest trong 42 suite và 4 test smoke Node, 0 skip. Có replica set local, hai Fastify instance và Clerk SDK xác minh JWT ký bằng khóa thử                           |
+| `pnpm build`                                              | Shared và API build được. Build gộp Next compile xong rồi Windows hết bộ nhớ ở bước TypeScript. Next compile và generate riêng đều đạt sau khi typecheck standalone đạt |
+| Next production với API offline                           | `next start` phục vụ `/sitemap.xml` HTTP 200, giữ URL tĩnh và không đưa URL sản phẩm vào sitemap                                                                        |
+| `actionlint`, `docker compose config --quiet`             | Đạt                                                                                                                                                                     |
+| `docker build`, Trivy, hai container và SIGTERM container | Docker Desktop không có Linux engine. Chưa đo được image và chưa chạy diễn tập container                                                                                |
+| `pnpm e2e:staging --list`                                 | Nhận diện một bài hosted. Còn chờ URL staging, user thử và credentials Development để chạy qua browser                                                                  |
+
+Blueprint, cấu hình Vercel và workflow đã có trong repo. Để đánh dấu một tích hợp đã chạy trên cloud, dùng bằng chứng trong [bảng xác nhận dịch vụ](09-deploy-guide.md#6-xác-nhận-từng-dịch-vụ-sau-khi-bạn-deploy). Cache revalidation vẫn được nghiệm thu bằng thao tác admin staging trong [09-environments.md](09-environments.md).

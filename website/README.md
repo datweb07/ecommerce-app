@@ -8,6 +8,17 @@ Chạy container API và Mongo replica set cô lập theo [diễn tập producti
 
 Xem [triển khai Render, Vercel và smoke](../docs/web/09-deploy-guide.md) để biết đường dẫn Blueprint, biến dashboard, cách trỏ domain và lệnh `pnpm smoke:deploy -- --env staging|production`.
 
+Chưa có domain thì bắt đầu bằng [staging dùng URL mặc định](../docs/web/09-deploy-guide.md#bắt-đầu-khi-chưa-có-tên-miền). Dùng Clerk Development, Stripe test và Atlas staging. Cần domain bạn quản lý DNS để dùng Clerk Production. Stripe live còn bị khóa ở bản này.
+
+| Tài liệu bàn giao                                                                                                | Mục đích                                                      |
+| ---------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------- |
+| [Deploy guide](../docs/web/09-deploy-guide.md)                                                                   | Thứ tự thao tác Atlas, Render, Vercel, Clerk, Stripe và smoke |
+| [Môi trường và CORS](../docs/web/09-environments.md)                                                             | Biến dashboard, cookie, `pnpm e2e:staging` và QA cache        |
+| [Mẫu staging](.env.staging.example) · [Mẫu production](.env.production.example)                                  | Phiếu điền biến theo dịch vụ                                  |
+| [CI và quyền GitHub](../docs/web/09-ci-setup.md) · [Diễn tập local](../docs/web/09-local-rehearsal.md)           | Publish image, xác nhận build, luyện shutdown và rollback     |
+| [Go-live](../docs/web/09-go-live-checklist.md) · [Rollback](../docs/web/09-rollback-runbook.md)                  | Điều kiện mở bán và cách xử lý sự cố                          |
+| [Monitoring](../docs/web/09-monitoring.md) · [Ảnh hưởng Clerk với mobile](../docs/web/09-clerk-mobile-impact.md) | Cảnh báo, ngân sách và điều kiện dùng chung tài khoản         |
+
 ## Chạy local trong khoảng 10 phút
 
 Chuẩn bị Git, Node 26 LTS, pnpm 10.17.1 và Docker Desktop chạy Linux engine. Catalogue, health, Swagger và seed chạy với cấu hình mặc định. Các route tích hợp cần keys tương ứng trong `.env`.
@@ -56,7 +67,7 @@ pnpm build
 
 `lint` gồm ESLint và Prettier. `typecheck` kiểm tra cả API tests. `test` dùng MongoMemoryReplSet thật, **không kết nối database dev/legacy**; tải Mongo 8.0.17 lần đầu vào `website/.cache/mongodb` (Windows archive khoảng 756 MB), dữ liệu tạm nằm trong `.cache/` của workspace và được dọn sau test. Cần internet lần đầu và dung lượng trống. Không được coi tests skipped là thành công. Build/typecheck chạy tuần tự để giảm mức dùng tài nguyên.
 
-Root scripts gọi pnpm qua JS entry point vì nested Windows `.cmd` với runtime Node cục bộ có thể resolve sai đường dẫn. Không cần cài Node mới toàn máy. `.gitignore` loại `.env*`, `.cache`, `node_modules`, `dist`, `.next` và cho phép `.env.example`.
+Root scripts gọi pnpm qua JS entry point vì nested Windows `.cmd` với runtime Node cục bộ có thể resolve sai đường dẫn. Không cần cài Node mới toàn máy. `.gitignore` loại `.env*`, `.cache`, `node_modules`, `dist`, `.next` và cho phép các file ví dụ `.env.example`, `.env.staging.example`, `.env.production.example`.
 
 Next 16 dùng `src/proxy.ts` để bảo vệ route riêng tư. Dependencies pin exact cùng `pnpm-lock.yaml`. TypeScript 6.0.3 nằm trong peer range của parser `typescript-eslint`. ESLint 10 dùng plugin Next.js, React Hooks và bộ rule jsx-a11y. jsx-a11y 6.10.2 mới nhất khai báo peer đến ESLint 9, nên đã kiểm chứng trực tiếp với ESLint 10 qua lượt lint toàn workspace.
 

@@ -11,3 +11,9 @@
 | Medium | ZAP chưa chạy do Docker lỗi ghi layer và metadata khi ổ C gần đầy.                                  | Xử lý dung lượng Docker, rồi chạy `pnpm security:zap` trên web và API local được cô lập.                                           |
 | Low    | Sign-in có SEO thấp do trạng thái fallback/noindex.                                                 | Giữ trang đăng nhập ngoài kết quả tìm kiếm, đánh giá riêng chức năng Clerk.                                                        |
 | Low    | Axe riêng tư, trình đọc màn hình, zoom và quy trình bàn phím mua hàng chưa xác minh thực tế.        | Chạy `@auth` và checklist trên ít nhất một thiết bị và một trình đọc màn hình thật.                                                |
+
+## Triển khai
+
+- Chưa kiểm staging/production trên Vercel, Render hoặc Atlas thật. Sau khi có URL, chạy smoke và E2E hosted. Dùng URL mặc định để kiểm Clerk Development/Stripe test khi chưa có DNS riêng.
+- Local đã kiểm quyền theo origin và session được ký bằng Clerk SDK với khóa fixture. Còn cần xác nhận cờ cookie Clerk, proxy hop Render, cache revalidation, webhook delivery và upload thật.
+- Docker Desktop hiện không cung cấp Linux engine trên máy kiểm. Image size, Trivy, và diễn tập hai container/SIGTERM cần được xác nhận khi Docker chạy lại hoặc trên CI. Kiểm tra drain và race local không thay bằng chứng container.
