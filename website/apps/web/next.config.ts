@@ -1,5 +1,9 @@
 import type { NextConfig } from 'next';
-import { assertWebDeployment } from './src/config/deploy-env';
+import {
+  assertWebDeployment,
+  cloudinaryImageName,
+  isNonIndexableDeployment,
+} from './src/config/deploy-env';
 
 assertWebDeployment(process.env);
 
@@ -24,6 +28,12 @@ function clerkOrigin() {
 }
 
 const production = process.env.NODE_ENV === 'production';
+const hosted =
+  process.env.DEPLOY_ENV === 'staging' ||
+  process.env.DEPLOY_ENV === 'production';
+const imageCloud = process.env.CLOUDINARY_IMAGE_CLOUD_NAME ?? '';
+const enforcedPolicy =
+  "base-uri 'self'; object-src 'none'; frame-ancestors 'none'";
 const clerk = clerkOrigin();
 const reportOnlyPolicy = [
   "default-src 'self'",
@@ -61,12 +71,23 @@ const nextConfig: NextConfig = {
           },
           ...(production
             ? [
-                { key: 'Strict-Transport-Security', value: 'max-age=31536000' },
+                {
+                  key: 'Strict-Transport-Security',
+                  value:
+                    'max-age=' +
+                    (hosted ? (process.env.WEB_HSTS_MAX_AGE ?? '300') : '300'),
+                },
                 {
                   key: 'Content-Security-Policy-Report-Only',
                   value: reportOnlyPolicy,
                 },
               ]
+            : []),
+          ...(hosted
+            ? [{ key: 'Content-Security-Policy', value: enforcedPolicy }]
+            : []),
+          ...(isNonIndexableDeployment(process.env)
+            ? [{ key: 'X-Robots-Tag', value: 'noindex, nofollow' }]
             : []),
         ],
       },
@@ -74,7 +95,13 @@ const nextConfig: NextConfig = {
   },
   images: {
     remotePatterns: [
-      { protocol: 'https', hostname: 'res.cloudinary.com' },
+      {
+        protocol: 'https',
+        hostname: 'res.cloudinary.com',
+        ...(cloudinaryImageName.test(imageCloud)
+          ? { pathname: '/' + imageCloud + '/image/upload/**' }
+          : {}),
+      },
       { protocol: 'https', hostname: 'images.unsplash.com' },
       { protocol: 'https', hostname: 'img.clerk.com' },
       { protocol: 'https', hostname: 'images.clerk.dev' },

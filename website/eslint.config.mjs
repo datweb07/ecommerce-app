@@ -17,7 +17,7 @@ export default [
   },
   js.configs.recommended,
   {
-    files: ['scripts/*.mjs'],
+    files: ['scripts/*.mjs', 'apps/web/scripts/vercel-ignore.mjs'],
     languageOptions: {
       globals: {
         process: 'readonly',

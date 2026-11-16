@@ -1,0 +1,8 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "nextjs",
+  "regions": ["sin1"],
+  "installCommand": "pnpm --dir ../.. install --frozen-lockfile",
+  "buildCommand": "pnpm --dir ../.. --filter @storefront/shared build && pnpm build",
+  "ignoreCommand": "node scripts/vercel-ignore.mjs"
+}

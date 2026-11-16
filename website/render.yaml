@@ -1,0 +1,43 @@
+services:
+  - type: web
+    name: shopease-storefront-api-staging
+    runtime: image
+    image:
+      url: ghcr.io/datweb07/ecommerce-app/storefront-api:latest
+      creds:
+        fromRegistryCreds:
+          name: shopease-ghcr-pull
+    region: singapore
+    plan: starter
+    healthCheckPath: /health/live
+    maxShutdownDelaySeconds: 30
+    preDeployCommand: node dist/scripts/indexes.js --apply
+    envVars:
+      - key: DEPLOY_ENV
+        value: staging
+      - key: HOST
+        value: 0.0.0.0
+      - key: WEB_ORIGIN
+        sync: false
+      - key: CORS_ORIGINS
+        sync: false
+      - key: MONGODB_URI
+        sync: false
+      - key: CLERK_PUBLISHABLE_KEY
+        sync: false
+      - key: CLERK_SECRET_KEY
+        sync: false
+      - key: CLERK_WEBHOOK_SIGNING_SECRET
+        sync: false
+      - key: ADMIN_EMAIL
+        sync: false
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false

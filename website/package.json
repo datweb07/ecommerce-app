@@ -12,7 +12,7 @@
     "lint": "eslint . && prettier --check .",
     "format": "prettier --write .",
     "typecheck": "node scripts/pnpm.mjs --filter @storefront/shared build && node scripts/pnpm.mjs --workspace-concurrency=1 -r typecheck && tsc -p tsconfig.tools.json",
-    "test": "node scripts/pnpm.mjs --filter @storefront/shared build && vitest run",
+    "test": "node scripts/pnpm.mjs --filter @storefront/shared build && node --test scripts/smoke-deploy.test.mjs && vitest run",
     "e2e": "node scripts/pnpm.mjs --filter @storefront/web e2e all",
     "e2e:public": "node scripts/pnpm.mjs --filter @storefront/web e2e public",
     "e2e:auth": "node scripts/pnpm.mjs --filter @storefront/web e2e auth",
@@ -27,7 +27,8 @@
     "db:up": "docker compose up -d --wait",
     "db:down": "docker compose down",
     "db:indexes": "node scripts/pnpm.mjs --filter @storefront/api db:indexes",
-    "rehearse:api": "node scripts/rehearse-api.mjs"
+    "rehearse:api": "node scripts/rehearse-api.mjs",
+    "smoke:deploy": "node scripts/smoke-deploy.mjs"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",

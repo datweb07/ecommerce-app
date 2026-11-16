@@ -1,8 +1,15 @@
 type Environment = Record<string, string | undefined>;
+export const cloudinaryImageName = /^[a-z0-9][a-z0-9_-]{0,127}$/;
+
+export function isNonIndexableDeployment(env: Environment) {
+  return env.DEPLOY_ENV === 'staging' || env.VERCEL_ENV === 'preview';
+}
 
 export function assertWebDeployment(env: Environment) {
   const invalid: string[] = [];
   const target = env.DEPLOY_ENV;
+  if (env.VERCEL_ENV === 'preview' && target !== 'staging')
+    invalid.push('DEPLOY_ENV');
   if (
     (env.NODE_ENV === 'production' && !target) ||
     (target && !['local', 'staging', 'production'].includes(target))
@@ -26,6 +33,16 @@ export function assertWebDeployment(env: Environment) {
       invalid.push('CLERK_SECRET_KEY');
   }
   if (target === 'staging' || target === 'production') {
+    if (!cloudinaryImageName.test(env.CLOUDINARY_IMAGE_CLOUD_NAME ?? ''))
+      invalid.push('CLOUDINARY_IMAGE_CLOUD_NAME');
+    if (
+      env.WEB_HSTS_MAX_AGE !== undefined &&
+      (!/^\d{1,8}$/.test(env.WEB_HSTS_MAX_AGE) ||
+        Number(env.WEB_HSTS_MAX_AGE) < 300 ||
+        Number(env.WEB_HSTS_MAX_AGE) > 31536000)
+    ) {
+      invalid.push('WEB_HSTS_MAX_AGE');
+    }
     if (env.NODE_ENV !== 'production') invalid.push('NODE_ENV');
     for (const name of [
       'NEXT_PUBLIC_API_URL',
@@ -62,5 +79,5 @@ export function assertWebDeployment(env: Environment) {
       invalid.push('CLERK_SECRET_KEY');
   }
   if (invalid.length)
-    throw new Error('Invalid environment: ' + invalid.join(', '));
+    throw new Error('Invalid environment: ' + [...new Set(invalid)].join(', '));
 }

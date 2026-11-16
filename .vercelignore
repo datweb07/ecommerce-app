@@ -1,0 +1,10 @@
+/backend/
+/mobile/
+/admin/
+/docs/
+**/.env*
+**/.cache/
+**/.next/
+**/node_modules/
+**/playwright-report/
+**/test-results/

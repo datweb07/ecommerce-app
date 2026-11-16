@@ -1,0 +1,86 @@
+# 6.3 · Cấu hình Render, Vercel và smoke
+
+Hướng dẫn này dùng `<DOMAIN>`, vì chưa có hostname production của storefront để kiểm chứng. Thao tác cloud bên dưới để bạn tự làm. Hãy dựng và nghiệm thu staging trước. Cấu hình API cũ dùng cho mobile không tham gia hai Blueprint dưới đây.
+
+## 1. Chuẩn bị image và cơ sở dữ liệu
+
+1. Sau khi bạn push, mở GitHub → **Actions → Website API image**. Đợi cả job scan và publish xanh trên `main`. Trong Summary, lấy tên image và digest. Trong **Packages → storefront-api**, kiểm tra tag `latest` và `sha-<commit>`. Nếu repository hoặc tên package khác mặc định, sửa URL image trong hai Blueprint cho đúng tên **trước khi import**.
+2. Trong Atlas, tạo project/cluster web riêng cho mỗi môi trường. Chọn Singapore nếu có trên gói bạn dùng. Từ **Database Access**, cấp user runtime scope DB `web_staging` hoặc `web_prod`. Production dùng cluster có Cloud Backup và user chạy index riêng. URI SRV phải có tên DB ở giữa host và dấu `?`, dùng mặc định TLS và majority. Tách URI này khỏi mobile. [Atlas IP access list](https://www.mongodb.com/docs/atlas/security/ip-access-list/) · [Atlas cloud backup](https://www.mongodb.com/docs/atlas/backup-restore-cluster/)
+3. Trong Render → **Workspace Settings → Registry Credentials**, thêm credential GHCR tên `shopease-ghcr-pull` để đọc package private. Dùng credential chỉ có quyền đọc package và có quyền truy cập package storefront. Kiểm tra quyền sau khi xoay key. Nếu bạn chủ động để package public, bỏ cả khối `image.creds` khỏi Blueprint. [Render registry credentials](https://render.com/docs/deploying-an-image)
+
+## 2. API staging trên Render
+
+1. Vào **New → Blueprint**, chọn repository và nhánh `main`, nhập **Blueprint Path** là `website/render.yaml`. Kiểm preview chỉ hiện đúng dịch vụ `shopease-storefront-api-staging`, runtime **Image**, region **Singapore** và plan **Starter**. Kiểm giá hiện tại ở dashboard trước khi Apply. [Render Blueprint](https://render.com/docs/infrastructure-as-code) · [Render pricing](https://render.com/pricing)
+2. Khi được hỏi env, điền `WEB_ORIGIN=https://staging.<DOMAIN>`, `CORS_ORIGINS=https://staging.<DOMAIN>`, URI Atlas `web_staging`, Clerk development, Stripe test, Cloudinary staging và `ADMIN_EMAIL`. Tất cả trường `sync:false` được hỏi khi tạo Blueprint. Với dịch vụ đã tồn tại, thêm biến thiếu qua **Environment**. Các biến `HOST` và `DEPLOY_ENV` đã nằm trong Blueprint. [Render Blueprint env vars](https://render.com/docs/blueprint-spec#prompting-for-secret-values)
+3. Trong dịch vụ mới, lấy dải IP ở **Connect → Outbound** và thêm đúng các CIDR vào **Atlas → Network Access** của staging. Nếu deploy đầu chạy trước khi bạn hoàn thành access list, khởi động lại deploy sau khi cấu hình xong. **Pre-Deploy Command** của staging chạy `node dist/scripts/indexes.js --apply` bằng URI staging. Đợi log index thành công và service healthy. [Render outbound IPs](https://render.com/docs/outbound-ip-addresses)
+4. Vào **Settings → Custom Domains**, thêm `api-staging.<DOMAIN>`, trỏ bản ghi theo dashboard và đợi TLS. Kiểm `https://api-staging.<DOMAIN>/health/ready` trả HTTP 200. Render tự kiểm `/health/live` để một lần gián đoạn Atlas không tự biến thành vòng restart. Theo dõi DB độc lập qua `/health/ready`. [Render custom domains](https://render.com/docs/custom-domains) · [Render health checks](https://render.com/docs/health-checks)
+5. Với dịch vụ **Existing Image**, lúc CI ghi lại tag `latest`, Render không tự kéo image mới. Mở **Manual Deploy → Deploy latest reference** khi muốn lấy bản staging vừa scan. Git build filters không áp dụng cho image-backed. Giữ auto-sync Blueprint tắt nếu muốn kiểm soát mỗi lần đồng bộ cấu hình. Cấu hình này không quản lý dịch vụ legacy. [Render image deployments](https://render.com/docs/deploying-an-image)
+6. Tạo webhook Clerk development và Stripe test sau khi API có HTTPS. Dùng endpoint `/api/v1/webhooks/clerk` cho `user.created`, `user.updated`, `user.deleted`. Stripe test dùng `/api/v1/webhooks/stripe` cho `checkout.session.completed`, `checkout.session.async_payment_succeeded`, `checkout.session.async_payment_failed`, `checkout.session.expired`. Lấy signing secret từ **endpoint Dashboard tương ứng**. Lưu vào Render rồi kiểm redeploy staging. [Clerk webhook docs](https://clerk.com/docs/guides/development/webhooks/overview) · [Stripe webhook test](stripe-local-testing.md)
+
+## 3. Web staging trên Vercel
+
+1. Tạo project staging và liên kết GitHub. Trong **Build and Deployment**, đặt **Root Directory** là `website/apps/web`, bật **Include source files outside of the Root Directory**, chọn Next.js và Node 26.x. File `vercel.json` đặt `sin1` và build shared package trước web. Bật **Automatically Expose System Environment Variables** để Ignored Build Step nhận Git SHA. Nếu history thiếu commit trước, script chọn build. Thay đổi chỉ ở docs hoặc các ứng dụng legacy sẽ được bỏ qua khi diff khả dụng. [Vercel monorepo settings](https://vercel.com/docs/monorepos/monorepo-faq) · [Vercel Node 26](https://vercel.com/changelog/node-js-26-lts-is-now-generally-available-on-vercel)
+2. Trong **Git**, đặt Production Branch của **project staging** là `main`. Trong **Domains**, gắn `staging.<DOMAIN>` vào project này, trỏ DNS theo dashboard và đợi Vercel cấp TLS.
+3. Trong **Environment Variables**, đặt các biến sau cho **Production** của project staging. Dùng cùng giá trị staging cho **Preview** nếu bật preview. Đặt **Development** bằng cấu hình localhost và Clerk development, dùng `DEPLOY_ENV=local` khi phát triển.
+
+   | Biến trên Vercel                            | Giá trị staging                                                    |
+   | ------------------------------------------- | ------------------------------------------------------------------ |
+   | `DEPLOY_ENV`                                | `staging`                                                          |
+   | `NEXT_PUBLIC_SITE_URL`                      | `https://staging.<DOMAIN>`                                         |
+   | `NEXT_PUBLIC_API_URL` và `API_INTERNAL_URL` | `https://api-staging.<DOMAIN>`                                     |
+   | `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`         | Publishable key Clerk Development cùng instance với Render staging |
+   | `CLERK_SECRET_KEY`                          | Secret key tương ứng, chỉ ở server                                 |
+   | `CLOUDINARY_IMAGE_CLOUD_NAME`               | Cùng cloud name với `CLOUDINARY_CLOUD_NAME` của API staging        |
+   | `WEB_HSTS_MAX_AGE`                          | Bỏ trống bằng cách không tạo biến để dùng 300 giây                 |
+
+4. Bật **Deployment Protection** cho Preview. Nếu bật bảo vệ cả custom staging domain, tạo **Protection Bypass for Automation** rồi truyền secret qua `SMOKE_VERCEL_BYPASS_SECRET` ở terminal kiểm thử. Script chỉ gửi secret trong header HTTPS đến đúng web origin, và kiểm tra redirect thủ công. Staging/Preview luôn có `X-Robots-Tag: noindex, nofollow` và robots chặn `/`. Preview dùng API staging. Trang preview chưa có origin riêng được phép gọi API và đăng nhập cho đến khi nghiệm thu 6.4. [Vercel environment variables](https://vercel.com/docs/environment-variables) · [Vercel Deployment Protection](https://vercel.com/docs/deployment-protection) · [Automation bypass](https://vercel.com/docs/deployment-protection/methods-to-bypass-deployment-protection/protection-bypass-automation)
+5. Redeploy sau khi đổi `NEXT_PUBLIC_*` hoặc quy tắc ảnh. Đăng nhập staging với tài khoản admin thử, tạo ít nhất một sản phẩm theo checklist admin. Chạy smoke phía dưới. Khoá Atlas, Stripe, Cloudinary upload và webhook ký đều đi vào Render, chỉ Clerk secret phía web đi vào Vercel.
+
+## 4. Production sau khi staging đã đạt
+
+1. Hoàn tất Atlas `web_prod`, bật và kiểm restore backup. Chạy **dry-run index** với credential index production trên máy/runner đã được allowlist. Duyệt output rồi apply. Blueprint production bỏ pre-deploy index để runtime API dùng credential riêng và kế hoạch index chỉ được áp dụng khi đã duyệt.
+2. Trong [Blueprint production](../../website/render.production.yaml), thay tag `sha-REPLACE-ME` bằng tag SHA đã qua CI, kiểm digest GHCR và tạo một Blueprint mới với path `website/render.production.yaml`. Kiểm tên `shopease-storefront-api-production`, gắn `api.<DOMAIN>`, thêm outbound CIDR vào Atlas production. Điền Clerk production và Cloudinary production. Render yêu cầu `WEB_ORIGIN` và `CORS_ORIGINS` đều là `https://www.<DOMAIN>` cho cấu hình chuẩn. Để Stripe trống. API hiện chỉ nhận test event, chưa có bước kích hoạt Stripe live.
+3. Tạo project Vercel production riêng, dùng cùng Root Directory, Node và region như staging. Dùng **Settings → Git → Disconnect** để giữ phát hành production theo workflow đã duyệt. Trước khi nhập secret live, kiểm rõ Project ID/Org ID. Trong **Production Environment**, đặt `DEPLOY_ENV=production`, `NEXT_PUBLIC_SITE_URL=https://www.<DOMAIN>`, hai API URL bằng `https://api.<DOMAIN>`, Clerk live và cloud name production. Nếu giữ môi trường Preview cho trường hợp deploy thử, dùng biến staging hoặc không cấp secret live cho Preview.
+4. Trong **Domains**, thêm `www.<DOMAIN>` và apex `<DOMAIN>`, đặt apex redirect đến www. Làm theo DNS records hiện trên dashboard và chờ TLS cả hai hostname. Giữ truy cập production có kiểm soát khi duyệt catalogue, vì giao diện checkout chưa có chế độ ẩn. [Vercel domains](https://vercel.com/docs/domains/working-with-domains/add-a-domain)
+5. Trong Clerk Dashboard, chuyển đúng Production instance, xác nhận domain `clerk.<DOMAIN>` theo DNS Clerk yêu cầu và cấu hình Google OAuth của bạn. Cài webhook Clerk cho `https://api.<DOMAIN>/api/v1/webhooks/clerk` và điền signing secret production vào Render. Chỉ chia sẻ tài khoản với mobile khi mobile production trỏ đúng cùng Clerk instance. [Clerk production guide](https://clerk.com/docs/guides/development/deployment/production)
+6. Giữ workflow production tắt đến khi bạn duyệt các phần 6.4–6.5 và xác nhận đầy đủ điều kiện truy cập, thanh toán và bảo mật. Production workflow nhận `PRODUCTION_WEB_ORIGIN`, `PRODUCTION_API_ORIGIN`. Nếu dùng Automation Bypass, thêm GitHub secret `SMOKE_VERCEL_BYPASS_SECRET`. Xem các biến release còn lại trong [hướng dẫn CI](09-ci-setup.md).
+
+## 5. Chạy smoke sau khi deploy
+
+Trong PowerShell từ `website/`, thay các placeholder bên dưới bằng hostname thật.
+
+```powershell
+$env:SMOKE_WEB_ORIGIN = 'https://staging.<DOMAIN>'
+$env:SMOKE_API_ORIGIN = 'https://api-staging.<DOMAIN>'
+pnpm smoke:deploy -- --env staging
+```
+
+```powershell
+$env:SMOKE_WEB_ORIGIN = 'https://www.<DOMAIN>'
+$env:SMOKE_API_ORIGIN = 'https://api.<DOMAIN>'
+pnpm smoke:deploy -- --env production
+```
+
+Production suy ra apex bằng cách bỏ `www.`. `SMOKE_APEX_ORIGIN` là tùy chọn nếu muốn khai báo rõ, phải đúng apex đó. Kỳ vọng tất cả dòng `PASS`. Script không đăng nhập hay tạo đơn. Hai POST đều là payload rỗng, không chữ ký gửi cố định đến webhook để xác nhận API từ chối. Script kiểm catalogue phải có ít nhất một sản phẩm. Nếu root trả 401/403 từ Deployment Protection, xác nhận bypass đúng project. Nếu TLS hoặc redirect báo đỏ, quay lại mục Domains và kiểm DNS cùng đích redirect.
+
+### Mở CSP và HSTS theo từng bước
+
+Web hosted đã enforce `base-uri`, `object-src` và `frame-ancestors`. Chính sách tài nguyên đầy đủ tiếp tục ở Report-Only. Chỉ enforce toàn bộ sau khi kiểm đăng nhập Clerk, upload/hiển thị ảnh Cloudinary, Stripe hosted redirect và các nguồn tile nếu bản đồ được nối sau này. Clerk và Next cần cấu hình nonce/dynamic rendering hoặc chính sách tương thích cho script và style nội tuyến. Không thêm allowlist tile khi MapLibre chưa tích hợp. Giữ max-age HSTS ban đầu 300 giây, tăng dần sau khi xác nhận cả hostname và rollback. Không dùng preload ở mốc này. [Clerk CSP](https://clerk.com/docs/guides/secure/best-practices/csp-headers) · [Next CSP](https://nextjs.org/docs/app/guides/content-security-policy)
+
+Nguồn nhà cung cấp được đối chiếu ngày 16/11/2026. Kiểm giá và tính năng theo gói trong dashboard trước khi Apply.
+
+Hai Blueprint đã được đối chiếu bằng JSON Schema của Render. Khi bạn có CLI và workspace Render, từ gốc repo có thể chạy `render blueprints validate website/render.yaml` và `render blueprints validate website/render.production.yaml` để kiểm thêm tài nguyên cùng tên, quyền truy cập và cấu hình trong workspace. [Render Blueprint validation](https://render.com/docs/blueprint-spec#validating-blueprints)
+
+## 6. Xác nhận từng dịch vụ sau khi bạn deploy
+
+| Dịch vụ                | Nơi chạy                                                        | Bằng chứng cần có để đánh dấu đang dùng được                                                                                                    |
+| ---------------------- | --------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| Storefront Next.js     | Vercel, `www.<DOMAIN>`                                          | Trang mở qua HTTPS, apex redirect đúng và smoke web xanh                                                                                        |
+| Fastify API            | Render, `api.<DOMAIN>`                                          | Readiness 200, catalogue có dữ liệu và route private trả 401 khi chưa đăng nhập                                                                 |
+| MongoDB                | Atlas `web_prod`, được truy cập từ Render                       | Readiness 200, đọc catalogue thành công và log xác nhận index release                                                                           |
+| Clerk                  | Vercel hiện trang đăng nhập, Render kiểm Bearer và nhận webhook | Đăng nhập bằng instance production, gọi `/api/v1/me` thành công và webhook Clerk có delivery 2xx. Smoke ẩn danh chỉ xác nhận hàng rào đăng nhập |
+| Cloudinary             | Render ký upload, Cloudinary lưu ảnh, Vercel hiển thị           | Tạo sản phẩm bằng ảnh mới từ admin, thấy ảnh ở storefront và không lỗi tối ưu ảnh                                                               |
+| Stripe                 | Hosted Checkout, webhook vào Render                             | Staging có thể nghiệm thu bằng Stripe test. Production checkout vẫn bị chặn ở mốc này                                                           |
+| GitHub Actions và GHCR | GitHub, package `storefront-api`                                | CI xanh trên SHA đã duyệt, có image digest trong Summary                                                                                        |
+
+Mốc 6.3 đã qua lint, typecheck, 171 test Vitest trong 40 suite, ba test smoke bằng fixture và production build cục bộ với API tắt. Cả hai Blueprint và `vercel.json` qua JSON Schema công khai. `actionlint` qua và Ignored Build Step được thử với thay đổi docs, thay đổi web và thiếu Git history. Render CLI và smoke trên domain thật còn chờ quyền truy cập của bạn. Các mục yêu cầu thao tác cloud trong bảng cần kết quả từ URL hoặc dashboard của bạn.

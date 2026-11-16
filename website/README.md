@@ -6,6 +6,8 @@ Workspace độc lập cho customer website. Storefront có catalogue, giỏ hà
 
 Chạy container API và Mongo replica set cô lập theo [diễn tập production cục bộ](../docs/web/09-local-rehearsal.md). Làm theo [hướng dẫn GitHub Actions](../docs/web/09-ci-setup.md) để thiết lập CI, môi trường staging, rào chắn production và build filter của dịch vụ legacy. Bản hosted dùng `DEPLOY_ENV=staging` hoặc `production`; build production thử tại máy dùng `DEPLOY_ENV=local`. Workflow release production giữ tắt đến khi hoàn tất smoke và cấu hình cloud.
 
+Xem [triển khai Render, Vercel và smoke](../docs/web/09-deploy-guide.md) để biết đường dẫn Blueprint, biến dashboard, cách trỏ domain và lệnh `pnpm smoke:deploy -- --env staging|production`.
+
 ## Chạy local trong khoảng 10 phút
 
 Chuẩn bị Git, Node 26 LTS, pnpm 10.17.1 và Docker Desktop chạy Linux engine. Catalogue, health, Swagger và seed chạy với cấu hình mặc định. Các route tích hợp cần keys tương ứng trong `.env`.
