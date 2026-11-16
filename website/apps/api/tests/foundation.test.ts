@@ -141,6 +141,11 @@ describe('foundation with a real isolated Mongo replica set', () => {
     app.get('/test/failure', async () => {
       throw new Error('private-value-must-never-leak');
     });
+    app.get('/test/cookie', async (_request, reply) => {
+      return reply
+        .header('Set-Cookie', 'fixture=unexpected')
+        .send({ ok: true });
+    });
     app.get(
       '/test/serialization',
       {
@@ -184,22 +189,70 @@ describe('foundation with a real isolated Mongo replica set', () => {
     expect(unsafeId.headers['x-request-id']).toMatch(/^[a-f0-9-]{36}$/);
   });
   it('allows only configured browser origins', async () => {
+    const headers = {
+      'access-control-request-method': 'POST',
+      'access-control-request-headers':
+        'Authorization, Content-Type, Idempotency-Key, X-Request-Id',
+    };
     const allowed = await app.inject({
       method: 'OPTIONS',
-      url: '/health/live',
+      url: '/api/v1/checkout/sessions',
       headers: {
+        ...headers,
         origin: 'http://localhost:3000',
-        'access-control-request-method': 'GET',
       },
     });
     expect(allowed.headers['access-control-allow-origin']).toBe(
       'http://localhost:3000',
     );
+    expect(allowed.statusCode).toBe(204);
+    expect(allowed.headers.vary).toMatch(/\borigin\b/i);
+    expect(allowed.headers['access-control-allow-credentials']).toBeUndefined();
+    expect(String(allowed.headers['access-control-max-age'])).toBe('600');
+    expect(allowed.headers['access-control-allow-methods']).toMatch(/\bPOST\b/);
+    expect(
+      String(allowed.headers['access-control-allow-headers'])
+        .toLowerCase()
+        .split(/,\s*/),
+    ).toEqual(
+      expect.arrayContaining(
+        headers['access-control-request-headers'].toLowerCase().split(', '),
+      ),
+    );
     const denied = await app.inject({
-      url: '/health/live',
-      headers: { origin: 'https://unexpected.example' },
+      method: 'OPTIONS',
+      url: '/api/v1/checkout/sessions',
+      headers: { ...headers, origin: 'https://unexpected.example' },
     });
     expect(denied.headers['access-control-allow-origin']).toBeUndefined();
+    expect(denied.headers.vary).toMatch(/\borigin\b/i);
+    const catalogue = await app.inject({
+      url: '/api/v1/products',
+      headers: { origin: 'http://localhost:3000' },
+    });
+    expect(catalogue.headers['access-control-expose-headers']).toMatch(
+      /\bx-request-id\b/i,
+    );
+  });
+  it('keeps cookies out of responses, including route-set cookies and rejected webhooks', async () => {
+    for (const url of [
+      '/test/cookie',
+      '/health/live',
+      '/api/v1/me',
+      '/api/v1/admin/me',
+      '/missing',
+    ]) {
+      expect((await app.inject(url)).headers['set-cookie']).toBeUndefined();
+    }
+    for (const vendor of ['stripe', 'clerk']) {
+      const webhook = await app.inject({
+        method: 'POST',
+        url: '/api/v1/webhooks/' + vendor,
+        payload: {},
+      });
+      expect(webhook.headers['set-cookie']).toBeUndefined();
+      expect(webhook.headers['access-control-allow-origin']).toBeUndefined();
+    }
   });
   it('logs the route and request ID without private headers, query values or upstream details', async () => {
     const messages: string[] = [];

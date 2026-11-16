@@ -18,6 +18,7 @@
     "e2e:auth": "node scripts/pnpm.mjs --filter @storefront/web e2e auth",
     "e2e:payment": "node scripts/pnpm.mjs --filter @storefront/web e2e payment",
     "e2e:upload": "node scripts/pnpm.mjs --filter @storefront/web e2e upload",
+    "e2e:staging": "node scripts/pnpm.mjs --filter @storefront/web e2e:staging",
     "e2e:env": "node scripts/pnpm.mjs --filter @storefront/web e2e:env",
     "lighthouse": "node scripts/pnpm.mjs --filter @storefront/web e2e performance",
     "security:zap": "node scripts/pnpm.mjs --filter @storefront/web e2e zap",

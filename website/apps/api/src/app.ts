@@ -107,6 +107,8 @@ export async function buildApp(
     draining = true;
   });
   app.addHook('onSend', async (request, reply, payload) => {
+    // The API uses Bearer authentication and never sets browser cookies.
+    reply.removeHeader('set-cookie');
     // An active HTTP/1 request must not keep its socket idle after drain.
     if (draining && request.raw.httpVersionMajor === 1) {
       reply.header('connection', 'close');
@@ -123,6 +125,7 @@ export async function buildApp(
     await app.register(cors, {
       origin: env.CORS_ORIGINS,
       credentials: false,
+      maxAge: 600,
       allowedHeaders: [
         'Content-Type',
         'Authorization',

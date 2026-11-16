@@ -75,13 +75,17 @@ function fixtures({ web, api, tier, apex }, flags = {}) {
               vary: 'Origin',
               'access-control-allow-methods': 'POST',
               'access-control-allow-headers': fields,
+              'access-control-max-age': flags.badMaxAge ? '0' : '600',
               ...(init.headers.Origin === web.origin || flags.allowForeign
                 ? { 'access-control-allow-origin': init.headers.Origin }
                 : {}),
             },
           });
         if (url.pathname === '/health/ready')
-          return json({ status: 'ok' }, 200, security);
+          return json({ status: 'ok' }, 200, {
+            ...security,
+            ...(flags.apiCookie ? { 'set-cookie': 'fixture=unexpected' } : {}),
+          });
         if (url.pathname === '/api/v1/products')
           return json({ items: [{ id: 'fixture' }] }, 200, {
             'access-control-allow-origin': web.origin,
@@ -160,5 +164,16 @@ test('invalid targets and arbitrary probe flags fail before network access', () 
         SMOKE_APEX_ORIGIN: 'https://other.example.com',
       }),
     /SMOKE_APEX_ORIGIN/,
+  );
+});
+
+test('staging smoke flags API cookies and unexpected preflight cache policy', async () => {
+  const options = smokeOptions(['--env', 'staging'], env);
+  assert.deepEqual(
+    await smokeDeploy(
+      options,
+      fixtures(options, { apiCookie: true, badMaxAge: true }),
+    ),
+    ['API readiness and security headers', 'CORS preflight allowed'],
   );
 });

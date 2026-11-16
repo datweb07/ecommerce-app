@@ -135,7 +135,7 @@ export async function smokeDeploy(options, adapters = {}) {
       );
     }
   };
-  const fetchAt = (target, path, init = {}, protocol = 'https:') => {
+  const fetchAt = async (target, path, init = {}, protocol = 'https:') => {
     const url = new URL(path, target);
     url.protocol = protocol;
     const headers = {
@@ -144,12 +144,15 @@ export async function smokeDeploy(options, adapters = {}) {
         ? { 'x-vercel-protection-bypass': bypass }
         : {}),
     };
-    return request(url, {
+    const response = await request(url, {
       ...init,
       headers,
       redirect: 'manual',
       signal: AbortSignal.timeout(timeout),
     });
+    if (target === api && protocol === 'https:')
+      expect(!response.headers.has('set-cookie'), 'API returned Set-Cookie');
+    return response;
   };
   const policy = (response) => {
     expect(
@@ -273,6 +276,10 @@ export async function smokeDeploy(options, adapters = {}) {
         headers: { ...preflightHeaders, Origin: incoming },
       });
       const allowed = response.headers.get('access-control-allow-origin');
+      expect(
+        readHeaders(response.headers.get('vary')).includes('origin'),
+        'Missing Vary Origin',
+      );
       if (name === 'denied') {
         expect(allowed === null, 'Unexpected CORS allow');
         return;
@@ -282,8 +289,8 @@ export async function smokeDeploy(options, adapters = {}) {
         'Valid origin failed preflight',
       );
       expect(
-        readHeaders(response.headers.get('vary')).includes('origin'),
-        'Missing Vary Origin',
+        response.headers.get('access-control-max-age') === '600',
+        'Unexpected preflight cache age',
       );
       expect(
         response.headers.get('access-control-allow-credentials') !== 'true',

@@ -10,6 +10,7 @@
     "typecheck": "next typegen && tsc --noEmit",
     "e2e": "node e2e/run.ts",
     "e2e:env": "node e2e/env-status.ts",
+    "e2e:staging": "playwright test --config e2e/playwright-staging.config.ts",
     "smoke": "node scripts/smoke.ts",
     "smoke:catalogue": "node scripts/catalogue-smoke.ts",
     "smoke:admin": "node scripts/admin-smoke.ts",
