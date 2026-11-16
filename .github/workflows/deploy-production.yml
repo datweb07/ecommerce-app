@@ -1,0 +1,154 @@
+name: Website production release
+on:
+  workflow_dispatch:
+    inputs:
+      release:
+        description: "Full Git commit SHA or existing tag reachable from main"
+        required: true
+        type: string
+      apply_indexes_and_deploy:
+        description: "Apply indexes and deploy after reviewing a dry run for this SHA"
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+concurrency:
+  group: website-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: github.ref == 'refs/heads/main'
+    environment: production
+    runs-on: [self-hosted, linux, x64, storefront-deploy]
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      actions: read
+      packages: read
+    steps:
+      - name: Check explicit activation
+        env:
+          PRODUCTION_DEPLOY_ENABLED: ${{ vars.PRODUCTION_DEPLOY_ENABLED }}
+        run: test "$PRODUCTION_DEPLOY_ENABLED" = true
+      - uses: actions/checkout@v7
+        with:
+          ref: refs/heads/main
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Resolve release and require successful checks for that commit
+        env:
+          RELEASE: ${{ inputs.release }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          if [[ "$RELEASE" =~ ^[0-9a-f]{40}$ ]]; then
+            sha="$(git rev-parse --verify "$RELEASE^{commit}")"
+          elif [[ "$RELEASE" =~ ^[A-Za-z0-9][A-Za-z0-9._/-]{0,127}$ ]]; then
+            git check-ref-format "refs/tags/$RELEASE"
+            sha="$(git rev-parse --verify "refs/tags/$RELEASE^{commit}")"
+          else
+            echo 'Provide a full SHA or existing tag.'
+            exit 1
+          fi
+          git merge-base --is-ancestor "$sha" HEAD
+          for workflow in ci.yml docker.yml; do
+            conclusion="$(gh api "repos/$GITHUB_REPOSITORY/actions/workflows/$workflow/runs?head_sha=$sha&branch=main&per_page=30" \
+              --jq '[.workflow_runs[] | select(.event=="push" or .event=="workflow_dispatch")][0].conclusion // empty')"
+            test "$conclusion" = success || { echo "$workflow has no green run for the selected SHA."; exit 1; }
+          done
+          git checkout --detach "$sha"
+          test -f website/scripts/smoke-deploy.mjs || { echo 'Production smoke script is required before activation.'; exit 1; }
+          echo "RELEASE_SHA=$sha" >> "$GITHUB_ENV"
+      - uses: pnpm/action-setup@v6
+        with:
+          package_json_file: website/package.json
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: website/.nvmrc
+          package-manager-cache: false
+      - name: Verify production targets before mutation
+        if: inputs.apply_indexes_and_deploy
+        env:
+          API_ORIGIN: ${{ vars.PRODUCTION_API_ORIGIN }}
+          WEB_ORIGIN: ${{ vars.PRODUCTION_WEB_ORIGIN }}
+          VERCEL_CLI_VERSION: ${{ vars.VERCEL_CLI_VERSION }}
+          RENDER_SERVICE_ID: ${{ vars.RENDER_SERVICE_ID }}
+          VERCEL_ORG_ID: ${{ vars.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ vars.VERCEL_PROJECT_ID }}
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+          MONGODB_URI: ${{ secrets.MONGODB_INDEX_URI }}
+        run: |
+          set -euo pipefail
+          [[ "$VERCEL_CLI_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]
+          [[ "$RENDER_SERVICE_ID" =~ ^srv-[a-z0-9]+$ ]]
+          for name in VERCEL_ORG_ID VERCEL_PROJECT_ID VERCEL_TOKEN RENDER_API_KEY MONGODB_URI; do
+            test -n "${!name}" || { echo "Missing $name"; exit 1; }
+          done
+          for origin in "$WEB_ORIGIN" "$API_ORIGIN"; do
+            [[ "$origin" =~ ^https://[a-z0-9.-]+\.[a-z]{2,}$ ]]
+          done
+      - name: Print the additive index plan
+        working-directory: website
+        env:
+          DEPLOY_ENV: production
+          MONGODB_URI: ${{ secrets.MONGODB_INDEX_URI }}
+        run: |
+          set -euo pipefail
+          pnpm install --frozen-lockfile
+          pnpm --filter @storefront/shared build
+          pnpm --filter @storefront/api build
+          pnpm db:indexes --dry-run
+      - name: Apply the reviewed index plan
+        if: inputs.apply_indexes_and_deploy
+        working-directory: website
+        env:
+          DEPLOY_ENV: production
+          MONGODB_URI: ${{ secrets.MONGODB_INDEX_URI }}
+        run: pnpm db:indexes --apply
+      - name: Deploy exact API digest and wait for Render
+        if: inputs.apply_indexes_and_deploy
+        env:
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RENDER_SERVICE_ID: ${{ vars.RENDER_SERVICE_ID }}
+          RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+        run: |
+          set -euo pipefail
+          DOCKER_CONFIG="$(mktemp -d)"
+          export DOCKER_CONFIG
+          trap 'docker logout ghcr.io >/dev/null 2>&1 || true; rm -f -- "$DOCKER_CONFIG/config.json"; rmdir "$DOCKER_CONFIG" 2>/dev/null || true' EXIT
+          printf '%s' "$GHCR_TOKEN" | docker login ghcr.io --username "$GITHUB_ACTOR" --password-stdin
+          image="ghcr.io/${GITHUB_REPOSITORY,,}/storefront-api"
+          digest="$(docker buildx imagetools inspect "$image:sha-$RELEASE_SHA" --format '{{.Manifest.Digest}}')"
+          [[ "$digest" =~ ^sha256:[0-9a-f]{64}$ ]]
+          url="https://api.render.com/v1/services/$RENDER_SERVICE_ID/deploys"
+          payload="$(jq -cn --arg imageUrl "$image@$digest" '{imageUrl:$imageUrl}')"
+          deploy_id="$(curl --fail-with-body -sS --max-time 30 -H "Authorization: Bearer $RENDER_API_KEY" \
+            -H 'Content-Type: application/json' --data "$payload" "$url" | jq -er '.id')"
+          printf 'API release: %s@%s\n' "$image" "$digest" >> "$GITHUB_STEP_SUMMARY"
+          for ((attempt=0; attempt<60; attempt++)); do
+            status="$(curl --fail -sS --max-time 15 -H "Authorization: Bearer $RENDER_API_KEY" "$url/$deploy_id" | jq -er '.status')"
+            case "$status" in
+              live) exit 0 ;;
+              canceled|deactivated|build_failed|update_failed|pre_deploy_failed) exit 1 ;;
+            esac
+            sleep 10
+          done
+          exit 1
+      - name: Deploy the selected Git tree to Vercel
+        if: inputs.apply_indexes_and_deploy
+        env:
+          VERCEL_CLI_VERSION: ${{ vars.VERCEL_CLI_VERSION }}
+          VERCEL_ORG_ID: ${{ vars.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ vars.VERCEL_PROJECT_ID }}
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: pnpm dlx "vercel@$VERCEL_CLI_VERSION" deploy --prod --yes --token "$VERCEL_TOKEN"
+      - name: Read-only smoke test
+        if: inputs.apply_indexes_and_deploy
+        working-directory: website
+        env:
+          SMOKE_WEB_ORIGIN: ${{ vars.PRODUCTION_WEB_ORIGIN }}
+          SMOKE_API_ORIGIN: ${{ vars.PRODUCTION_API_ORIGIN }}
+        run: pnpm smoke:deploy -- --env production

@@ -35,6 +35,10 @@ for (const colorScheme of ['light', 'dark'] as const) {
       async ({ page, isMobile }) => {
         const errors: string[] = [];
         page.on('pageerror', (error) => errors.push(error.message));
+        // Exercise the interactive path even on CI runners with two virtual CPUs.
+        await page.addInitScript(() => {
+          Object.defineProperty(navigator, 'hardwareConcurrency', { value: 8 });
+        });
         await page.goto('/');
         await expect(page.locator('html')).toHaveClass(new RegExp(colorScheme));
         const wrapper = globe(page);
@@ -65,7 +69,7 @@ for (const colorScheme of ['light', 'dark'] as const) {
           });
           await cdp.send('Input.dispatchTouchEvent', {
             type: 'touchMove',
-            touchPoints: [{ x: x + 45, y }],
+            touchPoints: [{ x: x + 20, y }],
           });
           await capture(page, prefix + '-02-drag');
           await cdp.send('Input.dispatchTouchEvent', {
@@ -76,7 +80,7 @@ for (const colorScheme of ['light', 'dark'] as const) {
         } else {
           await page.mouse.move(x, y);
           await page.mouse.down();
-          await page.mouse.move(x + 70, y, { steps: 6 });
+          await page.mouse.move(x + 30, y, { steps: 6 });
           await capture(page, prefix + '-02-drag');
           await page.mouse.up();
         }
@@ -85,7 +89,12 @@ for (const colorScheme of ['light', 'dark'] as const) {
           .not.toBe(before);
 
         if (!isMobile) {
-          await marker.hover();
+          const markerBounds = await marker.boundingBox();
+          if (!markerBounds) throw new Error('Missing visible marker bounds');
+          await page.mouse.move(
+            markerBounds.x + markerBounds.width / 2,
+            markerBounds.y + markerBounds.height / 2,
+          );
           await expect(marker).toHaveCSS('cursor', 'pointer');
           await capture(page, prefix + '-03-marker');
           await marker.click();

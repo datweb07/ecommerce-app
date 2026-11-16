@@ -21,4 +21,4 @@ Production Next trả CSP Report-Only. Browser test chỉ ghi tên directive, kh
 
 Giai đoạn triển khai cần theo dõi spike 401/403/429, lỗi chữ ký và webhook retry, checkout cần đối soát, MongoDB readiness và lỗi Cloudinary. `/docs` và `/openapi.json` giữ tắt trong API production.
 
-Mẫu cấu hình Dependabot ở `dependabot.phase6.yml`. Đặt mẫu vào `.github/dependabot.yml` khi bật ở Giai đoạn 6.
+Giai đoạn 6.2 đã đặt cấu hình Dependabot vào `.github/dependabot.yml`. Lịch và cách kiểm tra lần chạy đầu nằm trong [hướng dẫn CI](09-ci-setup.md).

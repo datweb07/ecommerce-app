@@ -1,0 +1,95 @@
+name: Website API image
+on:
+  push:
+    branches: [main]
+    paths: ["website/**", "docs/web/**", ".github/workflows/**"]
+  pull_request:
+    paths: ["website/**", "docs/web/**", ".github/workflows/**"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+concurrency:
+  group: website-docker-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  image:
+    name: Website image scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - run: docker build --pull --file website/apps/api/Dockerfile --tag storefront-api:checked website
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: website/.nvmrc
+          package-manager-cache: false
+      - name: Rehearse two containers, additive indexes and SIGTERM
+        working-directory: website
+        run: |
+          set -euo pipefail
+          docker image inspect storefront-api:checked --format 'Image: {{.Size}} bytes (user {{.Config.User}})' >> "$GITHUB_STEP_SUMMARY"
+          docker run --rm storefront-api:checked sh -c 'find /app -name ".env*" -print -quit | grep -q . && exit 1; exit 0'
+          docker tag storefront-api:checked shopease-api:rehearsal
+          docker compose -f docker-compose.prod.yml --profile multi up --no-build -d --wait
+          node scripts/rehearse-api.mjs
+      - name: Tear down local rehearsal containers
+        if: always()
+        working-directory: website
+        run: docker compose -f docker-compose.prod.yml --profile multi down -v
+      - name: Scan local image with Trivy
+        run: |
+          docker run --rm -v /var/run/docker.sock:/var/run/docker.sock \
+            aquasec/trivy:0.76.0 image --scanners vuln --severity HIGH,CRITICAL --exit-code 1 storefront-api:checked
+      - name: Stage scanned image for main
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+        run: docker save storefront-api:checked --output storefront-api.tar
+      - uses: actions/upload-artifact@v7
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+        with:
+          name: scanned-storefront-api
+          path: storefront-api.tar
+          retention-days: 1
+
+  publish:
+    needs: image
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: scanned-storefront-api
+      - name: Publish the scanned image and record its digest
+        env:
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          image="ghcr.io/${GITHUB_REPOSITORY,,}/storefront-api"
+          docker load --input storefront-api.tar
+          printf '%s' "$GHCR_TOKEN" | docker login ghcr.io --username "$GITHUB_ACTOR" --password-stdin
+          ref="$image:sha-$GITHUB_SHA"
+          if existing="$(docker buildx imagetools inspect "$ref" --format '{{.Manifest.Digest}}' 2>&1)"; then
+            [[ "$existing" =~ ^sha256:[0-9a-f]{64}$ ]]
+            docker pull "$image@$existing"
+            docker tag "$image@$existing" storefront-api:checked
+          elif grep -Eiq '(manifest unknown|not found)' <<< "$existing"; then
+            docker tag storefront-api:checked "$ref"
+            docker push "$ref"
+          else
+            echo 'Unable to determine whether the immutable tag already exists.'
+            exit 1
+          fi
+          digest="$(docker buildx imagetools inspect "$image:sha-$GITHUB_SHA" --format '{{.Manifest.Digest}}')"
+          [[ "$digest" =~ ^sha256:[0-9a-f]{64}$ ]]
+          printf 'API image: %s@%s\n' "$image" "$digest" >> "$GITHUB_STEP_SUMMARY"
+          docker tag storefront-api:checked "$image:latest"
+          docker push "$image:latest"

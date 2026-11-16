@@ -1,0 +1,67 @@
+name: Website CI
+on:
+  push:
+    branches: [main]
+    paths: ["website/**", "docs/web/**", ".github/workflows/**"]
+  pull_request:
+    paths: ["website/**", "docs/web/**", ".github/workflows/**"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+concurrency:
+  group: website-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  checks:
+    name: Website checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    permissions:
+      contents: read
+    defaults:
+      run:
+        working-directory: website
+    env:
+      DEPLOY_ENV: local
+      API_INTERNAL_URL: http://127.0.0.1:1
+      NEXT_TELEMETRY_DISABLED: "1"
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@v6
+        with:
+          package_json_file: website/package.json
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: website/.nvmrc
+          cache: pnpm
+          cache-dependency-path: website/pnpm-lock.yaml
+      - uses: actions/cache@v5
+        with:
+          path: |
+            website/.cache/playwright
+            website/.cache/mongodb
+            website/apps/web/.next/cache
+            ~/.cache/mongodb-binaries
+          key: website-tools-${{ runner.os }}-${{ hashFiles('website/pnpm-lock.yaml') }}
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint
+      - run: pnpm typecheck
+      - run: pnpm test --maxWorkers=2
+      - run: pnpm build
+      - run: pnpm --filter @storefront/web exec playwright install --with-deps chromium firefox webkit
+        env:
+          PLAYWRIGHT_BROWSERS_PATH: ${{ github.workspace }}/website/.cache/playwright
+      - run: pnpm e2e:public
+      - uses: actions/upload-artifact@v7
+        if: failure()
+        with:
+          name: website-public-e2e
+          path: |
+            website/.cache/e2e/*/report
+            website/.cache/e2e/*/results
+          retention-days: 5
+          include-hidden-files: true

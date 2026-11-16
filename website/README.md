@@ -2,9 +2,13 @@
 
 Workspace độc lập cho customer website. Storefront có catalogue, giỏ hàng, wishlist, tài khoản, địa chỉ, Stripe Checkout, đơn hàng, đánh giá sao và inbox. Xem [kiến trúc frontend và danh sách route](../docs/web/03-frontend-foundation.md).
 
+## Triển khai
+
+Chạy container API và Mongo replica set cô lập theo [diễn tập production cục bộ](../docs/web/09-local-rehearsal.md). Làm theo [hướng dẫn GitHub Actions](../docs/web/09-ci-setup.md) để thiết lập CI, môi trường staging, rào chắn production và build filter của dịch vụ legacy. Bản hosted dùng `DEPLOY_ENV=staging` hoặc `production`; build production thử tại máy dùng `DEPLOY_ENV=local`. Workflow release production giữ tắt đến khi hoàn tất smoke và cấu hình cloud.
+
 ## Chạy local trong khoảng 10 phút
 
-Chuẩn bị Git, Node >=20.19, pnpm 10.17.1 và Docker Desktop chạy Linux engine. Workspace dùng Node 26.12.1. Catalogue, health, Swagger và seed chạy với cấu hình mặc định. Các route tích hợp cần keys tương ứng trong `.env`.
+Chuẩn bị Git, Node 26 LTS, pnpm 10.17.1 và Docker Desktop chạy Linux engine. Catalogue, health, Swagger và seed chạy với cấu hình mặc định. Các route tích hợp cần keys tương ứng trong `.env`.
 
 Tất cả lệnh dưới đây chạy trong `website/`, không chạy script ở root repo:
 
