@@ -4,9 +4,9 @@ import dynamic from 'next/dynamic';
 import {
   useCallback,
   useEffect,
+  useLayoutEffect,
   useRef,
   useState,
-  type MouseEvent as ReactMouseEvent,
   type PointerEvent as ReactPointerEvent,
 } from 'react';
 import type { GlobeConfig, GlobeMarker } from '../../config/globe';
@@ -54,7 +54,8 @@ export function Globe({
   const hotspot = useRef<HTMLButtonElement>(null);
   const openButton = useRef<HTMLButtonElement>(null);
   const closeButton = useRef<HTMLButtonElement>(null);
-  const trigger = useRef<HTMLButtonElement>(null);
+  const restoreOpenFocus = useRef(false);
+  const touchFocus = useRef(false);
   const renderer = useRef(false);
   const [mode, setMode] = useState<Mode>('globe');
   const motion = useRef<GlobeMotion>({
@@ -76,11 +77,7 @@ export function Globe({
     if (stage.current) stage.current.dataset.globeMode = next;
     setMode(next);
     if (next === 'globe') {
-      const previous = trigger.current;
-      requestAnimationFrame(() => {
-        const target = previous?.hidden ? openButton.current : previous;
-        target?.focus({ preventScroll: true });
-      });
+      restoreOpenFocus.current = true;
     } else if (next === 'opening' || next === 'map') {
       requestAnimationFrame(() => {
         if (
@@ -92,6 +89,12 @@ export function Globe({
       });
     }
   }, []);
+
+  useLayoutEffect(() => {
+    if (mode !== 'globe' || !restoreOpenFocus.current) return;
+    restoreOpenFocus.current = false;
+    openButton.current?.focus({ preventScroll: true });
+  }, [mode]);
 
   const setMapOpacity = useCallback((opacity: number) => {
     stage.current?.style.setProperty('--globe-map-opacity', String(opacity));
@@ -119,9 +122,8 @@ export function Globe({
     [changeMode, setMapOpacity],
   );
 
-  const begin = (event: ReactMouseEvent<HTMLButtonElement>) => {
+  const begin = () => {
     if (motion.current.mode !== 'globe') return;
-    trigger.current = event.currentTarget;
     motion.current.drag = null;
     motion.current.velocity = 0;
     motion.current.markerHover = false;
@@ -230,6 +232,12 @@ export function Globe({
       data-mascot-avoid
       className="mx-auto w-full max-w-[22.5rem] min-w-0 lg:max-w-[35rem]"
       data-hero-globe
+      onPointerDownCapture={(event) => {
+        touchFocus.current = event.pointerType === 'touch';
+      }}
+      onTouchStartCapture={() => {
+        touchFocus.current = true;
+      }}
     >
       <div className={styles.stage} ref={stage} data-globe-mode="globe">
         <div
@@ -315,6 +323,14 @@ export function Globe({
           ref={openButton}
           type="button"
           onClick={begin}
+          onTouchStart={begin}
+          onTouchEnd={begin}
+          onPointerUp={begin}
+          onFocus={() => {
+            if (!touchFocus.current) return;
+            touchFocus.current = false;
+            begin();
+          }}
           hidden={mode !== 'globe'}
         >
           {t('globe', 'open')}

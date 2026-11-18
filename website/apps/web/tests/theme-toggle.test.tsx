@@ -46,9 +46,11 @@ it('reflects dark mode and toggles with Space and Enter without View Transitions
   toggle.focus();
   await userEvent.keyboard(' ');
   expect(document.documentElement.classList.contains('light')).toBe(true);
+  expect(localStorage.getItem('theme')).toBe('light');
   expect(toggle.getAttribute('aria-checked')).toBe('false');
   await userEvent.keyboard('{Enter}');
   expect(toggle.getAttribute('aria-checked')).toBe('true');
+  expect(localStorage.getItem('theme')).toBe('dark');
 });
 it('uses one View Transition and clears its temporary styles', async () => {
   mockMotion();

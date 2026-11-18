@@ -24,6 +24,11 @@ export function ThemeToggle() {
     const next = dark ? 'light' : 'dark';
     const apply = () => {
       button.dataset.themeUsed = '';
+      try {
+        window.localStorage.setItem('theme', next);
+      } catch {
+        // The theme still changes for this session when storage is unavailable.
+      }
       setTheme(next);
     };
     if (

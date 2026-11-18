@@ -11,7 +11,7 @@ export function ScrollToTop() {
   const [shown, setShown] = useState(false);
   const [returning, setReturning] = useState(false);
   const sentinel = useRef<HTMLSpanElement>(null);
-  const finishScroll = useRef<() => void>(null);
+  const finishScroll = useRef<(() => void) | null>(null);
 
   useEffect(() => {
     if (sentinel.current && typeof IntersectionObserver !== 'undefined') {
@@ -54,19 +54,29 @@ export function ScrollToTop() {
     }
 
     setReturning(true);
-    const settle = () => {
+    const deadline = performance.now() + 8000;
+    let frame: number | null = null;
+    const settleWhenReady = () => {
+      if (window.scrollY > 1 && performance.now() < deadline) {
+        frame ??= requestAnimationFrame(() => {
+          frame = null;
+          settleWhenReady();
+        });
+        return;
+      }
       finishScroll.current?.();
       setReturning(false);
       if (window.scrollY <= 1) focusMain();
     };
-    const timer = window.setTimeout(settle, 1000);
-    window.addEventListener('scrollend', settle, { once: true });
     finishScroll.current = () => {
-      window.clearTimeout(timer);
-      window.removeEventListener('scrollend', settle);
+      if (frame !== null) cancelAnimationFrame(frame);
+      frame = null;
+      window.removeEventListener('scrollend', settleWhenReady);
       finishScroll.current = null;
     };
+    window.addEventListener('scrollend', settleWhenReady);
     window.scrollTo({ top: 0, behavior: 'smooth' });
+    frame = requestAnimationFrame(settleWhenReady);
   }
 
   return (
