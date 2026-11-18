@@ -38,6 +38,12 @@ jobs:
           docker tag storefront-api:checked shopease-api:rehearsal
           docker compose -f docker-compose.prod.yml --profile multi up --no-build -d --wait
           node scripts/rehearse-api.mjs
+      - name: Diagnose failed rehearsal containers
+        if: failure()
+        working-directory: website
+        run: |
+          docker compose -f docker-compose.prod.yml --profile multi ps --all
+          docker compose -f docker-compose.prod.yml --profile multi logs --no-color --timestamps mongo api api2
       - name: Tear down local rehearsal containers
         if: always()
         working-directory: website

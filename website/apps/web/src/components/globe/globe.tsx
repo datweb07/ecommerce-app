@@ -55,7 +55,6 @@ export function Globe({
   const openButton = useRef<HTMLButtonElement>(null);
   const closeButton = useRef<HTMLButtonElement>(null);
   const restoreOpenFocus = useRef(false);
-  const touchFocus = useRef(false);
   const renderer = useRef(false);
   const [mode, setMode] = useState<Mode>('globe');
   const motion = useRef<GlobeMotion>({
@@ -81,6 +80,7 @@ export function Globe({
     } else if (next === 'opening' || next === 'map') {
       requestAnimationFrame(() => {
         if (
+          motion.current.mode === next &&
           !closeButton.current?.contains(document.activeElement) &&
           next === 'opening'
         ) {
@@ -232,12 +232,6 @@ export function Globe({
       data-mascot-avoid
       className="mx-auto w-full max-w-[22.5rem] min-w-0 lg:max-w-[35rem]"
       data-hero-globe
-      onPointerDownCapture={(event) => {
-        touchFocus.current = event.pointerType === 'touch';
-      }}
-      onTouchStartCapture={() => {
-        touchFocus.current = true;
-      }}
     >
       <div className={styles.stage} ref={stage} data-globe-mode="globe">
         <div
@@ -323,14 +317,6 @@ export function Globe({
           ref={openButton}
           type="button"
           onClick={begin}
-          onTouchStart={begin}
-          onTouchEnd={begin}
-          onPointerUp={begin}
-          onFocus={() => {
-            if (!touchFocus.current) return;
-            touchFocus.current = false;
-            begin();
-          }}
           hidden={mode !== 'globe'}
         >
           {t('globe', 'open')}
