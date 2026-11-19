@@ -55,6 +55,7 @@ export function Globe({
   const openButton = useRef<HTMLButtonElement>(null);
   const closeButton = useRef<HTMLButtonElement>(null);
   const restoreOpenFocus = useRef(false);
+  const openingBlocked = useRef(false);
   const renderer = useRef(false);
   const [mode, setMode] = useState<Mode>('globe');
   const motion = useRef<GlobeMotion>({
@@ -123,7 +124,7 @@ export function Globe({
   );
 
   const begin = () => {
-    if (motion.current.mode !== 'globe') return;
+    if (openingBlocked.current || motion.current.mode !== 'globe') return;
     motion.current.drag = null;
     motion.current.velocity = 0;
     motion.current.markerHover = false;
@@ -143,6 +144,9 @@ export function Globe({
   const close = useCallback(() => {
     const animation = motion.current;
     if (animation.mode === 'globe' || animation.mode === 'closing') return;
+    // Ignore a delayed synthetic click from the touch that opened the preview.
+    // A new pointer or keyboard intent explicitly rearms opening.
+    openingBlocked.current = true;
     if (!renderer.current || animation.elapsed === 0) {
       setMapOpacity(0);
       changeMode('globe');
@@ -269,6 +273,9 @@ export function Globe({
             data-globe-marker
             className={styles.marker}
             aria-label={t('globe', 'open')}
+            onPointerDown={() => {
+              openingBlocked.current = false;
+            }}
             onPointerEnter={() => {
               motion.current.markerHover = true;
               motion.current.velocity = 0;
@@ -317,6 +324,14 @@ export function Globe({
           ref={openButton}
           type="button"
           onClick={begin}
+          onPointerDown={() => {
+            openingBlocked.current = false;
+          }}
+          onKeyDown={(event) => {
+            if (event.key === 'Enter' || event.key === ' ') {
+              openingBlocked.current = false;
+            }
+          }}
           hidden={mode !== 'globe'}
         >
           {t('globe', 'open')}
