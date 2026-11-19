@@ -333,6 +333,22 @@ export function Globe({
           onClick={() => {
             begin(true);
           }}
+          onPointerDown={(event) => {
+            if (event.pointerType !== 'touch') return;
+            openingBlocked.current = false;
+          }}
+          onPointerUp={(event) => {
+            if (event.pointerType !== 'touch') return;
+            openingBlocked.current = false;
+            begin(true);
+          }}
+          onTouchStart={() => {
+            openingBlocked.current = false;
+          }}
+          onTouchEnd={() => {
+            openingBlocked.current = false;
+            begin(true);
+          }}
           onKeyDown={(event) => {
             if (event.key === 'Enter' || event.key === ' ') {
               openingBlocked.current = false;
