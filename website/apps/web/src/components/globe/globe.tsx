@@ -123,8 +123,12 @@ export function Globe({
     [changeMode, setMapOpacity],
   );
 
-  const begin = () => {
-    if (openingBlocked.current || motion.current.mode !== 'globe') return;
+  const begin = (fromControl = false) => {
+    if (
+      (fromControl ? mode !== 'globe' : openingBlocked.current) ||
+      (!fromControl && motion.current.mode !== 'globe')
+    )
+      return;
     motion.current.drag = null;
     motion.current.velocity = 0;
     motion.current.markerHover = false;
@@ -276,6 +280,9 @@ export function Globe({
             onPointerDown={() => {
               openingBlocked.current = false;
             }}
+            onTouchStart={() => {
+              openingBlocked.current = false;
+            }}
             onPointerEnter={() => {
               motion.current.markerHover = true;
               motion.current.velocity = 0;
@@ -284,7 +291,7 @@ export function Globe({
               motion.current.markerHover = false;
               motion.current.resumeAt = performance.now() + 2000;
             }}
-            onClick={begin}
+            onClick={() => begin()}
           >
             <span className={styles.dot} aria-hidden="true" />
             <span className={styles.label} aria-hidden="true">
@@ -323,9 +330,8 @@ export function Globe({
           variant="outline"
           ref={openButton}
           type="button"
-          onClick={begin}
-          onPointerDown={() => {
-            openingBlocked.current = false;
+          onClick={() => {
+            begin(true);
           }}
           onKeyDown={(event) => {
             if (event.key === 'Enter' || event.key === ' ') {
