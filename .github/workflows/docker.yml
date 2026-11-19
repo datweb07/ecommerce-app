@@ -16,8 +16,8 @@ concurrency:
 jobs:
   image:
     name: Website image scan
-    # MongoDB 8.0 stops on host kernels 6.19 through 7.0.13; Ubuntu 24.04 currently uses 6.17.
-    runs-on: ubuntu-24.04
+    # MongoDB 8.0 is incompatible with kernels 6.19 through 7.0.13; Ubuntu 22.04 currently uses 6.8.
+    runs-on: ubuntu-22.04
     timeout-minutes: 25
     permissions:
       contents: read
