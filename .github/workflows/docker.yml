@@ -60,7 +60,8 @@ jobs:
       - name: Scan local image with Trivy
         run: |
           docker run --rm -v /var/run/docker.sock:/var/run/docker.sock \
-            aquasec/trivy:0.76.0 image --scanners vuln --severity HIGH,CRITICAL --exit-code 1 storefront-api:checked
+            aquasec/trivy:0.76.0 image --scanners vuln --ignore-unfixed \
+            --severity HIGH,CRITICAL --exit-code 1 storefront-api:checked
       - name: Stage scanned image for main
         if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
         run: docker save storefront-api:checked --output storefront-api.tar

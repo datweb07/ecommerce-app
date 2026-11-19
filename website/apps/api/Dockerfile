@@ -21,6 +21,9 @@ RUN --mount=type=cache,id=storefront-pnpm,target=/opt/pnpm/store \
 FROM node:26-bookworm-slim AS runtime
 ENV NODE_ENV=production HOST=0.0.0.0 PORT=4000
 WORKDIR /app
+# The runtime only executes Node directly; remove the unused bundled package managers.
+RUN rm -rf /usr/local/lib/node_modules/npm /usr/local/lib/node_modules/corepack \
+    /usr/local/bin/npm /usr/local/bin/npx /usr/local/bin/corepack
 COPY --from=build --chown=node:node /runtime/ ./
 USER node
 EXPOSE 4000
